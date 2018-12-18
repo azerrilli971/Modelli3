@@ -66,7 +66,6 @@ public class BundleValidator {
         for (TransactionViewModel transactionViewModel : bundleTransactions.values()) {
 
             if (transactionViewModel.getCurrentIndex() == 0 && transactionViewModel.getValidity() >= 0) {
-
                 final List<TransactionViewModel> instanceTransactionViewModels = new LinkedList<>();
 
                 final long lastIndex = transactionViewModel.lastIndex();
@@ -83,7 +82,6 @@ public class BundleValidator {
                 //here we iterate over the txs by checking the trunk of the current transaction
                 MAIN_LOOP:
                 while (true) {
-
                     instanceTransactionViewModels.add(transactionViewModel);
 
                     //semantic checks
