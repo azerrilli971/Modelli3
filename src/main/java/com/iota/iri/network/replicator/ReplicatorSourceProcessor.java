@@ -76,7 +76,7 @@ class ReplicatorSourceProcessor implements Runnable {
                 int maxPeersAllowed = maxPeers;
                 if (!testnet || Neighbor.getNumPeers() >= maxPeersAllowed) {
                     String hostAndPort = inetSocketAddress.getHostName() + ":" + String.valueOf(inetSocketAddress.getPort());
-                    if (Node.rejectedAddresses.add(inetSocketAddress.getHostName())) {
+                    if (Node.getRejectedAddresses().add(inetSocketAddress.getHostName())) {
                         String sb = "***** NETWORK ALERT ***** Got connected from unknown neighbor tcp://"
                             + hostAndPort
                             + " (" + inetSocketAddress.getAddress().getHostAddress() + ") - closing connection";
