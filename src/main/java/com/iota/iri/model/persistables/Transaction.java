@@ -54,8 +54,12 @@ public class Transaction implements Persistable {
 
 
 
-    public boolean solid = false;
+   private boolean solid = false;
 
+    public void setSolid(boolean solid) {
+        this.solid = solid;
+    }
+    public boolean getSolid(){return solid;}
     /**
      * This flag indicates if the transaction is a coordinator issued milestone.
      */
