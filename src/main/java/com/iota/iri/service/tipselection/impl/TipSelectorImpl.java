@@ -85,7 +85,7 @@ public class TipSelectorImpl implements TipSelector {
     @Override
     public List<Hash> getTransactionsToApprove(int depth, Optional<Hash> reference) throws Exception {
         try {
-            milestoneTracker.latestSnapshot.rwlock.readLock().lock();
+            milestoneTracker.getLatestSnapshot().rwlock.readLock().lock();
 
             //preparation
             Hash entryPoint = entryPointSelector.getEntryPoint(depth);
@@ -113,7 +113,7 @@ public class TipSelectorImpl implements TipSelector {
 
             return tips;
         } finally {
-            milestoneTracker.latestSnapshot.rwlock.readLock().unlock();
+            milestoneTracker.getLatestSnapshot().rwlock.readLock().unlock();
         }
     }
 

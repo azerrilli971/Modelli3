@@ -57,7 +57,15 @@ public class MilestoneTracker {
     private final MessageQ messageQ;
     private final int numOfKeysInMilestone;
     private final boolean acceptAnyTestnetCoo;
-    public Snapshot latestSnapshot;
+    private Snapshot latestSnapshot;
+
+    public Snapshot getLatestSnapshot() {
+        return latestSnapshot;
+    }
+
+    public void setLatestSnapshot(Snapshot latestSnapshot) {
+        this.latestSnapshot = latestSnapshot;
+    }
 
     private LedgerValidator ledgerValidator;
     public Hash latestMilestone = Hash.NULL_HASH;
