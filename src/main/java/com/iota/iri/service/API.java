@@ -1325,7 +1325,7 @@ public class API {
         }
         for (final TransactionViewModel transactionViewModel : elements) {
             //push first in line to broadcast
-            transactionViewModel.weightMagnitude = Curl.HASH_LENGTH;
+            transactionViewModel.setWeightMagnitude(Curl.HASH_LENGTH);
             instance.node.broadcast(transactionViewModel);
         }
     }

@@ -65,9 +65,15 @@ public class TransactionViewModel {
     public final static int FILLED_SLOT = -1; //  knows the hash only coz another tx references that hash
 
     private byte[] trits;
-    public int weightMagnitude;
+    private int weightMagnitude;
 
+    public void setWeightMagnitude(int weightMagnitude) {
+        this.weightMagnitude = weightMagnitude;
+    }
 
+    public int getWeightMagnitude() {
+        return weightMagnitude;
+    }
 
     /**
      * Constructor for a {@link Transaction} set controller interface. This controller is used to interact with and
@@ -751,8 +757,8 @@ public class TransactionViewModel {
      * @throws Exception Thrown if there is an error while saving the changes to the database
      */
     public void isMilestone(Tangle tangle, final boolean isMilestone) throws Exception {
-        if (isMilestone != transaction.milestone) {
-            transaction.milestone = isMilestone;
+        if (isMilestone != transaction.getMilestone()) {
+            transaction.setMilestone(isMilestone);
             update(tangle, "milestone");
         }
     }
@@ -769,12 +775,12 @@ public class TransactionViewModel {
      * @return true if the {@link Transaction} is a milestone and false otherwise
      */
     public boolean isMilestone() {
-        return transaction.milestone;
+        return transaction.getMilestone();
     }
 
     /**@return The current {@link Transaction#height}*/
     public long getHeight() {
-        return transaction.height;
+        return transaction.getHeight();
     }
 
     /**
@@ -782,7 +788,7 @@ public class TransactionViewModel {
      * @param height The new height of the {@link Transaction}
      */
     private void updateHeight(long height) throws Exception {
-        transaction.height = height;
+        transaction.setHeight(height);
     }
 
     /**
