@@ -253,7 +253,7 @@ public class TransactionViewModel {
         if (Hash.NULL_HASH.equals(transactionViewModel.getHash())) {
             return;
         }
-        if(transactionViewModel.getType() == FILLED_SLOT && !transactionViewModel.transaction.parsed) {
+        if(transactionViewModel.getType() == FILLED_SLOT && !transactionViewModel.transaction.getParsed()) {
             tangle.saveBatch(transactionViewModel.getMetadataSaveBatch());
         }
     }

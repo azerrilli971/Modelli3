@@ -43,7 +43,17 @@ public class Transaction implements Persistable {
     public long arrivalTime = 0;
 
     //public boolean confirmed = false;
-    public boolean parsed = false;
+    private boolean parsed = false;
+
+    public void setParsed(boolean parsed) {
+        this.parsed = parsed;
+    }
+    public boolean getParsed(){
+        return parsed;
+    }
+
+
+
     public boolean solid = false;
 
     /**
