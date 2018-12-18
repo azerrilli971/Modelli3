@@ -65,9 +65,15 @@ public class TransactionViewModel {
     public final static int FILLED_SLOT = -1; //  knows the hash only coz another tx references that hash
 
     private byte[] trits;
-    public int weightMagnitude;
+    private int weightMagnitude;
 
+    public void setWeightMagnitude(int weightMagnitude) {
+        this.weightMagnitude = weightMagnitude;
+    }
 
+    public int getWeightMagnitude() {
+        return weightMagnitude;
+    }
 
     /**
      * Constructor for a {@link Transaction} set controller interface. This controller is used to interact with and

@@ -697,7 +697,7 @@ public class Node {
 
     private static ConcurrentSkipListSet<TransactionViewModel> weightQueue() {
         return new ConcurrentSkipListSet<>((transaction1, transaction2) -> {
-            if (transaction1.weightMagnitude == transaction2.weightMagnitude) {
+            if (transaction1.getWeightMagnitude() == transaction2.getWeightMagnitude()) {
                 for (int i = Hash.SIZE_IN_BYTES; i-- > 0; ) {
                     if (transaction1.getHash().bytes()[i] != transaction2.getHash().bytes()[i]) {
                         return transaction2.getHash().bytes()[i] - transaction1.getHash().bytes()[i];
@@ -705,7 +705,7 @@ public class Node {
                 }
                 return 0;
             }
-            return transaction2.weightMagnitude - transaction1.weightMagnitude;
+            return transaction2.getWeightMagnitude() - transaction1.getWeightMagnitude();
         });
     }
 
@@ -730,7 +730,7 @@ public class Node {
             TransactionViewModel tx1 = transaction1.getLeft();
             TransactionViewModel tx2 = transaction2.getLeft();
 
-            if (tx1.weightMagnitude == tx2.weightMagnitude) {
+            if (tx1.getWeightMagnitude() == tx2.getWeightMagnitude()) {
                 for (int i = Hash.SIZE_IN_BYTES; i-- > 0; ) {
                     if (tx1.getHash().bytes()[i] != tx2.getHash().bytes()[i]) {
                         return tx2.getHash().bytes()[i] - tx1.getHash().bytes()[i];
@@ -738,7 +738,7 @@ public class Node {
                 }
                 return 0;
             }
-            return tx2.weightMagnitude - tx1.weightMagnitude;
+            return tx2.getWeightMagnitude() - tx1.getWeightMagnitude();
         });
     }
 
