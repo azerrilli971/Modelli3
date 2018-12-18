@@ -774,7 +774,7 @@ public class TransactionViewModel {
 
     /**@return The current {@link Transaction#height}*/
     public long getHeight() {
-        return transaction.height;
+        return transaction.getHeight();
     }
 
     /**
@@ -782,7 +782,7 @@ public class TransactionViewModel {
      * @param height The new height of the {@link Transaction}
      */
     private void updateHeight(long height) throws Exception {
-        transaction.height = height;
+        transaction.setHeight(height);
     }
 
     /**

@@ -71,7 +71,16 @@ public class Transaction implements Persistable {
 
     public boolean getMilestone() {return milestone;}
 
-    public long height = 0;
+    private long height = 0;
+
+    public void setHeight(long height) {
+        this.height = height;
+    }
+
+    public long getHeight() {
+        return height;
+    }
+
     public String sender = "";
     public int snapshot;
 
