@@ -68,7 +68,16 @@ public class MilestoneTracker {
     }
 
     private LedgerValidator ledgerValidator;
-    public Hash latestMilestone = Hash.NULL_HASH;
+    private Hash latestMilestone = Hash.NULL_HASH;
+
+    public Hash getLatestMilestone() {
+        return latestMilestone;
+    }
+
+    public void setLatestMilestone(Hash latestMilestone) {
+        this.latestMilestone = latestMilestone;
+    }
+
     public Hash latestSolidSubtangleMilestone = latestMilestone;
 
     public int latestMilestoneIndex;

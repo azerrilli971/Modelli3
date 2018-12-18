@@ -958,7 +958,7 @@ public class API {
                 System.getProperty("java.version"), 
                 Runtime.getRuntime().maxMemory(),
                 Runtime.getRuntime().totalMemory(), 
-                instance.milestoneTracker.latestMilestone, instance.milestoneTracker.latestMilestoneIndex,
+                instance.milestoneTracker.getLatestMilestone(), instance.milestoneTracker.latestMilestoneIndex,
                 instance.milestoneTracker.latestSolidSubtangleMilestone, 
                 instance.milestoneTracker.latestSolidSubtangleMilestoneIndex, 
                 instance.milestoneTracker.milestoneStartIndex,
