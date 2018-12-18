@@ -63,11 +63,11 @@ public class GetNeighborsResponse extends AbstractResponse {
         private String address;
         private long numberOfAllTransactions;
         private long numberOfRandomTransactionRequests,
-                numberOfNewTransactions,
-                numberOfInvalidTransactions,
-                numberOfStaleTransactions,
-                numberOfSentTransactions;
-        public String connectionType;
+                numberOfNewTransactions;
+        private long numberOfInvalidTransactions;
+        private long numberOfStaleTransactions;
+        private long numberOfSentTransactions;
+        private String connectionType;
 
         /**
          * The address of your neighbor
