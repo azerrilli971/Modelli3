@@ -7,7 +7,7 @@ import com.iota.iri.service.API;
 /**
  * 
  * Contains information about the result of a successful {@code getNeighbors} API call.
- * See {@link API#getNeighborsStatement} for how this response is created.
+ * See {@link API getNeighborsStatement} for how this response is created.
  *
  */
 public class GetNeighborsResponse extends AbstractResponse {
@@ -61,8 +61,8 @@ public class GetNeighborsResponse extends AbstractResponse {
     static class Neighbor {
 
         private String address;
-        public long numberOfAllTransactions,
-                numberOfRandomTransactionRequests,
+        private long numberOfAllTransactions;
+        private long numberOfRandomTransactionRequests,
                 numberOfNewTransactions,
                 numberOfInvalidTransactions,
                 numberOfStaleTransactions,
@@ -95,6 +95,8 @@ public class GetNeighborsResponse extends AbstractResponse {
         public long getNumberOfNewTransactions() {
             return numberOfNewTransactions;
         }
+        
+        public long getNumberOfRandomTransactionRequests(){ return numberOfRandomTransactionRequests;}
 
         /**
          * Invalid transactions your neighbor has sent you. 
