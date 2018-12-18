@@ -552,10 +552,10 @@ public class TransactionViewModel {
      * @return The trunk {@link TransactionHash} identifier.
      */
     public Hash getTrunkTransactionHash() {
-        if(transaction.trunk == null) {
-            transaction.trunk = HashFactory.TRANSACTION.create(trits(), TRUNK_TRANSACTION_TRINARY_OFFSET);
+        if(transaction.getTrunk() == null) {
+            transaction.setTrunk(HashFactory.TRANSACTION.create(trits(), TRUNK_TRANSACTION_TRINARY_OFFSET));
         }
-        return transaction.trunk;
+        return transaction.getTrunk();
     }
 
     /**
@@ -704,12 +704,12 @@ public class TransactionViewModel {
 
 
     /**
-     * Updates the {@link Transaction#solid} value of the referenced {@link Transaction} object.
+     * Updates the {@link Transaction#getSolid()} } value of the referenced {@link Transaction} object.
      *
      * Used by the {@link com.iota.iri.TransactionValidator} to quickly set the solidity of a {@link Transaction} set.
      *
      * @param solid The solidity of the transaction in the database
-     * @return True if the {@link Transaction#solid} has been updated, False if not.
+     * @return True if the {@link Transaction#getSolid()} } has been updated, False if not.
      */
     public boolean updateSolid(boolean solid) throws Exception {
         if(solid != transaction.getSolid()) {
@@ -719,7 +719,7 @@ public class TransactionViewModel {
         return false;
     }
 
-    /**@return True if {@link Transaction#solid} is True (exists in the database), False if not*/
+    /**@return True if {@link Transaction#getSolid()} } is True (exists in the database), False if not*/
     public boolean isSolid() {
         return transaction.getSolid();
     }
@@ -746,10 +746,10 @@ public class TransactionViewModel {
     }
 
     /**
-     * This method sets the {@link Transaction#milestone} flag.
+     * This method sets the {@link Transaction#getMilestone()} flag.
      *
      * It gets automatically called by the {@link com.iota.iri.MilestoneTracker} and marks transactions that represent
-     * a milestone accordingly. It first checks if the {@link Transaction#milestone} flag has changed and if so, it
+     * a milestone accordingly. It first checks if the {@link Transaction#getMilestone()} } flag has changed and if so, it
      * issues a database update.
      *
      * @param tangle Tangle instance which acts as a database interface
@@ -764,9 +764,9 @@ public class TransactionViewModel {
     }
 
     /**
-     * This method gets the {@link Transaction#milestone}.
+     * This method gets the {@link Transaction#getMilestone()} }.
      *
-     * The {@link Transaction#milestone} flag indicates if the {@link Transaction} is a coordinator issued milestone. It
+     * The {@link Transaction#getMilestone()} } flag indicates if the {@link Transaction} is a coordinator issued milestone. It
      * allows us to differentiate the two types of transactions (normal transactions / milestones) very fast and
      * efficiently without issuing further database queries or even full verifications of the signature. If it is set to
      * true one can for example use the snapshotIndex() method to retrieve the corresponding
@@ -778,13 +778,13 @@ public class TransactionViewModel {
         return transaction.getMilestone();
     }
 
-    /**@return The current {@link Transaction#height}*/
+    /**@return The current {@link Transaction#getHeight()} }*/
     public long getHeight() {
         return transaction.getHeight();
     }
 
     /**
-     * Updates the {@link Transaction#height}.
+     * Updates the {@link Transaction#getHeight()} }.
      * @param height The new height of the {@link Transaction}
      */
     private void updateHeight(long height) throws Exception {

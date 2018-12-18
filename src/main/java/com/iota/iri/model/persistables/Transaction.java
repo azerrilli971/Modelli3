@@ -25,7 +25,7 @@ public class Transaction implements Persistable {
 
     public Hash address;
     public Hash bundle;
-    public Hash trunk;
+    private Hash trunk;
     public Hash branch;
     public Hash obsoleteTag;
     public long value;
@@ -52,9 +52,15 @@ public class Transaction implements Persistable {
         return parsed;
     }
 
+    public Hash getTrunk() {
+        return trunk;
+    }
 
+    public void setTrunk(Hash trunk) {
+        this.trunk = trunk;
+    }
 
-   private boolean solid = false;
+    private boolean solid = false;
 
     public void setSolid(boolean solid) {
         this.solid = solid;
