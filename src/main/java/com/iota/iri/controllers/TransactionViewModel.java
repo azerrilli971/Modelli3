@@ -751,8 +751,8 @@ public class TransactionViewModel {
      * @throws Exception Thrown if there is an error while saving the changes to the database
      */
     public void isMilestone(Tangle tangle, final boolean isMilestone) throws Exception {
-        if (isMilestone != transaction.milestone) {
-            transaction.milestone = isMilestone;
+        if (isMilestone != transaction.getMilestone()) {
+            transaction.setMilestone(isMilestone);
             update(tangle, "milestone");
         }
     }
@@ -769,7 +769,7 @@ public class TransactionViewModel {
      * @return true if the {@link Transaction} is a milestone and false otherwise
      */
     public boolean isMilestone() {
-        return transaction.milestone;
+        return transaction.getMilestone();
     }
 
     /**@return The current {@link Transaction#height}*/
