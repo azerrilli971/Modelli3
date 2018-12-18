@@ -67,7 +67,7 @@ public class GetNeighborsResponse extends AbstractResponse {
         private long numberOfInvalidTransactions;
         private long numberOfStaleTransactions;
         private long numberOfSentTransactions;
-        public String connectionType;
+        private String connectionType;
 
         /**
          * The address of your neighbor
@@ -144,7 +144,7 @@ public class GetNeighborsResponse extends AbstractResponse {
         public static Neighbor createFrom(com.iota.iri.network.Neighbor n) {
             Neighbor ne = new Neighbor();
             int port = n.getPort();
-            ne.address = n.getAddress().getHostString() + ":" + port; 
+            ne.address = n.getAddress().getHostString() + ":" + port;
             ne.numberOfAllTransactions = n.getNumberOfAllTransactions();
             ne.numberOfInvalidTransactions = n.getNumberOfInvalidTransactions();
             ne.numberOfStaleTransactions = n.getNumberOfStaleTransactions();
