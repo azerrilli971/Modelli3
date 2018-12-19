@@ -21,7 +21,7 @@ public class Transaction implements Persistable {
      */
     public static final int IS_MILESTONE_BITMASK = 0b10;
 
-    public byte[] bytes;
+    private byte[] bytes;
 
     public Hash address;
     public Hash bundle;
@@ -104,8 +104,14 @@ public class Transaction implements Persistable {
     public long getTimestamp(){return timestamp;}
     public void setTimestamp (long newTimeStamp) {this.timestamp = newTimeStamp;}
 
+    //getter e setter Byte
+    public byte[] getBytes() {
+        return bytes;
+    }
 
-
+    public void setBytes(byte[] bytes) {
+        this.bytes = bytes;
+    }
 
     private boolean solid = false;
 

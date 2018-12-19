@@ -405,8 +405,8 @@ public class TransactionViewModelTest {
             trits[i] = (byte) (seed.nextInt(3) - 1);
         }
 
-        transaction.bytes = Converter.allocateBytesForTrits(trits.length);
-        Converter.bytes(trits, 0, transaction.bytes, 0, trits.length);
+        transaction.setBytes(Converter.allocateBytesForTrits(trits.length));
+        Converter.bytes(trits, 0, transaction.getBytes(), 0, trits.length);
         return transaction;
     }
     public static byte[] getRandomTransactionWithTrunkAndBranch(Hash trunk, Hash branch) {

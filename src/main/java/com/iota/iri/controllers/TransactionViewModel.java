@@ -83,7 +83,7 @@ public class TransactionViewModel {
      * @param hash The {@link Hash} identifier of the {@link Transaction} set
      */
     public TransactionViewModel(final Transaction transaction, Hash hash) {
-        this.transaction = transaction == null || transaction.bytes == null ? new Transaction(): transaction;
+        this.transaction = transaction == null || transaction.getBytes() == null ? new Transaction(): transaction;
         this.hash = hash == null? Hash.NULL_HASH: hash;
         weightMagnitude = this.hash.trailingZeros();
     }
@@ -103,14 +103,14 @@ public class TransactionViewModel {
         if(trits.length == 8019) {
             this.trits = new byte[trits.length];
             System.arraycopy(trits, 0, this.trits, 0, trits.length);
-            transaction.bytes = Converter.allocateBytesForTrits(trits.length);
-            Converter.bytes(trits, 0, transaction.bytes, 0, trits.length);
+            transaction.setBytes(Converter.allocateBytesForTrits(trits.length));
+            Converter.bytes(trits, 0, transaction.getBytes(), 0, trits.length);
 
             transaction.setValidity(0);
             transaction.setArrivalTime(0);
         } else {
-            transaction.bytes = new byte[SIZE];
-            System.arraycopy(trits, 0, transaction.bytes, 0, SIZE);
+            transaction.setBytes(new byte[SIZE]);
+            System.arraycopy(trits, 0, transaction.getBytes(), 0, SIZE);
         }
 
         this.hash = hash;
@@ -328,7 +328,7 @@ public class TransactionViewModel {
      * the trits are generated from the transaction object and stored in the controller {@link #trits()} variable.
      */
     public synchronized byte[] trits() {
-        return (trits == null) ? (trits = trits(transaction.bytes)) : trits;
+        return (trits == null) ? (trits = trits(transaction.getBytes())) : trits;
     }
 
     /**
@@ -470,13 +470,13 @@ public class TransactionViewModel {
      * @return The stored {@link Transaction#bytes} array
      */
     public byte[] getBytes() {
-        if(transaction.bytes == null || transaction.bytes.length != SIZE) {
-            transaction.bytes = new byte[SIZE];
+        if(transaction.getBytes() == null || transaction.getBytes().length != SIZE) {
+            transaction.setBytes(new byte[SIZE]);
             if(trits != null) {
-                Converter.bytes(trits(), 0, transaction.bytes, 0, trits().length);
+                Converter.bytes(trits(), 0, transaction.getBytes(), 0, trits().length);
             }
         }
-        return transaction.bytes;
+        return transaction.getBytes();
     }
 
     /**@return The transaction {@link Hash} identifier*/
@@ -706,7 +706,7 @@ public class TransactionViewModel {
         //if (transaction.timestamp > 1262304000000L ) transaction.timestamp /= 1000L;  // if > 01.01.2010 in milliseconds
         transaction.currentIndex = Converter.longValue(trits(), CURRENT_INDEX_TRINARY_OFFSET, CURRENT_INDEX_TRINARY_SIZE);
         transaction.setLastIndex(Converter.longValue(trits(), LAST_INDEX_TRINARY_OFFSET, LAST_INDEX_TRINARY_SIZE));
-        transaction.setType(transaction.bytes == null ? TransactionViewModel.PREFILLED_SLOT : TransactionViewModel.FILLED_SLOT);
+        transaction.setType(transaction.getBytes() == null ? TransactionViewModel.PREFILLED_SLOT : TransactionViewModel.FILLED_SLOT);
     }
 
 
