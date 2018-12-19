@@ -7,7 +7,7 @@ import com.iota.iri.model.Hash;
  */
 public class Tag extends Hashes {
     public Tag(Hash hash) {
-        set.add(hash);
+        getSet().add(hash);
     }
 
     public Tag() {

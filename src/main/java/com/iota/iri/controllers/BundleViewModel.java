@@ -35,7 +35,7 @@ public class BundleViewModel implements HashesViewModel {
      * @param hash The {@link Hash} identifier that acts as a reference for the {@link Bundle} set
      */
     private BundleViewModel(Bundle hashes, Indexable hash) {
-        self = hashes == null || hashes.set == null ? new Bundle(): hashes;
+        self = hashes == null || hashes.getSet() == null ? new Bundle(): hashes;
         this.hash = hash;
     }
 
@@ -78,7 +78,7 @@ public class BundleViewModel implements HashesViewModel {
 
     @Override
     public int size() {
-        return self.set.size();
+        return self.getSet().size();
     }
 
     @Override
@@ -93,7 +93,7 @@ public class BundleViewModel implements HashesViewModel {
 
     @Override
     public Set<Hash> getHashes() {
-        return self.set;
+        return self.getSet();
     }
 
     @Override

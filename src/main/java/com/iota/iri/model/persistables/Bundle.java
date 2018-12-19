@@ -7,7 +7,7 @@ import com.iota.iri.model.Hash;
  */
 public class Bundle extends Hashes{
     public Bundle(Hash hash) {
-        set.add(hash);
+        getSet().add(hash);
     }
 
     public Bundle() {
