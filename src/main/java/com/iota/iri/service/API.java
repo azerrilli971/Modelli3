@@ -959,7 +959,7 @@ public class API {
                 Runtime.getRuntime().maxMemory(),
                 Runtime.getRuntime().totalMemory(), 
                 instance.milestoneTracker.getLatestMilestone(), instance.milestoneTracker.latestMilestoneIndex,
-                instance.milestoneTracker.latestSolidSubtangleMilestone, 
+                instance.milestoneTracker.getLatestSolidSubtangleMilestone(),
                 instance.milestoneTracker.latestSolidSubtangleMilestoneIndex, 
                 instance.milestoneTracker.milestoneStartIndex,
                 instance.node.howManyNeighbors(), 
@@ -1367,7 +1367,7 @@ public class API {
         final int index = instance.milestoneTracker.getLatestSnapshot().index();
         
         if (tips == null || tips.size() == 0) {
-            hashes = Collections.singletonList(instance.milestoneTracker.latestSolidSubtangleMilestone);
+            hashes = Collections.singletonList(instance.milestoneTracker.getLatestSolidSubtangleMilestone());
         } else {
             hashes = tips.stream()
                     .map(tip -> (HashFactory.TRANSACTION.create(tip)))

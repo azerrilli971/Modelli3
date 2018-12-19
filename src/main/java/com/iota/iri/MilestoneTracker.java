@@ -78,7 +78,20 @@ public class MilestoneTracker {
         this.latestMilestone = latestMilestone;
     }
 
-    public Hash latestSolidSubtangleMilestone = latestMilestone;
+    protected Hash latestSolidSubtangleMilestone = latestMilestone;
+
+
+    public Hash getLatestSolidSubtangleMilestone() {
+        return latestSolidSubtangleMilestone;
+    }
+
+    public void setLatestSolidSubtangleMilestone(Hash latestSolidSubtangleMilestone) {
+        this.latestSolidSubtangleMilestone = latestSolidSubtangleMilestone;
+    }
+
+    public void setLatestSolidSubtangleMilestoneIndex(int latestSolidSubtangleMilestoneIndex) {
+        this.latestSolidSubtangleMilestoneIndex = latestSolidSubtangleMilestoneIndex;
+    }
 
     public int latestMilestoneIndex;
     public int latestSolidSubtangleMilestoneIndex;
@@ -90,6 +103,18 @@ public class MilestoneTracker {
      * The current status of the {@link MilestoneTracker}.
      */
     private Status status = Status.INITIALIZING;
+
+    public MilestoneTracker(){
+
+        tangle = null;
+        coordinator = null;
+        transactionValidator = null;
+        testnet = false;
+        messageQ = null;
+        numOfKeysInMilestone = 0;
+        acceptAnyTestnetCoo = false;
+        milestoneStartIndex = 0;
+    }
 
     public MilestoneTracker(Tangle tangle,
                             TransactionValidator transactionValidator,
