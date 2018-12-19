@@ -184,15 +184,19 @@ public class LedgerValidator {
      * either reaches the latest solid subtangle milestone, or until it reaches an inconsistent milestone.
      * @throws Exception
      */
+    public static void setMil (int index ) {
+        MilestoneTracker.latestSolidSubtangleMilestoneIndex = index;
+    }
     protected void init() throws Exception {
         MilestoneViewModel latestConsistentMilestone = buildSnapshot();
         if(latestConsistentMilestone != null) {
             log.info("Loaded consistent milestone: #" + latestConsistentMilestone.index());
 
             milestoneTracker.latestSolidSubtangleMilestone = latestConsistentMilestone.getHash();
-            milestoneTracker.latestSolidSubtangleMilestoneIndex = latestConsistentMilestone.index();
+            setMil(latestConsistentMilestone.index());
         }
     }
+
 
     /**
      * Only called once upon initialization, this builds the {latestSnapshot} state up to the most recent

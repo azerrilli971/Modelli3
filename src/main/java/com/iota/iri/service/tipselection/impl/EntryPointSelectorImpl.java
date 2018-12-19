@@ -29,7 +29,7 @@ public class EntryPointSelectorImpl extends MilestoneTracker implements EntryPoi
 
     @Override
     public Hash getEntryPoint(int depth) throws Exception {
-        int milestoneIndex = Math.max(milestoneTracker.latestSolidSubtangleMilestoneIndex - depth - 1,
+        int milestoneIndex = Math.max(MilestoneTracker.latestSolidSubtangleMilestoneIndex - depth - 1,
                 milestoneTracker.getMilestoneStartIndex());
         MilestoneViewModel milestoneViewModel = MilestoneViewModel.findClosestNextMilestone(tangle, milestoneIndex,
                 MilestoneTracker.latestMilestoneIndex);

@@ -688,7 +688,7 @@ public class API extends MilestoneTracker {
      * @return <tt>false</tt> if we received at least a solid milestone, otherwise <tt>true</tt>
      */
     public boolean invalidSubtangleStatus() {
-        return (instance.milestoneTracker.latestSolidSubtangleMilestoneIndex == startIndex);
+        return (MilestoneTracker.latestSolidSubtangleMilestoneIndex == startIndex);
     }
     
     /**
@@ -960,7 +960,7 @@ public class API extends MilestoneTracker {
                 Runtime.getRuntime().totalMemory(), 
                 instance.milestoneTracker.getLatestMilestone(), MilestoneTracker.latestMilestoneIndex,
                 instance.milestoneTracker.getLatestSolidSubtangleMilestone(),
-                instance.milestoneTracker.latestSolidSubtangleMilestoneIndex, 
+                MilestoneTracker.latestSolidSubtangleMilestoneIndex,
                 instance.milestoneTracker.milestoneStartIndex,
                 instance.node.howManyNeighbors(), 
                 instance.node.queuedTransactionsSize(),

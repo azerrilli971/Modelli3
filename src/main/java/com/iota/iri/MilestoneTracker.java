@@ -89,16 +89,18 @@ public class MilestoneTracker {
         this.latestSolidSubtangleMilestone = latestSolidSubtangleMilestone;
     }
 
-    public void setLatestSolidSubtangleMilestoneIndex(int latestSolidSubtangleMilestoneIndex) {
-        this.latestSolidSubtangleMilestoneIndex = latestSolidSubtangleMilestoneIndex;
-    }
+
 
     protected static int latestMilestoneIndex;
-    public int latestSolidSubtangleMilestoneIndex;
+    protected static int latestSolidSubtangleMilestoneIndex;
     public final int milestoneStartIndex;
 
     public static void setLatestMilestoneIndex(int latestMilestoneIndex) {
         MilestoneTracker.latestMilestoneIndex = latestMilestoneIndex;
+    }
+
+    public static void setLatestSolidSubtangleMilestoneIndex(int latestSolidSubtangleMilestoneIndex) {
+        MilestoneTracker.latestSolidSubtangleMilestoneIndex = latestSolidSubtangleMilestoneIndex;
     }
 
     private final Set<Hash> analyzedMilestoneCandidates = new HashSet<>();
@@ -136,7 +138,7 @@ public class MilestoneTracker {
         this.numOfKeysInMilestone = config.getNumberOfKeysInMilestone();
         this.milestoneStartIndex = config.getMilestoneStartIndex();
         MilestoneTracker.latestMilestoneIndex = milestoneStartIndex;
-        this.latestSolidSubtangleMilestoneIndex = milestoneStartIndex;
+        MilestoneTracker.latestSolidSubtangleMilestoneIndex = milestoneStartIndex;
         this.acceptAnyTestnetCoo = config.isDontValidateTestnetMilestoneSig();
     }
 
@@ -324,7 +326,7 @@ public class MilestoneTracker {
                         milestoneViewModel.index() >= latestSolidSubtangleMilestoneIndex &&
                         ledgerValidator.updateSnapshot(milestoneViewModel)) {
                     latestSolidSubtangleMilestone = milestoneViewModel.getHash();
-                    latestSolidSubtangleMilestoneIndex = milestoneViewModel.index();
+                    setLatestSolidSubtangleMilestoneIndex(milestoneViewModel.index());
                 } else {
                     break;
                 }

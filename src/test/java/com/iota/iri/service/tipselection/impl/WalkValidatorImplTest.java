@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 @RunWith(MockitoJUnitRunner.class)
-public class WalkValidatorImplTest {
+public class WalkValidatorImplTest extends MilestoneTracker {
 
     private static final TemporaryFolder dbFolder = new TemporaryFolder();
     private static final TemporaryFolder logFolder = new TemporaryFolder();
@@ -63,7 +63,7 @@ public class WalkValidatorImplTest {
         Hash hash = tx.getHash();
         Mockito.when(ledgerValidator.updateDiff(new HashSet<>(), new HashMap<>(), hash))
                 .thenReturn(true);
-        milestoneTrackerTracker.latestSolidSubtangleMilestoneIndex = depth;
+        MilestoneTracker.latestSolidSubtangleMilestoneIndex = depth;
 
         WalkValidatorImpl walkValidator = new WalkValidatorImpl(tangle, ledgerValidator, milestoneTrackerTracker, config);
         Assert.assertTrue("Validation failed", walkValidator.isValid(hash));

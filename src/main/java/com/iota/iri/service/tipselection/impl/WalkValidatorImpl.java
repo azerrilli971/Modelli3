@@ -24,7 +24,7 @@ import java.util.*;
  *          (balances of all addresses are correct and all signatures are valid)
  *      </ol>
  */
-public class WalkValidatorImpl implements WalkValidator {
+public class WalkValidatorImpl extends MilestoneTracker implements WalkValidator {
 
     private final Tangle tangle;
     private final Logger log = LoggerFactory.getLogger(WalkValidator.class);
@@ -35,7 +35,6 @@ public class WalkValidatorImpl implements WalkValidator {
     private Set<Hash> maxDepthOkMemoization;
     private Map<Hash, Long> myDiff;
     private Set<Hash> myApprovedHashes;
-
     /**
      * Constructor of Walk Validator
      * @param tangle Tangle object which acts as a database interface.
@@ -68,7 +67,7 @@ public class WalkValidatorImpl implements WalkValidator {
             log.debug("Validation failed: {} is not solid", transactionHash);
             return false;
         } else if (belowMaxDepth(transactionViewModel.getHash(),
-                milestoneTracker.latestSolidSubtangleMilestoneIndex - config.getMaxDepth())) {
+                MilestoneTracker.latestSolidSubtangleMilestoneIndex - config.getMaxDepth())) {
             log.debug("Validation failed: {} is below max depth", transactionHash);
             return false;
         } else if (!ledgerValidator.updateDiff(myApprovedHashes, myDiff, transactionViewModel.getHash())) {
@@ -113,5 +112,9 @@ public class WalkValidatorImpl implements WalkValidator {
         }
         maxDepthOkMemoization.add(tip);
         return false;
+    }
+
+    public MilestoneTracker getMilestoneTracker() {
+        return milestoneTracker;
     }
 }
