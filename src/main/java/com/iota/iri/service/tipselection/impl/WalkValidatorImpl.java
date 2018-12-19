@@ -33,7 +33,7 @@ public class WalkValidatorImpl extends MilestoneTracker implements WalkValidator
     private final TipSelConfig config;
 
     private Set<Hash> maxDepthOkMemoization;
-    private Map<Hash, Long> myDiff;
+    private Map<Hash, Long> myDiff; 
     private Set<Hash> myApprovedHashes;
     /**
      * Constructor of Walk Validator
