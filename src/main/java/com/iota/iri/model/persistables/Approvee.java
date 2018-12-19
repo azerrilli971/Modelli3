@@ -7,7 +7,7 @@ import com.iota.iri.model.Hash;
  */
 public class Approvee extends Hashes{
     public Approvee(Hash hash) {
-        set.add(hash);
+        getSet().add(hash);
     }
 
     public Approvee() {

@@ -75,7 +75,7 @@ class ReplicatorSinkProcessor implements Runnable {
                             portAsByteArray, 0, ReplicatorSinkPool.PORT_BYTES);
                     out.write(portAsByteArray);
                     
-                    while (!replicatorSinkPool.shutdown && !neighbor.isStopped()) {
+                    while (!replicatorSinkPool.getShutdown() && !neighbor.isStopped()) {
                         try {
                             ByteBuffer message = neighbor.getNextMessage();
                             if (neighbor.getSink() != null) { 

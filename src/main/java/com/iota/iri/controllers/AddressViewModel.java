@@ -33,7 +33,7 @@ public class AddressViewModel implements HashesViewModel {
      * @param hash The {@link Hash} identifier that acts as a reference for the {@link Address} set
      */
     private AddressViewModel(Address hashes, Indexable hash) {
-        self = hashes == null || hashes.set == null ? new Address(): hashes;
+        self = hashes == null || hashes.getSet() == null ? new Address(): hashes;
         this.hash = hash;
     }
 
@@ -73,7 +73,7 @@ public class AddressViewModel implements HashesViewModel {
 
     @Override
     public int size() {
-        return self.set.size();
+        return self.getSet().size();
     }
 
     @Override
@@ -88,7 +88,7 @@ public class AddressViewModel implements HashesViewModel {
 
     @Override
     public Set<Hash> getHashes() {
-        return self.set;
+        return self.getSet();
     }
 
     @Override

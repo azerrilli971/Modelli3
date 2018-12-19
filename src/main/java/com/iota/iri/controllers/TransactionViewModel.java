@@ -65,9 +65,15 @@ public class TransactionViewModel {
     public final static int FILLED_SLOT = -1; //  knows the hash only coz another tx references that hash
 
     private byte[] trits;
-    public int weightMagnitude;
+    private int weightMagnitude;
 
+    public void setWeightMagnitude(int weightMagnitude) {
+        this.weightMagnitude = weightMagnitude;
+    }
 
+    public int getWeightMagnitude() {
+        return weightMagnitude;
+    }
 
     /**
      * Constructor for a {@link Transaction} set controller interface. This controller is used to interact with and
@@ -100,8 +106,8 @@ public class TransactionViewModel {
             transaction.bytes = Converter.allocateBytesForTrits(trits.length);
             Converter.bytes(trits, 0, transaction.bytes, 0, trits.length);
 
-            transaction.validity = 0;
-            transaction.arrivalTime = 0;
+            transaction.setValidity(0);
+            transaction.setArrivalTime(0);
         } else {
             transaction.bytes = new byte[SIZE];
             System.arraycopy(trits, 0, transaction.bytes, 0, SIZE);
@@ -109,7 +115,7 @@ public class TransactionViewModel {
 
         this.hash = hash;
         weightMagnitude = this.hash.trailingZeros();
-        transaction.type = FILLED_SLOT;
+        transaction.setType(FILLED_SLOT);
     }
 
     /**
@@ -253,7 +259,7 @@ public class TransactionViewModel {
         if (Hash.NULL_HASH.equals(transactionViewModel.getHash())) {
             return;
         }
-        if(transactionViewModel.getType() == FILLED_SLOT && !transactionViewModel.transaction.parsed) {
+        if(transactionViewModel.getType() == FILLED_SLOT && !transactionViewModel.transaction.getParsed()) {
             tangle.saveBatch(transactionViewModel.getMetadataSaveBatch());
         }
     }
@@ -427,6 +433,7 @@ public class TransactionViewModel {
         return approovers;
     }
 
+    /*
     /**
      * Gets the {@link Transaction#type}. The type can be one of 3:
      * <ul>
@@ -438,20 +445,21 @@ public class TransactionViewModel {
      * @return The current type of the transaction.
      */
     public final int getType() {
-        return transaction.type;
+        return transaction.getType();
     }
 
+    /*
     /**
      * Sets the {@link Transaction#arrivalTime}.
      * @param time The time to be set in the {@link Transaction}
      */
     public void setArrivalTime(long time) {
-        transaction.arrivalTime = time;
+        transaction.setArrivalTime(time);
     }
 
-    /**@return The {@link Transaction#arrivalTime}*/
+   // /**@return The {@link Transaction#arrivalTime}*/
     public long getArrivalTime() {
-        return transaction.arrivalTime;
+        return transaction.getArrivalTime();
     }
 
     /**
@@ -546,10 +554,10 @@ public class TransactionViewModel {
      * @return The trunk {@link TransactionHash} identifier.
      */
     public Hash getTrunkTransactionHash() {
-        if(transaction.trunk == null) {
-            transaction.trunk = HashFactory.TRANSACTION.create(trits(), TRUNK_TRANSACTION_TRINARY_OFFSET);
+        if(transaction.getTrunk() == null) {
+            transaction.setTrunk(HashFactory.TRANSACTION.create(trits(), TRUNK_TRANSACTION_TRINARY_OFFSET));
         }
-        return transaction.trunk;
+        return transaction.getTrunk();
     }
 
     /**
@@ -586,6 +594,7 @@ public class TransactionViewModel {
      */
     public long getAttachmentTimestamp() { return transaction.attachmentTimestamp; }
 
+    /*
     /**
      * Gets the {@link Transaction#attachmentTimestampLowerBound}. The <tt>Attachment Timestamp Lower Bound</tt>
      * is the earliest timestamp a transaction can have.
@@ -593,9 +602,10 @@ public class TransactionViewModel {
      * @return The {@link Transaction#attachmentTimestampLowerBound}
      */
     public long getAttachmentTimestampLowerBound() {
-        return transaction.attachmentTimestampLowerBound;
+        return transaction.getAttachmentTimestampLowerBound();
     }
 
+    /*
     /**
      * Gets the {@link Transaction#attachmentTimestampUpperBound}. The <tt>Attachment Timestamp Upper Bound</tt>
      * is the maximum timestamp a transaction can have.
@@ -603,7 +613,7 @@ public class TransactionViewModel {
      * @return The {@link Transaction#attachmentTimestampUpperBound}
      */
     public long getAttachmentTimestampUpperBound() {
-        return transaction.attachmentTimestampUpperBound;
+        return transaction.getAttachmentTimestampUpperBound();
     }
 
     /**@return The {@link Transaction#value}*/
@@ -611,6 +621,7 @@ public class TransactionViewModel {
         return transaction.value;
     }
 
+    /*
     /**
      * Updates the {@link Transaction#validity} in the database.
      *
@@ -621,15 +632,15 @@ public class TransactionViewModel {
      * @throws Exception Thrown if there is an error with the update
      */
     public void setValidity(Tangle tangle, int validity) throws Exception {
-        if(transaction.validity != validity) {
-            transaction.validity = validity;
+        if(transaction.getValidity() != validity) {
+            transaction.setValidity(validity);
             update(tangle, "validity");
         }
     }
 
-    /**@return The current stored {@link Transaction#validity}*/
+    // /**@return The current stored {@link Transaction#validity}*/
     public int getValidity() {
-        return transaction.validity;
+        return transaction.getValidity();
     }
 
     /**@return The {@link Transaction#currentIndex} in its bundle*/
@@ -667,6 +678,7 @@ public class TransactionViewModel {
         return transaction.lastIndex;
     }
 
+    /*
     /**
      * Fetches the {@link Transaction#tag}, and converts the transaction trits for the
      * {@link Transaction#attachmentTimestamp}, the {@link Transaction#attachmentTimestampLowerBound}, and the
@@ -676,11 +688,12 @@ public class TransactionViewModel {
     public void setAttachmentData() {
         getTagValue();
         transaction.attachmentTimestamp = Converter.longValue(trits(), ATTACHMENT_TIMESTAMP_TRINARY_OFFSET, ATTACHMENT_TIMESTAMP_TRINARY_SIZE);
-        transaction.attachmentTimestampLowerBound = Converter.longValue(trits(), ATTACHMENT_TIMESTAMP_LOWER_BOUND_TRINARY_OFFSET, ATTACHMENT_TIMESTAMP_LOWER_BOUND_TRINARY_SIZE);
-        transaction.attachmentTimestampUpperBound = Converter.longValue(trits(), ATTACHMENT_TIMESTAMP_UPPER_BOUND_TRINARY_OFFSET, ATTACHMENT_TIMESTAMP_UPPER_BOUND_TRINARY_SIZE);
+        transaction.setAttachmentTimestampLowerBound(Converter.longValue(trits(), ATTACHMENT_TIMESTAMP_LOWER_BOUND_TRINARY_OFFSET, ATTACHMENT_TIMESTAMP_LOWER_BOUND_TRINARY_SIZE));
+        transaction.setAttachmentTimestampUpperBound(Converter.longValue(trits(), ATTACHMENT_TIMESTAMP_UPPER_BOUND_TRINARY_OFFSET, ATTACHMENT_TIMESTAMP_UPPER_BOUND_TRINARY_SIZE));
 
     }
 
+    /*
     /**
      * Converts the {@link Transaction#value}, {@link Transaction#timestamp}, {@link Transaction#currentIndex} and
      * {@link Transaction#lastIndex} from trits to long values and assigns them to the {@link TransactionViewModel}
@@ -693,36 +706,37 @@ public class TransactionViewModel {
         //if (transaction.timestamp > 1262304000000L ) transaction.timestamp /= 1000L;  // if > 01.01.2010 in milliseconds
         transaction.currentIndex = Converter.longValue(trits(), CURRENT_INDEX_TRINARY_OFFSET, CURRENT_INDEX_TRINARY_SIZE);
         transaction.lastIndex = Converter.longValue(trits(), LAST_INDEX_TRINARY_OFFSET, LAST_INDEX_TRINARY_SIZE);
-        transaction.type = transaction.bytes == null ? TransactionViewModel.PREFILLED_SLOT : TransactionViewModel.FILLED_SLOT;
+        transaction.setType(transaction.bytes == null ? TransactionViewModel.PREFILLED_SLOT : TransactionViewModel.FILLED_SLOT);
     }
 
 
     /**
-     * Updates the {@link Transaction#solid} value of the referenced {@link Transaction} object.
+     * Updates the {@link Transaction#getSolid()} } value of the referenced {@link Transaction} object.
      *
      * Used by the {@link com.iota.iri.TransactionValidator} to quickly set the solidity of a {@link Transaction} set.
      *
      * @param solid The solidity of the transaction in the database
-     * @return True if the {@link Transaction#solid} has been updated, False if not.
+     * @return True if the {@link Transaction#getSolid()} } has been updated, False if not.
      */
     public boolean updateSolid(boolean solid) throws Exception {
-        if(solid != transaction.solid) {
-            transaction.solid = solid;
+        if(solid != transaction.getSolid()) {
+            transaction.setSolid(solid);
             return true;
         }
         return false;
     }
 
-    /**@return True if {@link Transaction#solid} is True (exists in the database), False if not*/
+    /**@return True if {@link Transaction#getSolid()} } is True (exists in the database), False if not*/
     public boolean isSolid() {
-        return transaction.solid;
+        return transaction.getSolid();
     }
 
-    /**@return The {@link Transaction#snapshot} index*/
+    // /**@return The {@link Transaction#snapshot} index*/
     public int snapshotIndex() {
-        return transaction.snapshot;
+        return transaction.getSnapshot();
     }
 
+    /*
     /**
      * Sets the current {@link Transaction#snapshot} index.
      *
@@ -733,17 +747,17 @@ public class TransactionViewModel {
      * @throws Exception Thrown if the database update does not return correctly
      */
     public void setSnapshot(Tangle tangle, final int index) throws Exception {
-        if ( index != transaction.snapshot ) {
-            transaction.snapshot = index;
+        if ( index != transaction.getSnapshot() ) {
+            transaction.setSnapshot(index);
             update(tangle, "snapshot");
         }
     }
 
     /**
-     * This method sets the {@link Transaction#milestone} flag.
+     * This method sets the {@link Transaction#getMilestone()} flag.
      *
      * It gets automatically called by the {@link com.iota.iri.MilestoneTracker} and marks transactions that represent
-     * a milestone accordingly. It first checks if the {@link Transaction#milestone} flag has changed and if so, it
+     * a milestone accordingly. It first checks if the {@link Transaction#getMilestone()} } flag has changed and if so, it
      * issues a database update.
      *
      * @param tangle Tangle instance which acts as a database interface
@@ -751,16 +765,16 @@ public class TransactionViewModel {
      * @throws Exception Thrown if there is an error while saving the changes to the database
      */
     public void isMilestone(Tangle tangle, final boolean isMilestone) throws Exception {
-        if (isMilestone != transaction.milestone) {
-            transaction.milestone = isMilestone;
+        if (isMilestone != transaction.getMilestone()) {
+            transaction.setMilestone(isMilestone);
             update(tangle, "milestone");
         }
     }
 
     /**
-     * This method gets the {@link Transaction#milestone}.
+     * This method gets the {@link Transaction#getMilestone()} }.
      *
-     * The {@link Transaction#milestone} flag indicates if the {@link Transaction} is a coordinator issued milestone. It
+     * The {@link Transaction#getMilestone()} } flag indicates if the {@link Transaction} is a coordinator issued milestone. It
      * allows us to differentiate the two types of transactions (normal transactions / milestones) very fast and
      * efficiently without issuing further database queries or even full verifications of the signature. If it is set to
      * true one can for example use the snapshotIndex() method to retrieve the corresponding
@@ -769,20 +783,20 @@ public class TransactionViewModel {
      * @return true if the {@link Transaction} is a milestone and false otherwise
      */
     public boolean isMilestone() {
-        return transaction.milestone;
+        return transaction.getMilestone();
     }
 
-    /**@return The current {@link Transaction#height}*/
+    /**@return The current {@link Transaction#getHeight()} }*/
     public long getHeight() {
-        return transaction.height;
+        return transaction.getHeight();
     }
 
     /**
-     * Updates the {@link Transaction#height}.
+     * Updates the {@link Transaction#getHeight()} }.
      * @param height The new height of the {@link Transaction}
      */
     private void updateHeight(long height) throws Exception {
-        transaction.height = height;
+        transaction.setHeight(height);
     }
 
     /**
@@ -822,17 +836,18 @@ public class TransactionViewModel {
         }
     }
 
+    /*
     /**
      * Updates the {@link Transaction#sender}.
      * @param sender The sender of the {@link Transaction}
      */
     public void updateSender(String sender) throws Exception {
-        transaction.sender = sender;
+        transaction.setSender(sender);
     }
 
-    /**@return The {@link Transaction#sender}*/
+    // /**@return The {@link Transaction#sender}*/
     public String getSender() {
-        return transaction.sender;
+        return transaction.getSender();
     }
 
     @Override

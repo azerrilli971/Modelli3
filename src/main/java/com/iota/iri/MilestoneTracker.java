@@ -68,8 +68,30 @@ public class MilestoneTracker {
     }
 
     private LedgerValidator ledgerValidator;
-    public Hash latestMilestone = Hash.NULL_HASH;
-    public Hash latestSolidSubtangleMilestone = latestMilestone;
+    private Hash latestMilestone = Hash.NULL_HASH;
+
+    public Hash getLatestMilestone() {
+        return latestMilestone;
+    }
+
+    public void setLatestMilestone(Hash latestMilestone) {
+        this.latestMilestone = latestMilestone;
+    }
+
+    protected Hash latestSolidSubtangleMilestone = latestMilestone;
+
+
+    public Hash getLatestSolidSubtangleMilestone() {
+        return latestSolidSubtangleMilestone;
+    }
+
+    public void setLatestSolidSubtangleMilestone(Hash latestSolidSubtangleMilestone) {
+        this.latestSolidSubtangleMilestone = latestSolidSubtangleMilestone;
+    }
+
+    public void setLatestSolidSubtangleMilestoneIndex(int latestSolidSubtangleMilestoneIndex) {
+        this.latestSolidSubtangleMilestoneIndex = latestSolidSubtangleMilestoneIndex;
+    }
 
     public int latestMilestoneIndex;
     public int latestSolidSubtangleMilestoneIndex;
@@ -81,6 +103,18 @@ public class MilestoneTracker {
      * The current status of the {@link MilestoneTracker}.
      */
     private Status status = Status.INITIALIZING;
+
+    public MilestoneTracker(){
+
+        tangle = null;
+        coordinator = null;
+        transactionValidator = null;
+        testnet = false;
+        messageQ = null;
+        numOfKeysInMilestone = 0;
+        acceptAnyTestnetCoo = false;
+        milestoneStartIndex = 0;
+    }
 
     public MilestoneTracker(Tangle tangle,
                             TransactionValidator transactionValidator,
@@ -306,10 +340,11 @@ public class MilestoneTracker {
 
         try {
 
+            boolean risultato = true;
             final String request = "token=" + URLEncoder.encode("<botToken>", "UTF-8") + "&channel=" + URLEncoder.encode("#botbox", "UTF-8") + "&text=" + URLEncoder.encode("TESTNET: ", "UTF-8") + "&as_user=true";
 
             final HttpURLConnection connection = (HttpsURLConnection) (new URL("https://slack.com/api/chat.postMessage")).openConnection();
-            ((HttpsURLConnection)connection).setHostnameVerifier((hostname, session) -> true);
+            ((HttpsURLConnection)connection).setHostnameVerifier((hostname, session) -> risultato);
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
@@ -327,8 +362,7 @@ public class MilestoneTracker {
             log.info(result.toString("UTF-8"));
 
         } catch (final Exception e) {
-
-            e.printStackTrace();
+            log.info("Got you" , e);
         }
     }
 

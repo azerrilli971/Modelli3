@@ -12,8 +12,13 @@ import java.util.Set;
  * Created by paul on 3/8/17 for iri.
  */
 public class Hashes implements Persistable {
-    public Set<Hash> set = new LinkedHashSet<>();
+    private Set<Hash> set = new LinkedHashSet<>();
     private static final byte delimiter = ",".getBytes()[0];
+
+    //getter e setter per hash
+    public Set<Hash> getSet() { return set;}
+    public void setSet (Set<Hash> newSet) {set = newSet;}
+
 
     public byte[] bytes() {
         return set.parallelStream()

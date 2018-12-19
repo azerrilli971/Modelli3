@@ -37,7 +37,7 @@ public class TagViewModel implements HashesViewModel {
      * @param hash The {@link Hash} identifier that acts as a reference for the {@link Tag} set
      */
     private TagViewModel(Tag hashes, Indexable hash) {
-        self = hashes == null || hashes.set == null ? new Tag(): hashes;
+        self = hashes == null || hashes.getSet() == null ? new Tag(): hashes;
         this.hash = hash;
     }
 
@@ -108,7 +108,7 @@ public class TagViewModel implements HashesViewModel {
 
     @Override
     public int size() {
-        return self.set.size();
+        return self.getSet().size();
     }
 
     @Override
@@ -123,7 +123,7 @@ public class TagViewModel implements HashesViewModel {
 
     @Override
     public Set<Hash> getHashes() {
-        return self.set;
+        return self.getSet();
     }
 
     @Override

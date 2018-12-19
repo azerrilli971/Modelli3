@@ -23,7 +23,14 @@ public class ReplicatorSinkPool  implements Runnable {
 
     private ExecutorService sinkPool;
     
-    public boolean shutdown = false;
+    private boolean shutdown = false;
+
+    public void setShutdown(boolean shutdown) {
+        this.shutdown = shutdown;
+    }
+
+    public boolean getShutdown() {return shutdown;}
+
 
     public final static int PORT_BYTES = 10;
 

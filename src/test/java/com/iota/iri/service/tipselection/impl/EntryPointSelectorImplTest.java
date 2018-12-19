@@ -57,7 +57,7 @@ public class EntryPointSelectorImplTest {
 
     private void mockMilestoneTrackerBehavior(int latestSolidSubtangleMilestoneIndex, Hash latestSolidSubtangleMilestone) {
         milestoneTracker.latestSolidSubtangleMilestoneIndex = latestSolidSubtangleMilestoneIndex;
-        milestoneTracker.latestSolidSubtangleMilestone = latestSolidSubtangleMilestone;
+        milestoneTracker.setLatestSolidSubtangleMilestone(latestSolidSubtangleMilestone);
     }
 
     private void mockTangleBehavior(Hash milestoneModelHash) throws Exception {
