@@ -3,8 +3,13 @@ package com.iota.iri;
 import com.iota.iri.controllers.TransactionViewModel;
 import com.iota.iri.crypto.*;
 import com.iota.iri.model.Hash;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.iota.iri.storage.Tangle;
 import com.iota.iri.utils.Converter;
+
+
+
 
 import java.util.*;
 
@@ -53,6 +58,8 @@ public class BundleValidator {
      * If the bundle is invalid then an empty list will be returned.
      * @throws Exception if a persistence error occured
      */
+
+    private static final Logger log = LoggerFactory.getLogger(BundleValidator.class);
     public static List<List<TransactionViewModel>> validate(Tangle tangle, Hash tailHash) throws Exception {
         TransactionViewModel tail = TransactionViewModel.fromHash(tangle, tailHash);
         if (tail.getCurrentIndex() != 0 || tail.getValidity() == -1) {
@@ -226,7 +233,7 @@ public class BundleValidator {
                 tx = tx.getTrunkTransaction(tangle);
             } while (i++ < end && tx.getCurrentIndex() != 0 && tx.getBundleHash().equals(bundleHash));
         } catch (Exception e) {
-            e.printStackTrace();
+            log.info("got you" , e);
         }
         return bundleTransactions;
     }
