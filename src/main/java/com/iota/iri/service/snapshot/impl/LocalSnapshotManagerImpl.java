@@ -19,7 +19,7 @@ import static com.iota.iri.MilestoneTracker.Status.INITIALIZED;
 /**
  * Implements the basic contract of the {@link LocalSnapshotManager}.
  */
-public class LocalSnapshotManagerImpl implements LocalSnapshotManager {
+public class LocalSnapshotManagerImpl extends MilestoneTracker implements LocalSnapshotManager {
     /**
      * The interval (in milliseconds) in which we check if a new local {@link com.iota.iri.service.snapshot.Snapshot} is
      * due.
@@ -115,7 +115,7 @@ public class LocalSnapshotManagerImpl implements LocalSnapshotManager {
     private void monitorThread(MilestoneTracker milestoneTracker) {
         while (!Thread.currentThread().isInterrupted()) {
             int localSnapshotInterval = milestoneTracker.getStatus() == INITIALIZED &&
-                    snapshotProvider.getLatestSnapshot().getIndex() == milestoneTracker.latestMilestoneIndex
+                    snapshotProvider.getLatestSnapshot().getIndex() == MilestoneTracker.latestMilestoneIndex
                     ? config.getLocalSnapshotsIntervalSynced()
                     : config.getLocalSnapshotsIntervalUnsynced();
 

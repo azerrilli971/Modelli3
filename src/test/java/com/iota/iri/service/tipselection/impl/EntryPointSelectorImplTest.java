@@ -20,7 +20,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class EntryPointSelectorImplTest {
+public class EntryPointSelectorImplTest extends MilestoneTracker {
 
     @Mock
     private MilestoneTracker milestoneTracker;
@@ -65,7 +65,7 @@ public class EntryPointSelectorImplTest {
         milestoneModel.index = new IntegerIndex(1);
         milestoneModel.hash = milestoneModelHash;
         Mockito.when(milestoneTracker.getMilestoneStartIndex()).thenReturn(0);
-        milestoneTracker.latestMilestoneIndex = 1;
+        MilestoneTracker.latestMilestoneIndex = 1;
         Mockito.when(tangle.load(com.iota.iri.model.persistables.Milestone.class, milestoneModel.index))
                 .thenReturn(milestoneModel);
     }

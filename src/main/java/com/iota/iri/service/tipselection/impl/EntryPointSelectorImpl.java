@@ -32,7 +32,7 @@ public class EntryPointSelectorImpl extends MilestoneTracker implements EntryPoi
         int milestoneIndex = Math.max(milestoneTracker.latestSolidSubtangleMilestoneIndex - depth - 1,
                 milestoneTracker.getMilestoneStartIndex());
         MilestoneViewModel milestoneViewModel = MilestoneViewModel.findClosestNextMilestone(tangle, milestoneIndex,
-                milestoneTracker.latestMilestoneIndex);
+                MilestoneTracker.latestMilestoneIndex);
         if (milestoneViewModel != null && milestoneViewModel.getHash() != null) {
             return milestoneViewModel.getHash();
         }

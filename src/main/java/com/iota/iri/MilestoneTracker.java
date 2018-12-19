@@ -93,9 +93,13 @@ public class MilestoneTracker {
         this.latestSolidSubtangleMilestoneIndex = latestSolidSubtangleMilestoneIndex;
     }
 
-    public int latestMilestoneIndex;
+    protected static int latestMilestoneIndex;
     public int latestSolidSubtangleMilestoneIndex;
     public final int milestoneStartIndex;
+
+    public static void setLatestMilestoneIndex(int latestMilestoneIndex) {
+        MilestoneTracker.latestMilestoneIndex = latestMilestoneIndex;
+    }
 
     private final Set<Hash> analyzedMilestoneCandidates = new HashSet<>();
 
@@ -131,7 +135,7 @@ public class MilestoneTracker {
         this.coordinator = HashFactory.ADDRESS.create(config.getCoordinator());
         this.numOfKeysInMilestone = config.getNumberOfKeysInMilestone();
         this.milestoneStartIndex = config.getMilestoneStartIndex();
-        this.latestMilestoneIndex = milestoneStartIndex;
+        MilestoneTracker.latestMilestoneIndex = milestoneStartIndex;
         this.latestSolidSubtangleMilestoneIndex = milestoneStartIndex;
         this.acceptAnyTestnetCoo = config.isDontValidateTestnetMilestoneSig();
     }
@@ -181,7 +185,7 @@ public class MilestoneTracker {
                                                 MilestoneViewModel milestoneViewModel = MilestoneViewModel.latest(tangle);
                                                 if (milestoneViewModel != null && milestoneViewModel.index() > latestMilestoneIndex) {
                                                     latestMilestone = milestoneViewModel.getHash();
-                                                    latestMilestoneIndex = milestoneViewModel.index();
+                                                    setLatestMilestoneIndex(milestoneViewModel.index());
                                                 }
                                                 break;
                                             case INCOMPLETE:
@@ -332,7 +336,7 @@ public class MilestoneTracker {
         return (int) Converter.longValue(transactionViewModel.trits(), TransactionViewModel.OBSOLETE_TAG_TRINARY_OFFSET, 15);
     }
 
-    void shutDown() {
+    public void shutDown() {
         shuttingDown = true;
     }
 

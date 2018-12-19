@@ -77,7 +77,7 @@ import static io.undertow.Handlers.path;
  * </p>
  */
 @SuppressWarnings("unchecked")
-public class API {
+public class API extends MilestoneTracker {
 
     public static final String REFERENCE_TRANSACTION_NOT_FOUND = "reference transaction not found";
     public static final String REFERENCE_TRANSACTION_TOO_OLD = "reference transaction is too old";
@@ -87,7 +87,7 @@ public class API {
     
     private static final Logger log = LoggerFactory.getLogger(API.class);
     private final IXI ixi;
-    private final int milestoneStartIndex;
+    private final int startIndex; //old milestoneStartIndex
 
     private Undertow server;
 
@@ -136,7 +136,7 @@ public class API {
         maxGetTrytes = configuration.getMaxGetTrytes();
         maxBodyLength = configuration.getMaxBodyLength();
         testNet = configuration.isTestnet();
-        milestoneStartIndex = ((ConsensusConfig) configuration).getMilestoneStartIndex();
+        startIndex = ((ConsensusConfig) configuration).getMilestoneStartIndex();
 
         previousEpochsSpentAddresses = new ConcurrentHashMap<>();
 
@@ -688,7 +688,7 @@ public class API {
      * @return <tt>false</tt> if we received at least a solid milestone, otherwise <tt>true</tt>
      */
     public boolean invalidSubtangleStatus() {
-        return (instance.milestoneTracker.latestSolidSubtangleMilestoneIndex == milestoneStartIndex);
+        return (instance.milestoneTracker.latestSolidSubtangleMilestoneIndex == startIndex);
     }
     
     /**
@@ -958,7 +958,7 @@ public class API {
                 System.getProperty("java.version"), 
                 Runtime.getRuntime().maxMemory(),
                 Runtime.getRuntime().totalMemory(), 
-                instance.milestoneTracker.getLatestMilestone(), instance.milestoneTracker.latestMilestoneIndex,
+                instance.milestoneTracker.getLatestMilestone(), MilestoneTracker.latestMilestoneIndex,
                 instance.milestoneTracker.getLatestSolidSubtangleMilestone(),
                 instance.milestoneTracker.latestSolidSubtangleMilestoneIndex, 
                 instance.milestoneTracker.milestoneStartIndex,
@@ -1720,6 +1720,7 @@ public class API {
      * If a server is running, stops the server from accepting new incoming requests.
      * Does not remove the instance, so the server may be restarted without having to recreate it.
      */
+    @Override
     public void shutDown() {
         if (server != null) {
             server.stop();

@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 /**
  * Implements the basic contract of the {@link SnapshotService}.
  */
-public class SnapshotServiceImpl implements SnapshotService {
+public class SnapshotServiceImpl extends MilestoneTracker implements SnapshotService {
     /**
      * Logger for this class allowing us to dump debug and status messages.
      */
@@ -226,7 +226,7 @@ public class SnapshotServiceImpl implements SnapshotService {
         try {
             MilestoneViewModel seenMilestone = targetMilestone;
             while ((seenMilestone = MilestoneViewModel.findClosestNextMilestone(tangle, seenMilestone.index(),
-                    milestoneTracker.latestMilestoneIndex)) != null) {
+                    MilestoneTracker.latestMilestoneIndex)) != null) {
 
                 seenMilestones.put(seenMilestone.getHash(), seenMilestone.index());
 
