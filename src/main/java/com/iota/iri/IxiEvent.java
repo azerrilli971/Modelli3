@@ -11,7 +11,6 @@ public enum IxiEvent {
     UNKNOWN("UNKNOWN");
 
     private String name;
-
     IxiEvent(String name) {
         this.name = name;
     }

@@ -95,7 +95,7 @@ public class GetNeighborsResponse extends AbstractResponse {
         public long getNumberOfNewTransactions() {
             return numberOfNewTransactions;
         }
-        
+
         public long getNumberOfRandomTransactionRequests(){ return numberOfRandomTransactionRequests;}
 
         /**
