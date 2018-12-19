@@ -23,7 +23,7 @@ public class Transaction implements Persistable {
 
     private byte[] bytes;
 
-    public Hash address;
+    private Hash address;
     public Hash bundle;
     private Hash trunk;
     public Hash branch;
@@ -111,6 +111,16 @@ public class Transaction implements Persistable {
 
     public void setBytes(byte[] bytes) {
         this.bytes = bytes;
+    }
+
+    //getter and setter address
+
+    public Hash getAddress() {
+        return address;
+    }
+
+    public void setAddress(Hash address) {
+        this.address = address;
     }
 
     private boolean solid = false;

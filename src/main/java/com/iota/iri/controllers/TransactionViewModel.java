@@ -515,10 +515,10 @@ public class TransactionViewModel {
      * @return The {@link AddressHash} identifier.
      */
     public Hash getAddressHash() {
-        if(transaction.address == null) {
-            transaction.address = HashFactory.ADDRESS.create(trits(), ADDRESS_TRINARY_OFFSET);
+        if(transaction.getAddress() == null) {
+            transaction.setAddress(HashFactory.ADDRESS.create(trits(), ADDRESS_TRINARY_OFFSET));
         }
-        return transaction.address;
+        return transaction.getAddress();
     }
 
     /**
