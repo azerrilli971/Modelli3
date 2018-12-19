@@ -11,7 +11,7 @@ import com.iota.iri.storage.Tangle;
  * Meaning <code>milestone(latestSolid - depth)</code>
  * Used as a starting point for the random walk.
  */
-public class EntryPointSelectorImpl implements EntryPointSelector {
+public class EntryPointSelectorImpl extends MilestoneTracker implements EntryPointSelector {
 
     private final Tangle tangle;
     private final MilestoneTracker milestoneTracker;
@@ -22,6 +22,7 @@ public class EntryPointSelectorImpl implements EntryPointSelector {
      * @param milestoneTracker  instance of the milestone tracker, used to get latest milestone.
      */
     public EntryPointSelectorImpl(Tangle tangle, MilestoneTracker milestoneTracker) {
+        super();
         this.tangle = tangle;
         this.milestoneTracker = milestoneTracker;
     }
@@ -36,6 +37,6 @@ public class EntryPointSelectorImpl implements EntryPointSelector {
             return milestoneViewModel.getHash();
         }
 
-        return milestoneTracker.latestSolidSubtangleMilestone;
+        return super.latestSolidSubtangleMilestone;
     }
 }
