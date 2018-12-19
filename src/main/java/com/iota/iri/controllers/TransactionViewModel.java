@@ -673,9 +673,9 @@ public class TransactionViewModel {
         return nonce;
     }
 
-    /**@return The {@link Transaction#lastIndex} of the transaction bundle*/
+    /**@return The {@link Transaction lastIndex} of the transaction bundle*/
     public long lastIndex() {
-        return transaction.lastIndex;
+        return transaction.getLastIndex();
     }
 
     /*
@@ -705,7 +705,7 @@ public class TransactionViewModel {
         transaction.timestamp = Converter.longValue(trits(), TIMESTAMP_TRINARY_OFFSET, TIMESTAMP_TRINARY_SIZE);
         //if (transaction.timestamp > 1262304000000L ) transaction.timestamp /= 1000L;  // if > 01.01.2010 in milliseconds
         transaction.currentIndex = Converter.longValue(trits(), CURRENT_INDEX_TRINARY_OFFSET, CURRENT_INDEX_TRINARY_SIZE);
-        transaction.lastIndex = Converter.longValue(trits(), LAST_INDEX_TRINARY_OFFSET, LAST_INDEX_TRINARY_SIZE);
+        transaction.setLastIndex(Converter.longValue(trits(), LAST_INDEX_TRINARY_OFFSET, LAST_INDEX_TRINARY_SIZE));
         transaction.setType(transaction.bytes == null ? TransactionViewModel.PREFILLED_SLOT : TransactionViewModel.FILLED_SLOT);
     }
 
