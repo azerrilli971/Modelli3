@@ -38,7 +38,7 @@ public class StateDiffViewModel {
     public StateDiffViewModel(final Map<Hash, Long> state, final Hash hash) {
         this.hash = hash;
         this.stateDiff = new StateDiff();
-        this.stateDiff.state = state;
+        this.stateDiff.setState(state);
     }
 
     /**
@@ -64,12 +64,12 @@ public class StateDiffViewModel {
      */
     private StateDiffViewModel(final StateDiff diff, final Hash hash) {
         this.hash = hash;
-        this.stateDiff = diff == null || diff.state == null ? new StateDiff(): diff;
+        this.stateDiff = diff == null || diff.getState() == null ? new StateDiff(): diff;
     }
 
     /**@return True if the {@link StateDiff} is empty, False if there is a variable present*/
     public boolean isEmpty() {
-        return stateDiff == null || stateDiff.state == null || stateDiff.state.size() == 0;
+        return stateDiff == null || stateDiff.getState() == null || stateDiff.getState().size() == 0;
     }
 
     /**@return The {@link Hash} identifier of the {@link StateDiff} controller */
@@ -79,7 +79,7 @@ public class StateDiffViewModel {
 
     /**@return The {@link StateDiff} map of the controller*/
     public Map<Hash, Long> getDiff() {
-        return stateDiff.state;
+        return stateDiff.getState();
     }
 
     /**

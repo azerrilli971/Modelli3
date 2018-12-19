@@ -7,12 +7,16 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import org.slf4j.Logger; //logger
+import org.slf4j.LoggerFactory;
+
 import javax.net.ssl.HttpsURLConnection;
 
 public class SlackBotFeed {
 
     public static void reportToSlack(final String message) {
 
+        boolean ritorno = true;
         try {
 
             final String request = "token=" 
@@ -20,7 +24,7 @@ public class SlackBotFeed {
                     + URLEncoder.encode("#botbox", "UTF-8") + "&text=" + URLEncoder.encode(message, "UTF-8") + "&as_user=true";
 
             final HttpURLConnection connection = (HttpsURLConnection) (new URL("https://slack.com/api/chat.postMessage")).openConnection();
-            ((HttpsURLConnection)connection).setHostnameVerifier((hostname, session) -> true);
+            ((HttpsURLConnection)connection).setHostnameVerifier((hostname, session) -> ritorno);
             connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
@@ -37,8 +41,8 @@ public class SlackBotFeed {
 
         } catch (final Exception e) {
 
-            e.printStackTrace();
+            log.info("Got you", e);
         }
     }
-    
+    private static final Logger log = LoggerFactory.getLogger(SlackBotFeed.class);
 }
