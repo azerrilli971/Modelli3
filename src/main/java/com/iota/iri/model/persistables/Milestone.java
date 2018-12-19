@@ -8,8 +8,8 @@ import com.iota.iri.utils.Serializer;
 import org.apache.commons.lang3.ArrayUtils;
 
 public class Milestone implements Persistable {
-    public IntegerIndex index;
-    public Hash hash;
+    private IntegerIndex index;
+    private Hash hash;
 
     public byte[] bytes() {
         return ArrayUtils.addAll(index.bytes(), hash.bytes());
@@ -30,6 +30,22 @@ public class Milestone implements Persistable {
     @Override
     public void readMetadata(byte[] bytes) {
 
+    }
+
+    public IntegerIndex getIndex() {
+        return index;
+    }
+
+    public void setIndex(IntegerIndex index) {
+        this.index = index;
+    }
+
+    public Hash getHash() {
+        return hash;
+    }
+
+    public void setHash(Hash hash) {
+        this.hash = hash;
     }
 
     @Override

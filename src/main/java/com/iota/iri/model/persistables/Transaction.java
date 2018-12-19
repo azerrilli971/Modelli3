@@ -24,12 +24,12 @@ public class Transaction implements Persistable {
     private byte[] bytes;
 
     private Hash address;
-    public Hash bundle;
+    private Hash bundle;
     private Hash trunk;
-    public Hash branch;
-    public Hash obsoleteTag;
-    public long value;
-    public long currentIndex;
+    private Hash branch;
+    private Hash obsoleteTag;
+    private long value;
+    private long currentIndex;
     private long lastIndex;
     private long timestamp;
 
@@ -121,6 +121,61 @@ public class Transaction implements Persistable {
 
     public void setAddress(Hash address) {
         this.address = address;
+    }
+
+    //getter and setter bundle
+
+
+    public Hash getBundle() {
+        return bundle;
+    }
+
+    public void setBundle(Hash bundle) {
+        this.bundle = bundle;
+    }
+
+    //getter e setter Branch
+
+
+    public Hash getBranch() {
+        return branch;
+    }
+
+    public void setBranch(Hash branch) {
+        this.branch = branch;
+    }
+
+    //getter e setter ObsoleteTag
+
+
+    public Hash getObsoleteTag() {
+        return obsoleteTag;
+    }
+
+    public void setObsoleteTag(Hash obsoleteTag) {
+        this.obsoleteTag = obsoleteTag;
+    }
+
+    //getter e setter Value
+
+
+    public long getValue() {
+        return value;
+    }
+
+    public void setValue(long value) {
+        this.value = value;
+    }
+
+    //Getter e setter CurrentIndex
+
+
+    public long getCurrentIndex() {
+        return currentIndex;
+    }
+
+    public void setCurrentIndex(long currentIndex) {
+        this.currentIndex = currentIndex;
     }
 
     private boolean solid = false;

@@ -363,7 +363,7 @@ public class TransactionViewModel {
 
     /**
      * Fetches a list of all {@link Transaction} component and {@link Hash} identifier pairs from the stored metadata.
-     * The method then ensures that the {@link Transaction#bytes} are present before adding the {@link Transaction} and
+     * The method then ensures that the {@link Transaction#getBytes()} are present before adding the {@link Transaction} and
      * {@link Hash} identifier to the already compiled list of {@link Transaction} components.
      *
      * @return A complete list of all {@link Transaction} component objects paired with their {@link Hash} identifiers
@@ -463,11 +463,11 @@ public class TransactionViewModel {
     }
 
     /**
-     * Gets the stored {@link Transaction#bytes}. If the {@link Transaction#bytes} are null, a new byte
+     * Gets the stored {@link Transaction#getBytes()} } If the {@link Transaction#getBytes()} are null, a new byte
      * array is created and stored from the {@link #trits}. If the {@link #trits} are also null, then a null byte array
      * is returned.
      *
-     * @return The stored {@link Transaction#bytes} array
+     * @return The stored {@link Transaction#getBytes()} array
      */
     public byte[] getBytes() {
         if(transaction.getBytes() == null || transaction.getBytes().length != SIZE) {
@@ -527,13 +527,13 @@ public class TransactionViewModel {
      * @return The {@link ObsoleteTagHash} identifier.
      */
     public Hash getObsoleteTagValue() {
-        if(transaction.obsoleteTag == null) {
+        if(transaction.getObsoleteTag() == null) {
             byte[] tagBytes = Converter.allocateBytesForTrits(OBSOLETE_TAG_TRINARY_SIZE);
             Converter.bytes(trits(), OBSOLETE_TAG_TRINARY_OFFSET, tagBytes, 0, OBSOLETE_TAG_TRINARY_SIZE);
 
-            transaction.obsoleteTag = HashFactory.OBSOLETETAG.create(tagBytes, 0, TAG_SIZE_IN_BYTES);
+            transaction.setObsoleteTag(HashFactory.OBSOLETETAG.create(tagBytes, 0, TAG_SIZE_IN_BYTES));
         }
-        return transaction.obsoleteTag;
+        return transaction.getObsoleteTag();
     }
 
     /**
@@ -542,10 +542,10 @@ public class TransactionViewModel {
      * @return The {@link BundleHash} identifier.
      */
     public Hash getBundleHash() {
-        if(transaction.bundle == null) {
-            transaction.bundle = HashFactory.BUNDLE.create(trits(), BUNDLE_TRINARY_OFFSET);
+        if(transaction.getBundle()== null) {
+            transaction.setBundle(HashFactory.BUNDLE.create(trits(), BUNDLE_TRINARY_OFFSET));
         }
-        return transaction.bundle;
+        return transaction.getBundle();
     }
 
     /**
@@ -566,10 +566,10 @@ public class TransactionViewModel {
      * @return The branch {@link TransactionHash} identifier.
      */
     public Hash getBranchTransactionHash() {
-        if(transaction.branch == null) {
-            transaction.branch = HashFactory.TRANSACTION.create(trits(), BRANCH_TRANSACTION_TRINARY_OFFSET);
+        if(transaction.getBranch() == null) {
+            transaction.setBranch(HashFactory.TRANSACTION.create(trits(), BRANCH_TRANSACTION_TRINARY_OFFSET));
         }
-        return transaction.branch;
+        return transaction.getBranch();
     }
 
     /**
@@ -616,9 +616,9 @@ public class TransactionViewModel {
         return transaction.getAttachmentTimestampUpperBound();
     }
 
-    /**@return The {@link Transaction#value}*/
+    /**@return The {@link Transaction#getValue()}*/
     public long value() {
-        return transaction.value;
+        return transaction.getValue();
     }
 
     /*
@@ -643,9 +643,9 @@ public class TransactionViewModel {
         return transaction.getValidity();
     }
 
-    /**@return The {@link Transaction#currentIndex} in its bundle*/
+    /**@return The {@link Transaction#getCurrentIndex()} in its bundle*/
     public long getCurrentIndex() {
-        return transaction.currentIndex;
+        return transaction.getCurrentIndex();
     }
 
     /**
@@ -701,10 +701,10 @@ public class TransactionViewModel {
      * {@link Transaction#type} is set to {@link #PREFILLED_SLOT}, and if not it is set to {@link #FILLED_SLOT}.
      */
     public void setMetadata() {
-        transaction.value = Converter.longValue(trits(), VALUE_TRINARY_OFFSET, VALUE_USABLE_TRINARY_SIZE);
+        transaction.setValue(Converter.longValue(trits(), VALUE_TRINARY_OFFSET, VALUE_USABLE_TRINARY_SIZE));
         transaction.setTimestamp(Converter.longValue(trits(), TIMESTAMP_TRINARY_OFFSET, TIMESTAMP_TRINARY_SIZE));
         //if (transaction.timestamp > 1262304000000L ) transaction.timestamp /= 1000L;  // if > 01.01.2010 in milliseconds
-        transaction.currentIndex = Converter.longValue(trits(), CURRENT_INDEX_TRINARY_OFFSET, CURRENT_INDEX_TRINARY_SIZE);
+        transaction.setCurrentIndex(Converter.longValue(trits(), CURRENT_INDEX_TRINARY_OFFSET, CURRENT_INDEX_TRINARY_SIZE));
         transaction.setLastIndex(Converter.longValue(trits(), LAST_INDEX_TRINARY_OFFSET, LAST_INDEX_TRINARY_SIZE));
         transaction.setType(transaction.getBytes() == null ? TransactionViewModel.PREFILLED_SLOT : TransactionViewModel.FILLED_SLOT);
     }
