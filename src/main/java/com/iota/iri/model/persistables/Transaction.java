@@ -31,10 +31,10 @@ public class Transaction implements Persistable {
     public long value;
     public long currentIndex;
     private long lastIndex;
-    public long timestamp;
+    private long timestamp;
 
-    public Hash tag;
-    public long attachmentTimestamp;
+    private Hash tag;
+    private long attachmentTimestamp;
     private long attachmentTimestampLowerBound;
     private long attachmentTimestampUpperBound;
 
@@ -49,6 +49,10 @@ public class Transaction implements Persistable {
     public long getArrivalTime() { return arrivalTime; }
     public void setArrivalTime(long arrivalTime) { this.arrivalTime = arrivalTime; }
 
+    //get e set attachmentTimestamp
+    public long getAttachmentTimestamp(){return attachmentTimestamp;}
+
+    public void setAttachmentTimestamp( long newTimestamp) {this.attachmentTimestamp = newTimestamp;}
     //get e set type
     public int getType() { return type; }
     public void setType(int type) { this.type = type; }
@@ -67,6 +71,11 @@ public class Transaction implements Persistable {
     public void setAttachmentTimestampLowerBound(long attachmentTimestampLowerBound) {
         this.attachmentTimestampLowerBound = attachmentTimestampLowerBound; }
 
+
+     // getter e setter tag
+
+    public Hash getTag(){return tag;}
+    public void setTag( Hash newTag) {this.tag = newTag;}
     //get e set parsed
     public void setParsed(boolean parsed) {
         this.parsed = parsed;
@@ -90,6 +99,10 @@ public class Transaction implements Persistable {
     public void setLastIndex( long newIndex) {
         this.lastIndex = newIndex;
     }
+
+    //getter setter timestamp
+    public long getTimestamp(){return timestamp;}
+    public void setTimestamp (long newTimeStamp) {this.timestamp = newTimeStamp;}
 
 
 
