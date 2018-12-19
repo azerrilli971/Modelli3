@@ -35,16 +35,39 @@ public class Transaction implements Persistable {
 
     public Hash tag;
     public long attachmentTimestamp;
-    public long attachmentTimestampLowerBound;
-    public long attachmentTimestampUpperBound;
+    private long attachmentTimestampLowerBound;
+    private long attachmentTimestampUpperBound;
 
-    public int validity = 0;
-    public int type = TransactionViewModel.PREFILLED_SLOT;
-    public long arrivalTime = 0;
+    private int validity = 0;
+    private int type = TransactionViewModel.PREFILLED_SLOT;
+    private long arrivalTime = 0;
 
     //public boolean confirmed = false;
     private boolean parsed = false;
 
+    //get e set arrivalTime
+    public long getArrivalTime() { return arrivalTime; }
+    public void setArrivalTime(long arrivalTime) { this.arrivalTime = arrivalTime; }
+
+    //get e set type
+    public int getType() { return type; }
+    public void setType(int type) { this.type = type; }
+
+    //get e set validity
+    public int getValidity() { return validity; }
+    public void setValidity(int validity) { this.validity = validity; }
+
+    //get e set attachmentTimestampUpperBound
+    public long getAttachmentTimestampUpperBound() {return attachmentTimestampUpperBound; }
+    public void setAttachmentTimestampUpperBound(long attachmentTimestampUpperBound) {
+        this.attachmentTimestampUpperBound = attachmentTimestampUpperBound; }
+
+    //get e set attachmentTimestampLowerBound
+    public long getAttachmentTimestampLowerBound() { return attachmentTimestampLowerBound; }
+    public void setAttachmentTimestampLowerBound(long attachmentTimestampLowerBound) {
+        this.attachmentTimestampLowerBound = attachmentTimestampLowerBound; }
+
+    //get e set parsed
     public void setParsed(boolean parsed) {
         this.parsed = parsed;
     }
@@ -52,16 +75,17 @@ public class Transaction implements Persistable {
         return parsed;
     }
 
+    //get e set trunk
     public Hash getTrunk() {
         return trunk;
     }
-
     public void setTrunk(Hash trunk) {
         this.trunk = trunk;
     }
 
     private boolean solid = false;
 
+    //get e set solid
     public void setSolid(boolean solid) {
         this.solid = solid;
     }
@@ -87,8 +111,16 @@ public class Transaction implements Persistable {
         return height;
     }
 
-    public String sender = "";
-    public int snapshot;
+    private String sender = "";
+    private int snapshot;
+
+    //get e set snapshot
+    public int getSnapshot() { return snapshot; }
+    public void setSnapshot(int snapshot) { this.snapshot = snapshot; }
+
+    //get e set sender
+    public String getSender() { return sender; }
+    public void setSender(String sender) { this.sender = sender; }
 
     public byte[] bytes() {
         return bytes;
