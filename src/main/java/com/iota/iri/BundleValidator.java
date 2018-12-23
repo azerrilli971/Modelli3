@@ -129,7 +129,7 @@ public class BundleValidator {
                                     //normalizing the bundle in preparation for signature verification
                                     ISSInPlace.normalizedBundle(bundleHashTrits, normalizedBundle);
 
-                                    for (int j = 0; j < instanceTransactionViewModels.size(); ) {
+                                    for (int j = 0; j < instanceTransactionViewModels.size(); j++ ) {
 
                                         transactionViewModel = instanceTransactionViewModels.get(j);
                                         //if it is a spent transaction that should be signed
@@ -148,7 +148,7 @@ public class BundleValidator {
                                                 addressInstance.absorb(digestTrits,0, Curl.HASH_LENGTH);
                                                 offset = offsetNext;
                                             } //loop to traverse signature fragments divided between transactions
-                                            while (++j < instanceTransactionViewModels.size()
+                                            while (j < instanceTransactionViewModels.size()
                                                     && instanceTransactionViewModels.get(j).getAddressHash().equals(transactionViewModel.getAddressHash())
                                                     && instanceTransactionViewModels.get(j).value() == 0);
 
@@ -159,8 +159,6 @@ public class BundleValidator {
                                                 flag = false;
                                                 break;
                                             }
-                                        } else {
-                                            j++;
                                         }
                                     }
                                     if (!flag) {
