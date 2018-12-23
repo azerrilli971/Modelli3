@@ -158,14 +158,6 @@ public class Snapshot {
 
                 stateIterator.remove();
             }
-            //////////// --Coo only--
-                /*
-                 * if (entry.getValue() > 0) {
-                 *
-                 * System.out.ln("initialState.put(new Hash(\"" + entry.getKey()
-                 * + "\"), " + entry.getValue() + "L);"); }
-                 */
-            ////////////
         }
         return true;
     }
