@@ -92,7 +92,7 @@ public class BundleValidator {
                 boolean flag = true;
 
                 //here we iterate over the txs by checking the trunk of the current transaction
-                
+
                 while (true) {
                     instanceTransactionViewModels.add(transactionViewModel);
 

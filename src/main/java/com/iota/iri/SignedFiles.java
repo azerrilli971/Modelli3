@@ -12,6 +12,10 @@ import java.util.Arrays;
 
 public class SignedFiles {
 
+    private SignedFiles () {
+        
+    }
+
     public static boolean isFileSignatureValid(String filename, String signatureFilename, String publicKey, int depth, int index) throws IOException {
         byte[] signature = digestFile(filename, SpongeFactory.create(SpongeFactory.Mode.KERL));
         return validateSignature(signatureFilename, publicKey, depth, index, signature);
