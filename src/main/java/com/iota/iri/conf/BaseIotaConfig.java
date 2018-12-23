@@ -703,7 +703,7 @@ public abstract class BaseIotaConfig implements IotaConfig {
         //API
         int API_PORT = 14265;
         String API_HOST = "localhost";
-        
+
         int MAX_FIND_TRANSACTIONS = 100_000;
         int MAX_REQUESTS_LIST = 1_000;
         int MAX_GET_TRYTES = 10_000;

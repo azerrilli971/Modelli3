@@ -342,7 +342,7 @@ public class MilestoneTracker {
         shuttingDown = true;
     }
 
-    public void reportToSlack(final int milestoneIndex, final int depth, final int nextDepth) {
+    public void reportToSlack() {
 
         try {
 
