@@ -19,6 +19,10 @@ public interface Config  {
 
      class DescriptionHelper {
 
-         protected static final String PROB_OF = "A number between 0 and 1 that represents the probability of ";
+         private static final String PROB_OF = "A number between 0 and 1 that represents the probability of ";
+
+         public static String getProbOf() {
+             return PROB_OF;
+         }
      }
 }
