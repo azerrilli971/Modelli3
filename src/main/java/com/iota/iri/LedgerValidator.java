@@ -73,16 +73,7 @@ public class LedgerValidator {
                             boolean validBundle = false;
 
                             final List<List<TransactionViewModel>> bundleTransactions = BundleValidator.validate(tangle, transactionViewModel.getHash());
-                            /*
-                            for(List<TransactionViewModel> transactions: bundleTransactions) {
-                                if (transactions.size() > 0) {
-                                    int index = transactions.get(0).snapshotIndex();
-                                    if (index > 0 && index <= latestSnapshotIndex) {
-                                        return null;
-                                    }
-                                }
-                            }
-                            */
+
                             for (final List<TransactionViewModel> bundleTransactionViewModels : bundleTransactions) {
 
                                 if(BundleValidator.isInconsistent(bundleTransactionViewModels)) {
@@ -118,11 +109,16 @@ public class LedgerValidator {
             }
         }
 
-        log.debug("Analyzed transactions = " + numberOfAnalyzedTransactions);
-        if (tip == null) {
-            numberOfConfirmedTransactions = numberOfAnalyzedTransactions;
+        if(log.isDebugEnabled()){
+            log.debug( String.format("Analyzed transactions = %d" , numberOfAnalyzedTransactions));
+            if (tip == null) {
+                numberOfConfirmedTransactions = numberOfAnalyzedTransactions;
+            }
         }
-        log.debug("Confirmed transactions = " + numberOfConfirmedTransactions);
+
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Confirmed transactions =  %d", numberOfConfirmedTransactions));
+        }
         return state;
     }
 
@@ -177,13 +173,14 @@ public class LedgerValidator {
     }
     protected void init() throws Exception {
         MilestoneViewModel latestConsistentMilestone = buildSnapshot();
-        if(latestConsistentMilestone != null) {
-            log.info("Loaded consistent milestone: #" + latestConsistentMilestone.index());
 
+        if (log.isDebugEnabled()) {
+            log.info(String.format("Loaded consistent milestone: %d", latestConsistentMilestone.index()));
+        }
             milestoneTracker.latestSolidSubtangleMilestone = latestConsistentMilestone.getHash();
             setMil(latestConsistentMilestone.index());
+
         }
-    }
 
 
     /**
@@ -207,7 +204,9 @@ public class LedgerValidator {
                     logMessage.append(", Candidate: #");
                     logMessage.append(candidateMilestone.index());
 
-                    log.info(logMessage.toString());
+                    if (log.isDebugEnabled()){
+                        log.info(logMessage.toString());
+                    }
                 }
                 if (StateDiffViewModel.maybeExists(tangle, candidateMilestone.getHash())) {
                     StateDiffViewModel stateDiffViewModel = StateDiffViewModel.load(tangle, candidateMilestone.getHash());
