@@ -89,9 +89,10 @@ public class BundleValidator {
                 final byte[] bundleHashTrits = new byte[TransactionViewModel.BUNDLE_TRINARY_SIZE];
                 final byte[] normalizedBundle = new byte[Curl.HASH_LENGTH / ISS.TRYTE_WIDTH];
                 final byte[] digestTrits = new byte[Curl.HASH_LENGTH];
+                boolean flag = true;
 
                 //here we iterate over the txs by checking the trunk of the current transaction
-                MAIN_LOOP:
+                
                 while (true) {
                     instanceTransactionViewModels.add(transactionViewModel);
 
@@ -155,33 +156,49 @@ public class BundleValidator {
                                             //signature verification
                                             if (! Arrays.equals(transactionViewModel.getAddressHash().trits(), addressTrits)) {
                                                 instanceTransactionViewModels.get(0).setValidity(tangle, -1);
-                                                break MAIN_LOOP;
+                                                flag = false;
+                                                break;
                                             }
                                         } else {
                                             j++;
                                         }
                                     }
+                                    if (!flag) {
+                                        break ;
+                                    }
                                     //should only be reached after the above for loop is done
                                     instanceTransactionViewModels.get(0).setValidity(tangle, 1);
                                     transactions.add(instanceTransactionViewModels);
+                                }
+
+                                if (!flag) {
+                                    break ;
                                 }
                                 //bundle hash verification failed
                                 else {
                                     instanceTransactionViewModels.get(0).setValidity(tangle, -1);
                                 }
                             }
+
+                            if (!flag) {
+                                break ;
+                            }
                             //bundle validity status is known
                             else {
                                 transactions.add(instanceTransactionViewModels);
                             }
                         }
+
+                        if (!flag) {
+                            break ;
+                        }
                         //total bundle value does not sum to 0
                         else {
                             instanceTransactionViewModels.get(0).setValidity(tangle, -1);
                         }
+
                         //break from main loop
                         break;
-
                     }
                     //traverse to the next tx in the bundle
                     else {
