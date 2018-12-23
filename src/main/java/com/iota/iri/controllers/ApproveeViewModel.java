@@ -7,8 +7,6 @@ import com.iota.iri.storage.Persistable;
 import com.iota.iri.storage.Tangle;
 import com.iota.iri.utils.Pair;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -16,7 +14,7 @@ import java.util.Set;
  * {@link TransactionViewModel} to manipulate an {@link Approvee} set.
  */
 public class ApproveeViewModel implements HashesViewModel {
-    private Approvee self;
+    private Approvee approvee;
     private Indexable hash;
 
     /**
@@ -35,7 +33,7 @@ public class ApproveeViewModel implements HashesViewModel {
      * @param hash The {@link Hash} identifier that acts as a reference for the {@link Approvee} set
      */
     private ApproveeViewModel(Approvee hashes, Indexable hash) {
-        self = hashes == null || hashes.getSet() == null ? new Approvee(): hashes;
+        approvee = hashes == null || hashes.getSet() == null ? new Approvee(): hashes;
         this.hash = hash;
     }
 
@@ -70,12 +68,12 @@ public class ApproveeViewModel implements HashesViewModel {
 
     @Override
     public boolean store(Tangle tangle) throws Exception {
-        return tangle.save(self, hash);
+        return tangle.save(approvee, hash);
     }
 
     @Override
     public int size() {
-        return self.getSet().size();
+        return approvee.getSet().size();
     }
 
     @Override
@@ -90,7 +88,7 @@ public class ApproveeViewModel implements HashesViewModel {
 
     @Override
     public Set<Hash> getHashes() {
-        return self.getSet();
+        return approvee.getSet();
     }
 
     @Override

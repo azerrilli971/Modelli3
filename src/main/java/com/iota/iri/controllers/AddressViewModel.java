@@ -14,7 +14,7 @@ import java.util.Set;
  * {@link TransactionViewModel} to manipulate an {@link Address} set.
  */
 public class AddressViewModel implements HashesViewModel {
-    private Address self;
+    private Address address;
     private Indexable hash;
 
     /**
@@ -33,7 +33,7 @@ public class AddressViewModel implements HashesViewModel {
      * @param hash The {@link Hash} identifier that acts as a reference for the {@link Address} set
      */
     private AddressViewModel(Address hashes, Indexable hash) {
-        self = hashes == null || hashes.getSet() == null ? new Address(): hashes;
+        address = hashes == null || hashes.getSet() == null ? new Address(): hashes;
         this.hash = hash;
     }
 
@@ -72,7 +72,7 @@ public class AddressViewModel implements HashesViewModel {
 
     @Override
     public boolean store(Tangle tangle) throws Exception {
-        return tangle.save(self, hash);
+        return tangle.save(address, hash);
     }
 
 
@@ -80,7 +80,7 @@ public class AddressViewModel implements HashesViewModel {
 
     @Override
     public int size() {
-        return self.getSet().size();
+        return address.getSet().size();
     }
 
 
@@ -101,7 +101,7 @@ public class AddressViewModel implements HashesViewModel {
 
     @Override
     public Set<Hash> getHashes() {
-        return self.getSet();
+        return address.getSet();
     }
 
 

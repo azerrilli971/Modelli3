@@ -225,7 +225,7 @@ public class LedgerValidator {
         } finally {
             milestoneTracker.getLatestSnapshot().rwlock.writeLock().unlock();
         }
-        return consistentMilestone;
+        return consistentMilestone; 
     }
 
     public boolean updateSnapshot(MilestoneViewModel milestoneVM) throws Exception {

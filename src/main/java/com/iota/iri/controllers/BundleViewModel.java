@@ -7,8 +7,6 @@ import com.iota.iri.storage.Persistable;
 import com.iota.iri.storage.Tangle;
 import com.iota.iri.utils.Pair;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -16,7 +14,7 @@ import java.util.Set;
  * {@link TransactionViewModel} to manipulate a {@link Bundle} set.
  */
 public class BundleViewModel implements HashesViewModel {
-    private Bundle self;
+    private Bundle bundle;
     private Indexable hash;
 
     /**
@@ -35,7 +33,7 @@ public class BundleViewModel implements HashesViewModel {
      * @param hash The {@link Hash} identifier that acts as a reference for the {@link Bundle} set
      */
     private BundleViewModel(Bundle hashes, Indexable hash) {
-        self = hashes == null || hashes.getSet() == null ? new Bundle(): hashes;
+        bundle = hashes == null || hashes.getSet() == null ? new Bundle(): hashes;
         this.hash = hash;
     }
 
@@ -73,12 +71,12 @@ public class BundleViewModel implements HashesViewModel {
      */
     @Override
     public boolean store(Tangle tangle) throws Exception {
-        return tangle.save(self, hash);
+        return tangle.save(bundle, hash);
     }
 
     @Override
     public int size() {
-        return self.getSet().size();
+        return bundle.getSet().size();
     }
 
     @Override
@@ -93,7 +91,7 @@ public class BundleViewModel implements HashesViewModel {
 
     @Override
     public Set<Hash> getHashes() {
-        return self.getSet();
+        return bundle.getSet();
     }
 
     @Override
