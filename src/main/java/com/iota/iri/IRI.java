@@ -61,6 +61,8 @@ public class IRI {
     }
 
     private static void configureLogging() {
+        final Logger log = LoggerFactory.getLogger(IRI.class);
+
         String config = System.getProperty("logback.configurationFile");
         String level = System.getProperty("logging-level", "").toUpperCase();
         switch (level) {
@@ -79,9 +81,10 @@ public class IRI {
                 break;
         }
         System.getProperties().put("logging-level", level);
-        System.out.println("Logging - property 'logging-level' set to: [" + level + "]");
+        if (log.isInfoEnabled()) {
+        log.info(String.format("Logging - property 'logging-level' set to: [%s]", level)); }
         if (config != null) {
-            System.out.println("Logging - alternate logging configuration file specified at: '" + config + "'");
+            throw new IllegalStateException(String.format("Logging - alternate logging configuration file specified at: '%s'", config));
         }
     }
 
@@ -174,7 +177,8 @@ public class IRI {
             }
 
             log.info(message);
-            log.info("parsed the following cmd args: {}", Arrays.toString(args));
+            if (log.isInfoEnabled()) {
+            log.info("parsed the following cmd args: {}", Arrays.toString(args)); }
             return iotaConfig;
         }
 

@@ -328,7 +328,10 @@ public class TransactionViewModel {
      * the trits are generated from the transaction object and stored in the controller {@link #trits()} variable.
      */
     public synchronized byte[] trits() {
-        return (trits == null) ? (trits = trits(transaction.getBytes())) : trits;
+        if (trits == null){
+            trits = trits(transaction.getBytes());
+        }
+        return trits;
     }
 
     /**
