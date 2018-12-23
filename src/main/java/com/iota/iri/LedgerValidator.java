@@ -162,19 +162,7 @@ public class LedgerValidator {
      * @param tip
      * @throws Exception
      */
-    private void updateConsistentHashes(final Set<Hash> visitedHashes, Hash tip, int index) throws Exception {
-        final Queue<Hash> nonAnalyzedTransactions = new LinkedList<>(Collections.singleton(tip));
-        Hash hashPointer;
-        while ((hashPointer = nonAnalyzedTransactions.poll()) != null) {
-            final TransactionViewModel transactionViewModel2 = TransactionViewModel.fromHash(tangle, hashPointer);
-            if((transactionViewModel2.snapshotIndex() == 0 || transactionViewModel2.snapshotIndex() > index) ) {
-                if(visitedHashes.add(hashPointer)) {
-                    nonAnalyzedTransactions.offer(transactionViewModel2.getTrunkTransactionHash());
-                    nonAnalyzedTransactions.offer(transactionViewModel2.getBranchTransactionHash());
-                }
-            }
-        }
-    }
+
 
     /**
      * Initializes the LedgerValidator. This updates the latest milestone and solid subtangle milestone, and then
