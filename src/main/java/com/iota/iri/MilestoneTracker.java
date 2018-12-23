@@ -13,17 +13,10 @@ import com.iota.iri.model.HashFactory;
 import com.iota.iri.storage.Tangle;
 import com.iota.iri.utils.Converter;
 import com.iota.iri.zmq.MessageQ;
+import com.iota.iri.utils.SlackBotFeed;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.net.ssl.HttpsURLConnection;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.List;
@@ -88,8 +81,6 @@ public class MilestoneTracker {
     public void setLatestSolidSubtangleMilestone(Hash latestSolidSubtangleMilestone) {
         this.latestSolidSubtangleMilestone = latestSolidSubtangleMilestone;
     }
-
-
 
     protected static int latestMilestoneIndex;
     protected static int latestSolidSubtangleMilestoneIndex;
@@ -342,35 +333,9 @@ public class MilestoneTracker {
         shuttingDown = true;
     }
 
-    public void reportToSlack() {
-
-        try {
-
-            boolean risultato = true;
-            final String request = "token=" + URLEncoder.encode("<botToken>", "UTF-8") + "&channel=" + URLEncoder.encode("#botbox", "UTF-8") + "&text=" + URLEncoder.encode("TESTNET: ", "UTF-8") + "&as_user=true";
-
-            final HttpURLConnection connection = (HttpsURLConnection) (new URL("https://slack.com/api/chat.postMessage")).openConnection();
-            ((HttpsURLConnection)connection).setHostnameVerifier((hostname, session) -> risultato);
-            connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            connection.setRequestMethod("POST");
-            connection.setDoOutput(true);
-            OutputStream out = connection.getOutputStream();
-            out.write(request.getBytes("UTF-8"));
-            out.close();
-            ByteArrayOutputStream result = new ByteArrayOutputStream();
-            InputStream inputStream = connection.getInputStream();
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = inputStream.read(buffer)) != -1) {
-
-                result.write(buffer, 0, length);
-            }
-            String logs = result.toString("UTF-8");
-            log.info(logs);
-
-        } catch (final Exception e) {
-            log.info("Got you" , e);
-        }
+    public void slack() {
+        String message = "TESTNET:";
+        SlackBotFeed.reportToSlack(message);
     }
 
     private boolean isMilestoneBundleStructureValid(List<TransactionViewModel> bundleTxs, int securityLevel) {
@@ -379,7 +344,5 @@ public class MilestoneTracker {
                 .limit(securityLevel)
                 .allMatch(tx ->
                         tx.getBranchTransactionHash().equals(head.getTrunkTransactionHash()));
-        //trunks of bundles are checked in Bundle validation - no need to check again.
-        //bundleHash equality is checked in BundleValidator.validate() (loadTransactionsFromTangle)
     }
 }
