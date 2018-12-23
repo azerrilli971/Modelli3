@@ -42,7 +42,7 @@ public abstract class BaseIotaConfig implements IotaConfig {
     protected int maxBodyLength = Defaults.MAX_BODY_LENGTH;
     protected String remoteAuth = Defaults.REMOTE_AUTH;
     //We don't have a REMOTE config but we have a remote flag. We must add a field for JCommander
-    private boolean remote = true;
+    boolean remote = true;
 
     //Network
     protected int udpReceiverPort = Defaults.UDP_RECEIVER_PORT;
