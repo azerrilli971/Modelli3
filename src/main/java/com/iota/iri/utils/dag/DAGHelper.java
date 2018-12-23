@@ -34,16 +34,14 @@ public class DAGHelper {
      * @return DAGHelper instance that allows to use the implemented methods.
      */
     public static DAGHelper get(Tangle tangle) {
-        DAGHelper instance;
-        instances.computeIfAbsent(tangle, instances -> new DAGHelper(tangle));
-        synchronized(DAGHelper.class) {
-            if((instance = instances.get(tangle)) == null) {
-                instance = new DAGHelper(tangle);
 
-                instances.put(tangle, instance);
-            }
+        instances.computeIfAbsent(tangle, instances -> new DAGHelper(tangle));
+
+        synchronized(DAGHelper.class) {
+            return  instances.computeIfAbsent(tangle, instances -> new DAGHelper(tangle));
+
         }
-        return instance;
+
     }
 
     /**
