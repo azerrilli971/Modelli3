@@ -109,11 +109,11 @@ public class IXI {
     }
 
     private String getModuleName(Path modulePath, boolean checkIfIsDir) {
-        return rootPath.relativize(!checkIfIsDir || Files.isDirectory(modulePath) ? modulePath : modulePath.getParent()).toString();
+        return rootPath.relativize(!checkIfIsDir || modulePath.toFile().isDirectory() ? modulePath : modulePath.getParent()).toString();
     }
 
     private Path getRealPath(Path currentPath) {
-        if (Files.isDirectory(currentPath.getParent()) && !currentPath.getParent().equals(rootPath)) {
+        if ((currentPath.getParent().toFile().isDirectory()) && !currentPath.getParent().equals(rootPath)) {
             return currentPath.getParent();
         } else {
             return currentPath;
@@ -121,7 +121,7 @@ public class IXI {
     }
 
     private void handleModulePathEvent(Path watchedPath, IxiEvent ixiEvent, Path changedPath) {
-        if (!watchedPath.equals(rootPath) && Files.isDirectory(changedPath)) { // we are only interested in dir changes in tree depth level 2
+        if (!watchedPath.equals(rootPath) && changedPath.toFile().isDirectory()) { // we are only interested in dir changes in tree depth level 2
             return;
         }
         handlePathEvent(ixiEvent, changedPath);
@@ -207,7 +207,7 @@ public class IXI {
     private void loadModule(Path modulePath) {
         log.info("Searching: {}", modulePath);
         Path packageJsonPath = getPackagePath(modulePath);
-        if (!Files.exists(packageJsonPath)) {
+        if (!packageJsonPath.toFile().exists()) {
             log.info("No package.json found in {}", modulePath);
             return;
         }
