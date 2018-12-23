@@ -23,6 +23,10 @@ import java.util.*;
  */
 public class BundleValidator {
 
+    private BundleValidator() {
+
+    }
+
     /**
      * Fetches a bundle of transactions identified by the {@code tailHash} and validates the transactions.
      * Bundle is a group of transactions with the same bundle hash chained by their trunks.
