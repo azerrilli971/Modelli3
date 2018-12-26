@@ -2,11 +2,13 @@ package com.iota.iri.service.dto;
 
 import com.iota.iri.model.Hash;
 import com.iota.iri.service.API;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * 
  * Contains information about the result of a successful {@code getTransactionsToApprove} API call.
- * See {@link API#getTransactionsToApproveStatement} for how this response is created.
+ * See {@link *API#getTransactionsToApproveStatement} for how this response is created.
  *
  */
 public class GetTransactionsToApproveResponse extends AbstractResponse {
@@ -49,5 +51,16 @@ public class GetTransactionsToApproveResponse extends AbstractResponse {
      */
 	public String getTrunkTransaction() {
 		return trunkTransaction;
+	}
+
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this, false);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		return EqualsBuilder.reflectionEquals(this, obj, false);
 	}
 }
