@@ -16,6 +16,7 @@ import java.util.*;
  */
 public class TransactionRequester {
 
+
     private static final Logger log = LoggerFactory.getLogger(TransactionRequester.class);
     private final MessageQ messageQ;
     private final Set<Hash> milestoneTransactionsToRequest = new LinkedHashSet<>();

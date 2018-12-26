@@ -35,7 +35,7 @@ public class TCPNeighbor extends Neighbor {
      }
 
 
-     
+
     private static final Logger log = LoggerFactory.getLogger(Neighbor.class);
     private int tcpPort;
 

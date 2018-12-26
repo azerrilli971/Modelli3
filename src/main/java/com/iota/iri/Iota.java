@@ -76,6 +76,11 @@ public class Iota {
     public final TransactionValidator transactionValidator;
     public final TipsSolidifier tipsSolidifier;
     public final TransactionRequester transactionRequester;
+
+
+
+
+
     public final Node node;
     public final UDPReceiver udpReceiver;
     public final Replicator replicator;

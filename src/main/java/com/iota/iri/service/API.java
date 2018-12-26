@@ -79,6 +79,8 @@ import static io.undertow.Handlers.path;
 @SuppressWarnings("unchecked")
 public class API extends MilestoneTracker {
 
+
+
     public static final String REFERENCE_TRANSACTION_NOT_FOUND = "reference transaction not found";
     public static final String REFERENCE_TRANSACTION_TOO_OLD = "reference transaction is too old";
     
@@ -118,6 +120,17 @@ public class API extends MilestoneTracker {
     private final static char ZERO_LENGTH_NOT_ALLOWED = 'N';
     private Iota instance;
     
+    public AbstractResponse synchronize () {
+        List<String> missingTx = Arrays.stream(instance.transactionRequester.getRequestedTransactions())
+                .map(Hash::toString)
+                .collect(Collectors.toList());
+
+
+
+        return GetTipsResponse.create(missingTx);
+    }
+
+
     private final String[] features;
 
     /**
@@ -321,6 +334,10 @@ public class API extends MilestoneTracker {
         final String body = IotaIOUtils.toString(cis, StandardCharsets.UTF_8);
         final AbstractResponse response;
 
+
+
+
+
         if (!exchange.getRequestHeaders().contains("X-IOTA-API-Version")) {
             response = ErrorResponse.create("Invalid API Version");
         } else if (body.length() > maxBodyLength) {
@@ -492,12 +509,7 @@ public class API extends MilestoneTracker {
                 }
                 case "getMissingTransactions": {
                     //TransactionRequester.instance().rescanTransactionsToRequest();
-                    synchronized (instance.transactionRequester) {
-                        List<String> missingTx = Arrays.stream(instance.transactionRequester.getRequestedTransactions())
-                                .map(Hash::toString)
-                                .collect(Collectors.toList());
-                        return GetTipsResponse.create(missingTx);
-                    }
+                    return synchronize();
                 }
                 case "checkConsistency": {
                     if (invalidSubtangleStatus()) {
@@ -528,6 +540,7 @@ public class API extends MilestoneTracker {
             log.error("API Exception: {}", e.getLocalizedMessage(), e);
             return ExceptionResponse.create(e.getLocalizedMessage());
         }
+
     }
 
     /**
