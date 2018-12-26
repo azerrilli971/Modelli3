@@ -16,7 +16,7 @@ public class Curl implements Sponge {
 
     static final int NUMBER_OF_ROUNDSP81 = 81;
     static final int NUMBER_OF_ROUNDSP27 = 27;
-    private final int numberOfRounds;
+    private static int numberOfRounds;
     private static final int STATE_LENGTH = 3 * HASH_LENGTH;
 
     private static final byte[] TRUTH_TABLE = {1, 0, -1, 2, 1, -1, 0, 2, -1, 1, 0};
@@ -27,15 +27,18 @@ public class Curl implements Sponge {
 
     private final byte[] scratchpad = new byte[STATE_LENGTH];
 
+    private static void numberOfRounds(int numberOfRounds) {
+        Curl.numberOfRounds = numberOfRounds;
+    }
 
     protected Curl(SpongeFactory.Mode mode) {
         switch(mode) {
-            case CURLP27: {
-                numberOfRounds = NUMBER_OF_ROUNDSP27;
-            } break;
-            case CURLP81: {
-                numberOfRounds = NUMBER_OF_ROUNDSP81;
-            } break;
+            case CURLP27:
+                numberOfRounds(NUMBER_OF_ROUNDSP27);
+                break;
+            case CURLP81:
+                numberOfRounds(NUMBER_OF_ROUNDSP81);
+                break;
             default: throw new NoSuchElementException("Only Curl-P-27 and Curl-P-81 are supported.");
         }
         state = new byte[STATE_LENGTH];
@@ -93,12 +96,12 @@ public class Curl implements Sponge {
 
     protected Curl(boolean pair, SpongeFactory.Mode mode) {
         switch(mode) {
-            case CURLP27: {
-                numberOfRounds = NUMBER_OF_ROUNDSP27;
-            } break;
-            case CURLP81: {
-                numberOfRounds = NUMBER_OF_ROUNDSP81;
-            } break;
+            case CURLP27:
+                numberOfRounds(NUMBER_OF_ROUNDSP27);
+                break;
+            case CURLP81:
+                numberOfRounds(NUMBER_OF_ROUNDSP81);
+                break;
             default: throw new NoSuchElementException("Only Curl-P-27 and Curl-P-81 are supported.");
         }
         if(pair) {

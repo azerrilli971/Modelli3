@@ -18,6 +18,18 @@ import java.net.InetSocketAddress;
  */
 public class UDPNeighbor extends Neighbor {
 
+      @Override
+      public boolean equals(final Object obj) {
+          return this == obj || !((obj == null) || (obj.getClass() != this.getClass())) && getAddress().equals(((Neighbor) obj).getAddress());
+      }
+
+      @Override
+      public int hashCode() {
+          return getAddress().hashCode();
+      }
+
+
+
     private static final Logger log = LoggerFactory.getLogger(UDPNeighbor.class);
 
     private final DatagramSocket socket;
