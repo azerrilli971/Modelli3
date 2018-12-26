@@ -42,7 +42,8 @@ public abstract class AbstractResponse {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(Object obj)
+    {
         return EqualsBuilder.reflectionEquals(this, obj, false);
     }
 

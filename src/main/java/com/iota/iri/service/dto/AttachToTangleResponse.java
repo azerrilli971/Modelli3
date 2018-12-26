@@ -3,6 +3,8 @@ package com.iota.iri.service.dto;
 import java.util.List;
 
 import com.iota.iri.service.API;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * 
@@ -12,11 +14,27 @@ import com.iota.iri.service.API;
  */
 public class AttachToTangleResponse extends AbstractResponse {
 
+
+
     /**
      * List of the attached transaction trytes. 
      * The last 243 trytes of the return value consist of the: 
      * <code>trunkTransaction</code> + <code>branchTransaction</code> + <code>nonce</code>.
      */
+
+
+
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this, false);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		return EqualsBuilder.reflectionEquals(this, obj, false);
+	}
+
 	private List<String> trytes;
 	
 	/**
