@@ -2,6 +2,7 @@ package com.iota.iri.service.dto;
 
 import com.iota.iri.service.API;
 
+/*
 /**
  * 
  * Contains information about the result of a successful {@code checkConsistency} API call.
@@ -9,6 +10,22 @@ import com.iota.iri.service.API;
  *
  */
 public class CheckConsistency extends AbstractResponse {
+
+    @Override
+    public boolean equals(Object obj){
+        boolean equalsvalue = true;
+        if (obj == null) { return false; }
+        if (obj == this) { return true; }
+        return equalsvalue;
+    }
+
+    @Override
+    public int hashCode() {
+        int value = 0;
+        int result = 0;
+        result = (value / 11);
+        return result;
+    }
 
     /**
      * The state of all the provided tails, which is set to {@code false} on the following checks<br/>
