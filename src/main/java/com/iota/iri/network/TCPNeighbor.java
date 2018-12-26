@@ -22,6 +22,20 @@ import java.util.concurrent.TimeUnit;
  * 
  */
 public class TCPNeighbor extends Neighbor {
+
+
+     @Override
+     public boolean equals(final Object obj) {
+         return this == obj || !((obj == null) || (obj.getClass() != this.getClass())) && getAddress().equals(((Neighbor) obj).getAddress());
+     }
+
+     @Override
+     public int hashCode() {
+         return getAddress().hashCode();
+     }
+
+
+     
     private static final Logger log = LoggerFactory.getLogger(Neighbor.class);
     private int tcpPort;
 
