@@ -40,26 +40,28 @@ public class ReplicatorSinkPool  implements Runnable {
         this.transactionPacketSize = transactionPacketSize;
     }
 
+    public void neighbors() {
+        List<Neighbor> neighbors = node.getNeighbors();
+        // wait until list is populated
+        int loopcnt = 10;
+        while ((loopcnt-- > 0) && neighbors.size() == 0) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.error("Interrupted");
+            }
+        }
+        neighbors.stream().filter(n -> n instanceof TCPNeighbor && n.isFlagged())
+                .map(n -> ((TCPNeighbor) n))
+                .forEach(this::createSink);
+    }
+
     @Override
     public void run() {
         
         sinkPool = Executors.newFixedThreadPool(Replicator.NUM_THREADS);
-        {           
-            List<Neighbor> neighbors = node.getNeighbors();
-            // wait until list is populated
-            int loopcnt = 10;
-            while ((loopcnt-- > 0) && neighbors.size() == 0) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    log.error("Interrupted");
-                }
-            }
-            neighbors.stream().filter(n -> n instanceof TCPNeighbor && n.isFlagged())
-                    .map(n -> ((TCPNeighbor) n))
-                    .forEach(this::createSink);
-        }
+        neighbors();
         
         while (!Thread.interrupted()) {
             // Restart attempt for neighbors that are in the configuration.
