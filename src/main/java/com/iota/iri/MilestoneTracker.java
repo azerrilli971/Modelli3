@@ -166,8 +166,6 @@ public class MilestoneTracker {
                 try {
                     final int previousLatestMilestoneIndex = latestMilestoneIndex;
                     Set<Hash> hashes = AddressViewModel.load(tangle, coordinator).getHashes();
-                    { // Update Milestone
-                        { // find new milestones
                             for(Hash hash: hashes) {
                                 if(analyzedMilestoneCandidates.add(hash)) {
                                     TransactionViewModel t = TransactionViewModel.fromHash(tangle, hash);
@@ -191,9 +189,7 @@ public class MilestoneTracker {
                                     }
                                 }
                             }
-                        }
-                    }
-
+                            
                     if (previousLatestMilestoneIndex != latestMilestoneIndex) {
                         messageQ.publish("lmi %d %d", previousLatestMilestoneIndex, latestMilestoneIndex);
                         log.info("Latest milestone has changed from #" + previousLatestMilestoneIndex
