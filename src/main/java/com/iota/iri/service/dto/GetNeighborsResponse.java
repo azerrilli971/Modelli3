@@ -3,6 +3,8 @@ package com.iota.iri.service.dto;
 import java.util.List;
 
 import com.iota.iri.service.API;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * 
@@ -154,5 +156,16 @@ public class GetNeighborsResponse extends AbstractResponse {
             ne.connectionType = n.connectionType();
             return ne;
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this, false);
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        return EqualsBuilder.reflectionEquals(this, obj, false);
     }
 }

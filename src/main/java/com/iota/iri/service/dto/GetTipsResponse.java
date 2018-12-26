@@ -3,11 +3,13 @@ package com.iota.iri.service.dto;
 import java.util.List;
 
 import com.iota.iri.service.API;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * 
  * Contains information about the result of a successful {@code getTips} API call.
- * See {@link API#getTipsStatement} for how this response is created.
+ * See {@link *API#getTipsStatement} for how this response is created.
  *
  */
 public class GetTipsResponse extends AbstractResponse {
@@ -35,6 +37,16 @@ public class GetTipsResponse extends AbstractResponse {
      */
 	public String[] getHashes() {
 		return hashes;
+	}
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this, false);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		return EqualsBuilder.reflectionEquals(this, obj, false);
 	}
 
 }

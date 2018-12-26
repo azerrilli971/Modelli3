@@ -3,11 +3,13 @@ package com.iota.iri.service.dto;
 import com.iota.iri.model.Hash;
 import com.iota.iri.service.API;
 import com.iota.iri.service.Feature;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * 
  * Contains information about the result of a successful {@code getNodeInfo} API call.
- * See {@link API#getNodeInfoStatement} for how this response is created.
+ * See {@link *API#getNodeInfoStatement} for how this response is created.
  *
  */
 public class GetNodeInfoResponse extends AbstractResponse {
@@ -324,5 +326,16 @@ public class GetNodeInfoResponse extends AbstractResponse {
 	 */
 	public String getCoordinatorAddress() {
 		return coordinatorAddress;
+	}
+
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this, false);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		return EqualsBuilder.reflectionEquals(this, obj, false);
 	}
 }
