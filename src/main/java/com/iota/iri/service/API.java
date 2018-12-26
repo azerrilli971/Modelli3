@@ -507,10 +507,8 @@ public class API extends MilestoneTracker {
                         return ErrorResponse.create("Invalid trytes input");
                     }
                 }
-                case "getMissingTransactions": {
-                    //TransactionRequester.instance().rescanTransactionsToRequest();
+                case "getMissingTransactions":
                     return synchronize();
-                }
                 case "checkConsistency": {
                     if (invalidSubtangleStatus()) {
                         return ErrorResponse.create(INVALID_SUBTANGLE);
