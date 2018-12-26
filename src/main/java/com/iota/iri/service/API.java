@@ -381,20 +381,7 @@ public class API extends MilestoneTracker {
                                             Currently caught and turned into a {@link ExceptionResponse}.
      */
 
-    public AbstractResponse storeMessage (Map<String, Object> nrequest) throws Exception {
 
-        if (!testNet) {
-            return AccessLimitedResponse.create("COMMAND storeMessage is only available on testnet");
-        }
-
-        if (!nrequest.containsKey("address") || !nrequest.containsKey("message")) {
-            return ErrorResponse.create("Invalid params");
-        }
-
-        String address = (String) nrequest.get("address");
-        String message = (String) nrequest.get("message");
-        return storeMessageStatement(address, message);
-    }
 
     private AbstractResponse process(final String requestString, InetSocketAddress sourceAddress)
             throws UnsupportedEncodingException {
@@ -423,48 +410,27 @@ public class API extends MilestoneTracker {
 
             switch (command) {
                 case "storeMessage":
-                    storeMessage (request);
 
-                case "addNeighbors": {
-                    List<String> uris = getParameterAsList(request,"uris",0);
-                    log.debug("Invoking 'addNeighbors' with {}", uris);
-                    return addNeighborsStatement(uris);
-                }
-                case "attachToTangle": {
-                    final Hash trunkTransaction  = HashFactory.TRANSACTION.create(getParameterAsStringAndValidate(request,"trunkTransaction", HASH_SIZE));
-                    final Hash branchTransaction = HashFactory.TRANSACTION.create(getParameterAsStringAndValidate(request,"branchTransaction", HASH_SIZE));
-                    final int minWeightMagnitude = getParameterAsInt(request,"minWeightMagnitude");
+                    return getStoreMessage(request);
 
-                    final List<String> trytes = getParameterAsList(request,"trytes", TRYTES_SIZE);
+                case "addNeighbors":
+                    return getAbstractResponse(request);
 
-                    List<String> elements = attachToTangleStatement(trunkTransaction, branchTransaction, minWeightMagnitude, trytes);
-                    return AttachToTangleResponse.create(elements);
-                }
-                case "broadcastTransactions": {
-                    final List<String> trytes = getParameterAsList(request,"trytes", TRYTES_SIZE);
-                    broadcastTransactionsStatement(trytes);
-                    return AbstractResponse.createEmptyResponse();
-                }
-                case "findTransactions": {
+                case "attachToTangle": 
+                    return getAttachToTangle(request);
+
+                case "broadcastTransactions":
+                    return getBroadcastTransactions(request);
+
+                case "findTransactions":
                     return findTransactionsStatement(request);
-                }
-                case "getBalances": {
-                    final List<String> addresses = getParameterAsList(request,"addresses", HASH_SIZE);
-                    final List<String> tips = request.containsKey("tips") ?
-                            getParameterAsList(request,"tips", HASH_SIZE):
-                            null;
-                    final int threshold = getParameterAsInt(request, "threshold");
-                    return getBalancesStatement(addresses, tips, threshold);
-                }
-                case "getInclusionStates": {
-                    if (invalidSubtangleStatus()) {
-                        return ErrorResponse.create(INVALID_SUBTANGLE);
-                    }
-                    final List<String> transactions = getParameterAsList(request,"transactions", HASH_SIZE);
-                    final List<String> tips = getParameterAsList(request,"tips", HASH_SIZE);
 
-                    return getInclusionStatesStatement(transactions, tips);
-                }
+                case "getBalances":
+                    return getGetBalance(request);
+
+                case "getInclusionStates":
+                    return getGetInclusionStates(request);
+
                 //vecchia linea 445
                 case "getNeighbors": {
                     return getNeighborsStatement();
@@ -534,6 +500,62 @@ public class API extends MilestoneTracker {
             return ExceptionResponse.create(e.getLocalizedMessage());
         }
 
+    }
+
+    private AbstractResponse getAttachToTangle(Map<String, Object> request) throws ValidationException {
+        final Hash trunkTransaction  = HashFactory.TRANSACTION.create(getParameterAsStringAndValidate(request,"trunkTransaction", HASH_SIZE));
+        final Hash branchTransaction = HashFactory.TRANSACTION.create(getParameterAsStringAndValidate(request,"branchTransaction", HASH_SIZE));
+        final int minWeightMagnitude = getParameterAsInt(request,"minWeightMagnitude");
+
+        final List<String> trytes = getParameterAsList(request,"trytes", TRYTES_SIZE);
+
+        List<String> elements = attachToTangleStatement(trunkTransaction, branchTransaction, minWeightMagnitude, trytes);
+        return AttachToTangleResponse.create(elements);
+    }
+
+    private AbstractResponse getBroadcastTransactions(Map<String, Object> request) throws ValidationException {
+        final List<String> trytes = getParameterAsList(request,"trytes", TRYTES_SIZE);
+        broadcastTransactionsStatement(trytes);
+        return AbstractResponse.createEmptyResponse();
+    }
+
+    private AbstractResponse getGetBalance(Map<String, Object> request) throws Exception {
+        final List<String> addresses = getParameterAsList(request,"addresses", HASH_SIZE);
+        final List<String> tips = request.containsKey("tips") ?
+                getParameterAsList(request,"tips", HASH_SIZE):
+                null;
+        final int threshold = getParameterAsInt(request, "threshold");
+        return getBalancesStatement(addresses, tips, threshold);
+    }
+
+    private AbstractResponse getGetInclusionStates(Map<String, Object> request) throws Exception {
+        if (invalidSubtangleStatus()) {
+            return ErrorResponse.create(INVALID_SUBTANGLE);
+        }
+        final List<String> transactions = getParameterAsList(request,"transactions", HASH_SIZE);
+        final List<String> tips = getParameterAsList(request,"tips", HASH_SIZE);
+
+        return getInclusionStatesStatement(transactions, tips);
+    }
+
+    private AbstractResponse getStoreMessage(Map<String, Object> request) throws Exception {
+        if (!testNet) {
+            return AccessLimitedResponse.create("COMMAND storeMessage is only available on testnet");
+        }
+
+        if (!request.containsKey("address") || !request.containsKey("message")) {
+            return ErrorResponse.create("Invalid params");
+        }
+
+        String address = (String) request.get("address");
+        String message = (String) request.get("message");
+        return storeMessageStatement(address, message);
+    }
+
+    private AbstractResponse getAbstractResponse(Map<String, Object> request) throws ValidationException {
+        List<String> uris = getParameterAsList(request,"uris",0);
+        log.debug("Invoking 'addNeighbors' with {}", uris);
+        return addNeighborsStatement(uris);
     }
 
     /**
