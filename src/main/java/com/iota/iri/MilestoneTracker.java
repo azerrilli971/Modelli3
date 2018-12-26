@@ -189,7 +189,7 @@ public class MilestoneTracker {
                                     }
                                 }
                             }
-                            
+
                     if (previousLatestMilestoneIndex != latestMilestoneIndex) {
                         messageQ.publish("lmi %d %d", previousLatestMilestoneIndex, latestMilestoneIndex);
                         log.info("Latest milestone has changed from #" + previousLatestMilestoneIndex
