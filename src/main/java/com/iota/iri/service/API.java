@@ -481,12 +481,8 @@ public class API extends MilestoneTracker {
                 case "wereAddressesSpentFrom":
                     return loc();
 
-                default: {
-                    AbstractResponse response = ixi.processCommand(command, request);
-                    return response == null ?
-                            ErrorResponse.create("Command [" + command + "] is unknown") :
-                            response;
-                }
+                default:return defMethod();
+
             }
 
         } catch (final ValidationException e) {
@@ -562,7 +558,7 @@ public class API extends MilestoneTracker {
      * Check if a list of addresses was ever spent from, in the current epoch, or in previous epochs.
      * If an address has a pending transaction, it is also marked as spend.
      * 
-     * @param addresses List of addresses to check if they were ever spent from.
+     * @param  List of addresses to check if they were ever spent from.
      * @return {@link *com.iota.iri.service.dto.wereAddressesSpentFrom}
      **/
     
@@ -586,6 +582,16 @@ public class API extends MilestoneTracker {
     }
 
 
+    public AbstractResponse defMethod(){
+        Map<String, Object> request = null;
+        String command = null;
+        AbstractResponse response = ixi.processCommand(command, request);
+        if(response == null){
+            ErrorResponse.create("Command [" + command + "] is unknown");
+            return  response;
+        }
+        return response;
+    }
     
                
     
@@ -1064,14 +1070,14 @@ public class API extends MilestoneTracker {
         final byte[] inclusionStates = new byte[numberOfNonMetTransactions];
 
         List<Integer> tipsIndex = new LinkedList<>();
-        {
+
             for(Hash tip: tps) {
                 TransactionViewModel tx = TransactionViewModel.fromHash(instance.tangle, tip);
                 if (tx.getType() != TransactionViewModel.PREFILLED_SLOT) {
                     tipsIndex.add(tx.snapshotIndex());
                 }
             }
-        }
+
         
         // Finds the lowest tips index, or 0
         int minTipsIndex = tipsIndex.stream().reduce((a,b) -> a < b ? a : b).orElse(0);
@@ -1147,9 +1153,9 @@ public class API extends MilestoneTracker {
             inclusionStatesBoolean[i] = inclusionStates[i] == 1;
         }
         
-        {
+
             return GetInclusionStatesResponse.create(inclusionStatesBoolean);
-        }
+
     }
     
     /**
