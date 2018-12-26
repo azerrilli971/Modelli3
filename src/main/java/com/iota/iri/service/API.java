@@ -509,17 +509,12 @@ public class API extends MilestoneTracker {
                 }
                 case "getMissingTransactions":
                     return synchronize();
-                case "checkConsistency": {
-                    if (invalidSubtangleStatus()) {
-                        return ErrorResponse.create(INVALID_SUBTANGLE);
-                    }
-                    final List<String> transactions = getParameterAsList(request,"tails", HASH_SIZE);
-                    return checkConsistencyStatement(transactions);
-                }
-                case "wereAddressesSpentFrom": {
-                    final List<String> addresses = getParameterAsList(request,"addresses", HASH_SIZE);
-                    return wereAddressesSpentFromStatement(addresses);
-                }
+                case "checkConsistency":
+                    return check();
+
+                case "wereAddressesSpentFrom":
+                    return loc();
+
                 default: {
                     AbstractResponse response = ixi.processCommand(command, request);
                     return response == null ?
@@ -548,6 +543,32 @@ public class API extends MilestoneTracker {
      * @param addresses List of addresses to check if they were ever spent from.
      * @return {@link *com.iota.iri.service.dto.wereAddressesSpentFrom}
      **/
+    
+    public AbstractResponse check() throws Exception {
+        
+        if (invalidSubtangleStatus()){
+            return ErrorResponse.create(INVALID_SUBTANGLE);
+        }
+        Map<String, Object> request = null;
+        final List<String> transactions = getParameterAsList(request,"tails", HASH_SIZE);
+        validateParamExists(request, "tails");
+        return checkConsistencyStatement(transactions);
+
+    }
+
+    public AbstractResponse loc() throws Exception {
+        Map<String, Object> request = null;
+        final List<String> addresses = getParameterAsList(request,"addresses", HASH_SIZE);
+        validateParamExists(request, "adresses");
+        return wereAddressesSpentFromStatement(addresses);
+    }
+
+
+    
+               
+    
+    
+    
     private AbstractResponse wereAddressesSpentFromStatement(List<String> addresses) throws Exception {
         final List<Hash> addressesHash = addresses.stream()
                 .map(HashFactory.ADDRESS::create)
