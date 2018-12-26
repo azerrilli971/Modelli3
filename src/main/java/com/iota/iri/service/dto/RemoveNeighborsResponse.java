@@ -1,11 +1,13 @@
 package com.iota.iri.service.dto;
 
 import com.iota.iri.service.API;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * 
  * Contains information about the result of a successful {@code removeNeighbors} API call.
- * See {@link API#removeNeighborsStatement} for how this response is created.
+ * See {@link *API#removeNeighborsStatement} for how this response is created.
  *
  */
 public class RemoveNeighborsResponse extends AbstractResponse {
@@ -34,6 +36,16 @@ public class RemoveNeighborsResponse extends AbstractResponse {
      */
 	public int getRemovedNeighbors() {
 		return removedNeighbors;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return EqualsBuilder.reflectionEquals(this, obj, false);
+	}
+
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this, false);
 	}
 
 }

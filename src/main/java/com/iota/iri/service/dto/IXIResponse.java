@@ -39,5 +39,5 @@ public class IXIResponse extends AbstractResponse {
     public int hashCode() {
         return HashCodeBuilder.reflectionHashCode(this, false);
     }
-    
+
 }
