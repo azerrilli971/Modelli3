@@ -182,20 +182,27 @@ public class Iota {
 
     private void initializeTangle() {
         switch (configuration.getMainDb()) {
-            case "rocksdb": {
-                tangle.addPersistenceProvider(new RocksDBPersistenceProvider(
-                        configuration.getDbPath(),
-                        configuration.getDbLogPath(),
-                        configuration.getDbCacheSize()));
+            case "rocksdb":
+                persistanceProvider();
                 break;
-            }
-            default: {
-                throw new NotImplementedException("No such database type.");
-            }
+            default:
+                notImplemented();
+                return;
         }
         if (configuration.isZmqEnabled()) {
             tangle.addPersistenceProvider(new ZmqPublishProvider(messageQ));
         }
+    }
+
+    private void notImplemented() {
+        throw new NotImplementedException("No such database type.");
+    }
+
+    private void persistanceProvider() {
+        tangle.addPersistenceProvider(new RocksDBPersistenceProvider(
+                configuration.getDbPath(),
+                configuration.getDbLogPath(),
+                configuration.getDbCacheSize()));
     }
 
     private TipSelector createTipSelector(TipSelConfig config) {
