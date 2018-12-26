@@ -91,4 +91,18 @@ public class BoundedHashSet<E> extends HashSet<E> implements BoundedSet<E>{
         }
         return super.addAll(c);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        boolean ret = false;
+        if (o == this) ret = true;
+        return ret;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        result = 31 * maxSize;
+        return result;
+    }
 }
