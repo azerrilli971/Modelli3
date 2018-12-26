@@ -356,14 +356,30 @@ public class API extends MilestoneTracker {
      *     </li>
      * </ul>
      * 
-     * @param requestString The JSON encoded data of the request.
+     * @param *requestString The JSON encoded data of the request.
      *                      This String is attempted to be converted into a {@code Map<String, Object>}.
-     * @param sourceAddress The address from the sender of this API request.
+     * @param *sourceAddress The address from the sender of this API request.
      * @return The result of this request. 
      * @throws UnsupportedEncodingException If the requestString cannot be parsed into a Map. 
                                             Currently caught and turned into a {@link ExceptionResponse}.
      */
-    private AbstractResponse process(final String requestString, InetSocketAddress sourceAddress) 
+
+    public AbstractResponse storeMessage (Map<String, Object> nrequest) throws Exception {
+
+        if (!testNet) {
+            return AccessLimitedResponse.create("COMMAND storeMessage is only available on testnet");
+        }
+
+        if (!nrequest.containsKey("address") || !nrequest.containsKey("message")) {
+            return ErrorResponse.create("Invalid params");
+        }
+
+        String address = (String) nrequest.get("address");
+        String message = (String) nrequest.get("message");
+        return storeMessageStatement(address, message);
+    }
+
+    private AbstractResponse process(final String requestString, InetSocketAddress sourceAddress)
             throws UnsupportedEncodingException {
 
         try {
@@ -389,19 +405,8 @@ public class API extends MilestoneTracker {
             log.debug("# {} -> Requesting command '{}'", counter.incrementAndGet(), command);
 
             switch (command) {
-                case "storeMessage": {
-                    if (!testNet) {
-                        return AccessLimitedResponse.create("COMMAND storeMessage is only available on testnet");
-                    }
-
-                    if (!request.containsKey("address") || !request.containsKey("message")) {
-                        return ErrorResponse.create("Invalid params");
-                    }
-
-                    String address = (String) request.get("address");
-                    String message = (String) request.get("message");
-                    return storeMessageStatement(address, message);
-                }
+                case "storeMessage":
+                    storeMessage (request);
 
                 case "addNeighbors": {
                     List<String> uris = getParameterAsList(request,"uris",0);
@@ -443,6 +448,7 @@ public class API extends MilestoneTracker {
 
                     return getInclusionStatesStatement(transactions, tips);
                 }
+                //vecchia linea 445
                 case "getNeighbors": {
                     return getNeighborsStatement();
                 }
@@ -529,7 +535,7 @@ public class API extends MilestoneTracker {
      * If an address has a pending transaction, it is also marked as spend.
      * 
      * @param addresses List of addresses to check if they were ever spent from.
-     * @return {@link com.iota.iri.service.dto.wereAddressesSpentFrom}
+     * @return {@link *com.iota.iri.service.dto.wereAddressesSpentFrom}
      **/
     private AbstractResponse wereAddressesSpentFromStatement(List<String> addresses) throws Exception {
         final List<Hash> addressesHash = addresses.stream()
@@ -938,7 +944,7 @@ public class API extends MilestoneTracker {
     /**
       * Interrupts and completely aborts the <tt>attachToTangle</tt> process.
       *
-      * @return {@link com.iota.iri.service.dto.AbstractResponse.Emptyness}
+      * @return {@link *com.iota.iri.service.dto.AbstractResponse.Emptyness}
       **/
     private AbstractResponse interruptAttachingToTangleStatement(){
         pearlDiver.cancel();
