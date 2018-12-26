@@ -36,7 +36,7 @@ public class GetInclusionStatesResponse extends AbstractResponse {
 	public int hashCode() {
 		return HashCodeBuilder.reflectionHashCode(this, false);
 	}
-	
+
 	@Override
 	public boolean equals(Object obj)
 	{
