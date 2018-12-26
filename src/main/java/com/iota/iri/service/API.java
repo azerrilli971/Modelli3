@@ -79,6 +79,8 @@ import static io.undertow.Handlers.path;
 @SuppressWarnings("unchecked")
 public class API extends MilestoneTracker {
 
+
+
     public static final String REFERENCE_TRANSACTION_NOT_FOUND = "reference transaction not found";
     public static final String REFERENCE_TRANSACTION_TOO_OLD = "reference transaction is too old";
     
@@ -118,6 +120,17 @@ public class API extends MilestoneTracker {
     private final static char ZERO_LENGTH_NOT_ALLOWED = 'N';
     private Iota instance;
     
+    public AbstractResponse synchronize () {
+        List<String> missingTx = Arrays.stream(instance.transactionRequester.getRequestedTransactions())
+                .map(Hash::toString)
+                .collect(Collectors.toList());
+
+
+
+        return GetTipsResponse.create(missingTx);
+    }
+
+
     private final String[] features;
 
     /**
@@ -321,6 +334,10 @@ public class API extends MilestoneTracker {
         final String body = IotaIOUtils.toString(cis, StandardCharsets.UTF_8);
         final AbstractResponse response;
 
+
+
+
+
         if (!exchange.getRequestHeaders().contains("X-IOTA-API-Version")) {
             response = ErrorResponse.create("Invalid API Version");
         } else if (body.length() > maxBodyLength) {
@@ -356,14 +373,17 @@ public class API extends MilestoneTracker {
      *     </li>
      * </ul>
      * 
-     * @param requestString The JSON encoded data of the request.
+     * @param *requestString The JSON encoded data of the request.
      *                      This String is attempted to be converted into a {@code Map<String, Object>}.
-     * @param sourceAddress The address from the sender of this API request.
+     * @param *sourceAddress The address from the sender of this API request.
      * @return The result of this request. 
      * @throws UnsupportedEncodingException If the requestString cannot be parsed into a Map. 
                                             Currently caught and turned into a {@link ExceptionResponse}.
      */
-    private AbstractResponse process(final String requestString, InetSocketAddress sourceAddress) 
+
+
+
+    private AbstractResponse process(final String requestString, InetSocketAddress sourceAddress)
             throws UnsupportedEncodingException {
 
         try {
@@ -389,60 +409,29 @@ public class API extends MilestoneTracker {
             log.debug("# {} -> Requesting command '{}'", counter.incrementAndGet(), command);
 
             switch (command) {
-                case "storeMessage": {
-                    if (!testNet) {
-                        return AccessLimitedResponse.create("COMMAND storeMessage is only available on testnet");
-                    }
+                case "storeMessage":
 
-                    if (!request.containsKey("address") || !request.containsKey("message")) {
-                        return ErrorResponse.create("Invalid params");
-                    }
+                    return getStoreMessage(request);
 
-                    String address = (String) request.get("address");
-                    String message = (String) request.get("message");
-                    return storeMessageStatement(address, message);
-                }
+                case "addNeighbors":
+                    return getAbstractResponse(request);
 
-                case "addNeighbors": {
-                    List<String> uris = getParameterAsList(request,"uris",0);
-                    log.debug("Invoking 'addNeighbors' with {}", uris);
-                    return addNeighborsStatement(uris);
-                }
-                case "attachToTangle": {
-                    final Hash trunkTransaction  = HashFactory.TRANSACTION.create(getParameterAsStringAndValidate(request,"trunkTransaction", HASH_SIZE));
-                    final Hash branchTransaction = HashFactory.TRANSACTION.create(getParameterAsStringAndValidate(request,"branchTransaction", HASH_SIZE));
-                    final int minWeightMagnitude = getParameterAsInt(request,"minWeightMagnitude");
+                case "attachToTangle": 
+                    return getAttachToTangle(request);
 
-                    final List<String> trytes = getParameterAsList(request,"trytes", TRYTES_SIZE);
+                case "broadcastTransactions":
+                    return getBroadcastTransactions(request);
 
-                    List<String> elements = attachToTangleStatement(trunkTransaction, branchTransaction, minWeightMagnitude, trytes);
-                    return AttachToTangleResponse.create(elements);
-                }
-                case "broadcastTransactions": {
-                    final List<String> trytes = getParameterAsList(request,"trytes", TRYTES_SIZE);
-                    broadcastTransactionsStatement(trytes);
-                    return AbstractResponse.createEmptyResponse();
-                }
-                case "findTransactions": {
+                case "findTransactions":
                     return findTransactionsStatement(request);
-                }
-                case "getBalances": {
-                    final List<String> addresses = getParameterAsList(request,"addresses", HASH_SIZE);
-                    final List<String> tips = request.containsKey("tips") ?
-                            getParameterAsList(request,"tips", HASH_SIZE):
-                            null;
-                    final int threshold = getParameterAsInt(request, "threshold");
-                    return getBalancesStatement(addresses, tips, threshold);
-                }
-                case "getInclusionStates": {
-                    if (invalidSubtangleStatus()) {
-                        return ErrorResponse.create(INVALID_SUBTANGLE);
-                    }
-                    final List<String> transactions = getParameterAsList(request,"transactions", HASH_SIZE);
-                    final List<String> tips = getParameterAsList(request,"tips", HASH_SIZE);
 
-                    return getInclusionStatesStatement(transactions, tips);
-                }
+                case "getBalances":
+                    return getGetBalance(request);
+
+                case "getInclusionStates":
+                    return getGetInclusionStates(request);
+
+                //vecchia linea 445
                 case "getNeighbors": {
                     return getNeighborsStatement();
                 }
@@ -484,26 +473,14 @@ public class API extends MilestoneTracker {
                         return ErrorResponse.create("Invalid trytes input");
                     }
                 }
-                case "getMissingTransactions": {
-                    //TransactionRequester.instance().rescanTransactionsToRequest();
-                    synchronized (instance.transactionRequester) {
-                        List<String> missingTx = Arrays.stream(instance.transactionRequester.getRequestedTransactions())
-                                .map(Hash::toString)
-                                .collect(Collectors.toList());
-                        return GetTipsResponse.create(missingTx);
-                    }
-                }
-                case "checkConsistency": {
-                    if (invalidSubtangleStatus()) {
-                        return ErrorResponse.create(INVALID_SUBTANGLE);
-                    }
-                    final List<String> transactions = getParameterAsList(request,"tails", HASH_SIZE);
-                    return checkConsistencyStatement(transactions);
-                }
-                case "wereAddressesSpentFrom": {
-                    final List<String> addresses = getParameterAsList(request,"addresses", HASH_SIZE);
-                    return wereAddressesSpentFromStatement(addresses);
-                }
+                case "getMissingTransactions":
+                    return synchronize();
+                case "checkConsistency":
+                    return check();
+
+                case "wereAddressesSpentFrom":
+                    return loc();
+
                 default: {
                     AbstractResponse response = ixi.processCommand(command, request);
                     return response == null ?
@@ -522,6 +499,63 @@ public class API extends MilestoneTracker {
             log.error("API Exception: {}", e.getLocalizedMessage(), e);
             return ExceptionResponse.create(e.getLocalizedMessage());
         }
+
+    }
+
+    private AbstractResponse getAttachToTangle(Map<String, Object> request) throws ValidationException {
+        final Hash trunkTransaction  = HashFactory.TRANSACTION.create(getParameterAsStringAndValidate(request,"trunkTransaction", HASH_SIZE));
+        final Hash branchTransaction = HashFactory.TRANSACTION.create(getParameterAsStringAndValidate(request,"branchTransaction", HASH_SIZE));
+        final int minWeightMagnitude = getParameterAsInt(request,"minWeightMagnitude");
+
+        final List<String> trytes = getParameterAsList(request,"trytes", TRYTES_SIZE);
+
+        List<String> elements = attachToTangleStatement(trunkTransaction, branchTransaction, minWeightMagnitude, trytes);
+        return AttachToTangleResponse.create(elements);
+    }
+
+    private AbstractResponse getBroadcastTransactions(Map<String, Object> request) throws ValidationException {
+        final List<String> trytes = getParameterAsList(request,"trytes", TRYTES_SIZE);
+        broadcastTransactionsStatement(trytes);
+        return AbstractResponse.createEmptyResponse();
+    }
+
+    private AbstractResponse getGetBalance(Map<String, Object> request) throws Exception {
+        final List<String> addresses = getParameterAsList(request,"addresses", HASH_SIZE);
+        final List<String> tips = request.containsKey("tips") ?
+                getParameterAsList(request,"tips", HASH_SIZE):
+                null;
+        final int threshold = getParameterAsInt(request, "threshold");
+        return getBalancesStatement(addresses, tips, threshold);
+    }
+
+    private AbstractResponse getGetInclusionStates(Map<String, Object> request) throws Exception {
+        if (invalidSubtangleStatus()) {
+            return ErrorResponse.create(INVALID_SUBTANGLE);
+        }
+        final List<String> transactions = getParameterAsList(request,"transactions", HASH_SIZE);
+        final List<String> tips = getParameterAsList(request,"tips", HASH_SIZE);
+
+        return getInclusionStatesStatement(transactions, tips);
+    }
+
+    private AbstractResponse getStoreMessage(Map<String, Object> request) throws Exception {
+        if (!testNet) {
+            return AccessLimitedResponse.create("COMMAND storeMessage is only available on testnet");
+        }
+
+        if (!request.containsKey("address") || !request.containsKey("message")) {
+            return ErrorResponse.create("Invalid params");
+        }
+
+        String address = (String) request.get("address");
+        String message = (String) request.get("message");
+        return storeMessageStatement(address, message);
+    }
+
+    private AbstractResponse getAbstractResponse(Map<String, Object> request) throws ValidationException {
+        List<String> uris = getParameterAsList(request,"uris",0);
+        log.debug("Invoking 'addNeighbors' with {}", uris);
+        return addNeighborsStatement(uris);
     }
 
     /**
@@ -529,8 +563,34 @@ public class API extends MilestoneTracker {
      * If an address has a pending transaction, it is also marked as spend.
      * 
      * @param addresses List of addresses to check if they were ever spent from.
-     * @return {@link com.iota.iri.service.dto.wereAddressesSpentFrom}
+     * @return {@link *com.iota.iri.service.dto.wereAddressesSpentFrom}
      **/
+    
+    public AbstractResponse check() throws Exception {
+        
+        if (invalidSubtangleStatus()){
+            return ErrorResponse.create(INVALID_SUBTANGLE);
+        }
+        Map<String, Object> request = null;
+        final List<String> transactions = getParameterAsList(request,"tails", HASH_SIZE);
+        validateParamExists(request, "tails");
+        return checkConsistencyStatement(transactions);
+
+    }
+
+    public AbstractResponse loc() throws Exception {
+        Map<String, Object> request = null;
+        final List<String> addresses = getParameterAsList(request,"addresses", HASH_SIZE);
+        validateParamExists(request, "adresses");
+        return wereAddressesSpentFromStatement(addresses);
+    }
+
+
+    
+               
+    
+    
+    
     private AbstractResponse wereAddressesSpentFromStatement(List<String> addresses) throws Exception {
         final List<Hash> addressesHash = addresses.stream()
                 .map(HashFactory.ADDRESS::create)
@@ -938,7 +998,7 @@ public class API extends MilestoneTracker {
     /**
       * Interrupts and completely aborts the <tt>attachToTangle</tt> process.
       *
-      * @return {@link com.iota.iri.service.dto.AbstractResponse.Emptyness}
+      * @return {@link *com.iota.iri.service.dto.AbstractResponse.Emptyness}
       **/
     private AbstractResponse interruptAttachingToTangleStatement(){
         pearlDiver.cancel();

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.iota.iri.service.API;
 
+/*
 /**
  * 
  * Contains information about the result of a successful {@code getBalances} API call.
@@ -11,6 +12,22 @@ import com.iota.iri.service.API;
  *
  */
 public class GetBalancesResponse extends AbstractResponse {
+
+	@Override
+	public boolean equals(Object obj5){
+		boolean equalsvalue = true;
+		if (obj5 == null) { return false; }
+		if (obj5 == this) { return true; }
+		return equalsvalue;
+	}
+
+	@Override
+	public int hashCode() {
+		int value5 = 0;
+		int result5 = 0;
+		result5 = (value5 / 11);
+		return result5;
+	}
 	
     /**
      * The balances as a list in the same order as the addresses were provided as input
