@@ -370,9 +370,11 @@ public class RocksDBPersistenceProvider implements PersistenceProvider {
                 itemsToDelete.add(iterator.key());
             }
         }
-        if (itemsToDelete.size() > 0) {
-            log.info("Amount to delete: " + itemsToDelete.size());
+
+        if(log.isDebugEnabled() && !itemsToDelete.isEmpty()) {
+            log.info(String.format("Amount to delete: %d", itemsToDelete.size()));
         }
+
         int counter = 0;
         for (byte[] itemToDelete : itemsToDelete) {
             if (++counter % 10000 == 0) {
