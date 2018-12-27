@@ -53,51 +53,18 @@ class ReplicatorSourceProcessor implements Runnable {
         int count;
         byte[] data = new byte[2000];
         int offset = 0;
-        //boolean isNew;
         boolean finallyClose = true;
 
         try {
             SocketAddress address = connection.getRemoteSocketAddress();
             InetSocketAddress inetSocketAddress = (InetSocketAddress) address;
 
-            existingNeighbor = false;
-            List<Neighbor> neighbors = node.getNeighbors();
-            neighbors.stream().filter(n -> n instanceof TCPNeighbor)
-                    .map(n -> ((TCPNeighbor) n))
-                    .forEach(n -> {
-                        String hisAddress = inetSocketAddress.getAddress().getHostAddress();
-                        if (n.getHostAddress().equals(hisAddress)) {
-                            existingNeighbor = true;
-                            neighbor = n;
-                        }
-                    });
-            
-            if (!existingNeighbor) {
-                int maxPeersAllowed = maxPeers;
-                if (!testnet || Neighbor.getNumPeers() >= maxPeersAllowed) {
-                    String hostAndPort = inetSocketAddress.getHostName() + ":" + String.valueOf(inetSocketAddress.getPort());
-                    if (Node.getRejectedAddresses().add(inetSocketAddress.getHostName())) {
-                        String sb = "***** NETWORK ALERT ***** Got connected from unknown neighbor tcp://"
-                            + hostAndPort
-                            + " (" + inetSocketAddress.getAddress().getHostAddress() + ") - closing connection";
-                        if (testnet && Neighbor.getNumPeers() >= maxPeersAllowed) {
-                            sb = sb + (" (max-peers allowed is "+String.valueOf(maxPeersAllowed)+")");
-                        }
-                        log.info(sb);
-                    }
-                    connection.getInputStream().close();
-                    connection.shutdownInput();
-                    connection.shutdownOutput();
-                    connection.close();
-                    return;
-                } else {
-                    final TCPNeighbor freshNeighbor = new TCPNeighbor(inetSocketAddress, false);
-                    node.getNeighbors().add(freshNeighbor);
-                    neighbor = freshNeighbor;
-                    Neighbor.incNumPeers();
-                }
+            fistSock(inetSocketAddress);
+
+            if (existNeigh(inetSocketAddress)) {
+                return;
             }
-            
+
             if ( neighbor.getSource() != null ) {
                 log.info("Source {} already connected", inetSocketAddress.getAddress().getHostAddress());
                 finallyClose = false;
@@ -108,90 +75,205 @@ class ReplicatorSourceProcessor implements Runnable {
             // Read neighbors tcp listener port number.
             InputStream stream = connection.getInputStream();
             offset = 0;
-            while (((count = stream.read(data, offset, ReplicatorSinkPool.PORT_BYTES - offset)) != -1) && (offset < ReplicatorSinkPool.PORT_BYTES)) {
-                offset += count;
-            }
-          
-            if ( count == -1 || connection.isClosed() ) {
-                log.error("Did not receive neighbors listener port");
+            count = getCount(data, offset, stream, ReplicatorSinkPool.PORT_BYTES - offset, ReplicatorSinkPool.PORT_BYTES);
+
+            if (connectionState(count)) {
                 return;
             }
-            
-            byte [] pbytes = new byte [10];
-            System.arraycopy(data, 0, pbytes, 0, ReplicatorSinkPool.PORT_BYTES);
-            neighbor.setTcpPort((int)Long.parseLong(new String(pbytes)));
-            
-            if (neighbor.getSink() == null) {
-                log.info("Creating sink for {}", neighbor.getHostAddress());
-                replicatorSinkPool.createSink(neighbor);
-            }           
-            
-            if (connection.isConnected()) {
-                log.info("----- NETWORK INFO ----- Source {} is connected", inetSocketAddress.getAddress().getHostAddress());
-            }
-            
+
+            arrayCopy(data);
+
+            createSink();
+
+            connetionEstablished(inetSocketAddress);
+
             connection.setSoTimeout(0);  // infinite timeout - blocking read
 
             offset = 0;
             while (!shutdown && !neighbor.isStopped()) {
 
-                while ( ((count = stream.read(data, offset, (packetSize- offset + ReplicatorSinkProcessor.CRC32_BYTES))) != -1)
-                        && (offset < (packetSize + ReplicatorSinkProcessor.CRC32_BYTES))) {
-                    offset += count;
-                }
-              
-                if ( count == -1 || connection.isClosed() ) {
+                count = getCount(data, offset, stream, packetSize - offset + ReplicatorSinkProcessor.CRC32_BYTES, packetSize + ReplicatorSinkProcessor.CRC32_BYTES);
+
+                if (isaBoolean(count == -1, connection.isClosed())) {
                     break;
                 }
                 
                 offset = 0;
 
-                try {
-                    CRC32 crc32 = new CRC32();
-                    for (int i=0; i<packetSize; i++) {
-                        crc32.update(data[i]);
-                    }
-                    String crc32String = Long.toHexString(crc32.getValue());
-                    while (crc32String.length() < ReplicatorSinkProcessor.CRC32_BYTES) {
-                        crc32String = "0"+crc32String;
-                    }
-                    byte [] crc32Bytes = crc32String.getBytes();
-                    
-                    boolean crcError = false;
-                    for (int i=0; i<ReplicatorSinkProcessor.CRC32_BYTES; i++) {
-                        if (crc32Bytes[i] != data[packetSize + i]) {
-                            crcError = true;
-                            break;
-                        }
-                    }
-                    if (!crcError) {
-                        node.preProcessReceivedData(data, address, "tcp");
-                    }
-                }
-                  catch (IllegalStateException e) {
-                    log.error("Queue is full for neighbor IP {}",inetSocketAddress.getAddress().getHostAddress());
-                } catch (final RuntimeException e) {
-                    log.error("Transaction processing runtime exception ",e);
-                    neighbor.incInvalidTransactions();
-                } catch (Exception e) {
-                    log.info("Transaction processing exception " + e.getMessage());
-                    log.error("Transaction processing exception ",e);
-                }
+                tryblock(data, address, inetSocketAddress);
             }
         } catch (IOException e) {
-            log.error("***** NETWORK ALERT ***** TCP connection reset by neighbor {}, source closed, {}", neighbor.getHostAddress(), e.getMessage());
-            replicatorSinkPool.shutdownSink(neighbor);
+            catchMe(e);
         } finally {
-            if (neighbor != null) {
-                if (finallyClose) {
-                    replicatorSinkPool.shutdownSink(neighbor);
-                    neighbor.setSource(null);
-                    neighbor.setSink(null);
-                    //if (!neighbor.isFlagged() ) {
-                    //   Node.instance().getNeighbors().remove(neighbor);   
-                    //}
-                }                   
+            finalClause(finallyClose);
+        }
+    }
+
+    private void tryblock(byte[] data, SocketAddress address, InetSocketAddress inetSocketAddress) {
+        try {
+            tryMet(data, address);
+        }
+          catch (IllegalStateException e) {
+            log.error("Queue is full for neighbor IP {}",inetSocketAddress.getAddress().getHostAddress());
+        } catch (final RuntimeException e) {
+            log.error("Transaction processing runtime exception ",e);
+            neighbor.incInvalidTransactions();
+        } catch (Exception e) {
+            transactionLog(e);
+        }
+    }
+
+    private boolean existNeigh(InetSocketAddress inetSocketAddress) throws IOException {
+        if (!existingNeighbor) {
+            int maxPeersAllowed = maxPeers;
+            if (isaBoolean(!testnet, Neighbor.getNumPeers() >= maxPeersAllowed)) {
+                connects(inetSocketAddress, maxPeersAllowed);
+                return true;
+            } else {
+                getNodes(inetSocketAddress);
             }
         }
+        return false;
+    }
+
+    private void connects(InetSocketAddress inetSocketAddress, int maxPeersAllowed) throws IOException {
+        String hostAndPort = inetSocketAddress.getHostName() + ":" + String.valueOf(inetSocketAddress.getPort());
+        nestedHost(inetSocketAddress, maxPeersAllowed, hostAndPort);
+        connection.getInputStream().close();
+        connection.shutdownInput();
+        connection.shutdownOutput();
+        connection.close();
+    }
+
+    private void transactionLog(Exception e) {
+        log.info("Transaction processing exception " + e.getMessage());
+        log.error("Transaction processing exception ",e);
+    }
+
+    private void catchMe(IOException e) {
+        log.error("***** NETWORK ALERT ***** TCP connection reset by neighbor {}, source closed, {}", neighbor.getHostAddress(), e.getMessage());
+        replicatorSinkPool.shutdownSink(neighbor);
+    }
+
+    private void arrayCopy(byte[] data) {
+        byte [] pbytes = new byte [10];
+        System.arraycopy(data, 0, pbytes, 0, ReplicatorSinkPool.PORT_BYTES);
+        neighbor.setTcpPort((int)Long.parseLong(new String(pbytes)));
+    }
+
+    private void tryMet(byte[] data, SocketAddress address) {
+        CRC32 crc32 = getCrc32(data);
+        String crc32String = getString(crc32);
+        byte [] crc32Bytes = crc32String.getBytes();
+
+        boolean crcError = false;
+        crcError = isCrcError(data, crc32Bytes, crcError);
+        if (!crcError) {
+            node.preProcessReceivedData(data, address, "tcp");
+        }
+    }
+
+    private void connetionEstablished(InetSocketAddress inetSocketAddress) {
+        if (connection.isConnected()) {
+            log.info("----- NETWORK INFO ----- Source {} is connected", inetSocketAddress.getAddress().getHostAddress());
+        }
+    }
+
+    private void createSink() {
+        if (neighbor.getSink() == null) {
+            log.info("Creating sink for {}", neighbor.getHostAddress());
+            replicatorSinkPool.createSink(neighbor);
+        }
+    }
+
+    private boolean connectionState(int count) {
+        if (isaBoolean(count == -1, connection.isClosed())) {
+            log.error("Did not receive neighbors listener port");
+            return true;
+        }
+        return false;
+    }
+
+    private void getNodes(InetSocketAddress inetSocketAddress) {
+        final TCPNeighbor freshNeighbor = new TCPNeighbor(inetSocketAddress, false);
+        node.getNeighbors().add(freshNeighbor);
+        neighbor = freshNeighbor;
+        Neighbor.incNumPeers();
+    }
+
+    private boolean isaBoolean(boolean b, boolean b2) {
+        return b || b2;
+    }
+
+    private void nestedHost(InetSocketAddress inetSocketAddress, int maxPeersAllowed, String hostAndPort) {
+        if (Node.getRejectedAddresses().add(inetSocketAddress.getHostName())) {
+            String sb = "***** NETWORK ALERT ***** Got connected from unknown neighbor tcp://"
+                + hostAndPort
+                + " (" + inetSocketAddress.getAddress().getHostAddress() + ") - closing connection";
+            if (testnet && Neighbor.getNumPeers() >= maxPeersAllowed) {
+                sb = sb + (" (max-peers allowed is "+String.valueOf(maxPeersAllowed)+")");
+            }
+            log.info(sb);
+        }
+    }
+
+    private void fistSock(InetSocketAddress inetSocketAddress) {
+        existingNeighbor = false;
+        List<Neighbor> neighbors = node.getNeighbors();
+        neighbors.stream().filter(n -> n instanceof TCPNeighbor)
+                .map(n -> ((TCPNeighbor) n))
+                .forEach(n -> {
+                    String hisAddress = inetSocketAddress.getAddress().getHostAddress();
+                    if (n.getHostAddress().equals(hisAddress)) {
+                        existingNeighbor = true;
+                        neighbor = n;
+                    }
+                });
+    }
+
+    private int getCount(byte[] data, int offset, InputStream stream, int i, int i2) throws IOException {
+        int count;
+        while (((count = stream.read(data, offset, (i))) != -1)
+                && (offset < (i2))) {
+            offset += count;
+        }
+        return count;
+    }
+
+    private CRC32 getCrc32(byte[] data) {
+        CRC32 crc32 = new CRC32();
+        for (int i=0; i<packetSize; i++) {
+            crc32.update(data[i]);
+        }
+        return crc32;
+    }
+
+    private String getString(CRC32 crc32) {
+        String crc32String = Long.toHexString(crc32.getValue());
+        while (crc32String.length() < ReplicatorSinkProcessor.CRC32_BYTES) {
+            crc32String = "0"+crc32String;
+        }
+        return crc32String;
+    }
+
+    private void finalClause(boolean finallyClose) {
+        if (neighbor != null) {
+            if (finallyClose) {
+                replicatorSinkPool.shutdownSink(neighbor);
+                neighbor.setSource(null);
+                neighbor.setSink(null);
+
+            }
+        }
+    }
+
+    private boolean isCrcError(byte[] data, byte[] crc32Bytes, boolean crcError) {
+        for (int i = 0; i< ReplicatorSinkProcessor.CRC32_BYTES; i++) {
+            if (crc32Bytes[i] != data[packetSize + i]) {
+                crcError = true;
+                break;
+            }
+        }
+        return crcError;
     }
 }

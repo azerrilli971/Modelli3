@@ -289,11 +289,10 @@ public class Node {
      * a {@link TransactionViewModel} object from it and perform some basic validation
      * on the received transaction via  {@link TransactionValidator#runValidation}
      * 
-     * The packet is then added to  {@link receiveQueue} for further processing. 
+     * The packet is then added to  {@link *receiveQueue} for further processing.
      */
      
     public void preProcessReceivedData(byte[] receivedData, SocketAddress senderAddress, String uriScheme) {
-        TransactionViewModel receivedTransactionViewModel = null;
         Hash receivedTransactionHash = null;
 
         boolean addressMatch = false;
@@ -302,11 +301,9 @@ public class Node {
 
         for (final Neighbor neighbor : getNeighbors()) {
             addressMatch = neighbor.matches(senderAddress);
-            if (addressMatch) {
-                //Validate transaction
+
                 neighbor.incAllTransactions();
-                if (rnd.nextDouble() < pDropTransaction) {
-                    //log.info("Randomly dropping transaction. Stand by... ");
+                if ( rnd.nextDouble() < pDropTransaction) {
                     break;
                 }
                 try {
@@ -319,36 +316,15 @@ public class Node {
                         cached = (receivedTransactionHash = recentSeenBytes.get(digest)) != null;
                     }
 
-                    if (!cached) {
-                        //if not, then validate
-                        receivedTransactionViewModel = new TransactionViewModel(receivedData, TransactionHash.calculate(receivedData, TransactionViewModel.TRINARY_SIZE, SpongeFactory.create(SpongeFactory.Mode.CURLP81)));
-                        receivedTransactionHash = receivedTransactionViewModel.getHash();
-                        transactionValidator.runValidation(receivedTransactionViewModel, transactionValidator.getMinWeightMagnitude());
-
-                        synchronized (recentSeenBytes) {
-                            recentSeenBytes.put(digest, receivedTransactionHash);
-                        }
-
-                        //if valid - add to receive queue (receivedTransactionViewModel, neighbor)
-                        addReceivedDataToReceiveQueue(receivedTransactionViewModel, neighbor);
-
-                    }
+                    receivedTransactionHash = getIfTryCatch(receivedData, receivedTransactionHash, cached, neighbor, digest);
 
                 } catch (NoSuchAlgorithmException e) {
                     String strErr = String.format("MessageDigest: %s", e);
                     log.error(strErr);
                 } catch (final TransactionValidator.StaleTimestampException e) {
-                    log.debug(e.getMessage());
-                    try {
-                        transactionRequester.clearTransactionRequest(receivedTransactionHash);
-                    } catch (Exception e1) {
-                        log.error(e1.getMessage());
-                    }
-                    neighbor.incStaleTransactions();
+                    getTransactionRequester(receivedTransactionHash, neighbor, e);
                 } catch (final RuntimeException e) {
-                    log.error(e.getMessage());
-                    log.error("Received an Invalid TransactionViewModel. Dropping it...");
-                    neighbor.incInvalidTransactions();
+                    invalidTransactionVM(neighbor, e);
                     break;
                 }
 
@@ -356,16 +332,12 @@ public class Node {
 
                 //add request to reply queue (requestedHash, neighbor)
                 Hash requestedHash = HashFactory.TRANSACTION.create(receivedData, TransactionViewModel.SIZE, reqHashSize);
-                if (requestedHash.equals(receivedTransactionHash)) {
-                    //requesting a random tip
-                    requestedHash = Hash.NULL_HASH;
-                }
+            requestedHash = getReceivedTransaction(receivedTransactionHash, requestedHash);
 
-                addReceivedDataToReplyQueue(requestedHash, neighbor);
+            addReceivedDataToReplyQueue(requestedHash, neighbor);
 
                 //recentSeenBytes statistics
 
-                if (log.isDebugEnabled()) {
                     long hitCount, missCount;
                     if (cached) {
                         hitCount = recentSeenBytesHitCount.incrementAndGet();
@@ -374,53 +346,118 @@ public class Node {
                         hitCount = recentSeenBytesHitCount.get();
                         missCount = recentSeenBytesMissCount.incrementAndGet();
                     }
-                    if (((hitCount + missCount) % 50000L == 0)) {
-                        String strInfo = String.format("RecentSeenBytes cache hit/miss ratio: %d/%d", hitCount, missCount);
-                        log.info(strInfo);
-                        messageQ.publish("hmr %d/%d", hitCount, missCount);
-                        recentSeenBytesMissCount.set(0L);
-                        recentSeenBytesHitCount.set(0L);
-                    }
-                }
+            getGetInfoCount(hitCount, missCount);
 
-                break;
-            }
+
         }
 
         if (!addressMatch && configuration.isTestnet()) {
-            int maxPeersAllowed = configuration.getMaxPeers();
-            String uriString = String.format("%s:/%s", uriScheme, senderAddress.toString());
-            if (Neighbor.getNumPeers() < maxPeersAllowed) {
-                String test = String.format("Adding non-tethered neighbor: %s", uriString);
-                log.info(test);
-                messageQ.publish("antn %s", uriString);
-                try {
-                    final URI uri = new URI(uriString);
-                    // 3rd parameter false (not tcp), 4th parameter true (configured tethering)
-                    final Neighbor newneighbor = newNeighbor(uri, false);
-                    if (!getNeighbors().contains(newneighbor)) {
-                        getNeighbors().add(newneighbor);
-                        Neighbor.incNumPeers();
-                    }
-                } catch (URISyntaxException e) {
-                    String strErrr = String.format("Invalid URI string: %s", uriString);
-                    log.error(strErrr);
-                }
-            } else {
-                if (rejectedAddresses.size() > 20) {
-                    // Avoid ever growing list in case of an attack.
-                    rejectedAddresses.clear();
-                } else if (rejectedAddresses.add(uriString)) {
-                    messageQ.publish("rntn %s %s", uriString, String.valueOf(maxPeersAllowed));
-                    log.info("Refused non-tethered neighbor: " + uriString +
-                            " (max-peers = " + String.valueOf(maxPeersAllowed) + ")");
-                }
-            }
+            getIfBody(senderAddress, uriScheme);
         }
     }
-    
+
+    private void getIfBody(SocketAddress senderAddress, String uriScheme) {
+        int maxPeersAllowed = configuration.getMaxPeers();
+        String uriString = String.format("%s:/%s", uriScheme, senderAddress.toString());
+        if (Neighbor.getNumPeers() < maxPeersAllowed) {
+            getAddingNonThetheredNeighbor(uriString);
+            tryCatchAddingNonTheteredNeighbors(uriString);
+        } else {
+            getElseIf(maxPeersAllowed, uriString);
+        }
+    }
+
+    private void getElseIf(int maxPeersAllowed, String uriString) {
+        if (rejectedAddresses.size() > 20) {
+            // Avoid ever growing list in case of an attack.
+            rejectedAddresses.clear();
+        } else if (rejectedAddresses.add(uriString)) {
+            messageQ.publish("rntn %s %s", uriString, String.valueOf(maxPeersAllowed));
+            log.info("Refused non-tethered neighbor: " + uriString +
+                    " (max-peers = " + String.valueOf(maxPeersAllowed) + ")");
+        }
+    }
+
+    private Hash getIfTryCatch(byte[] receivedData, Hash receivedTransactionHash, boolean cached, Neighbor neighbor, ByteBuffer digest) {
+        TransactionViewModel receivedTransactionViewModel;
+        if (!cached) {
+            //if not, then validate
+            receivedTransactionViewModel = new TransactionViewModel(receivedData, TransactionHash.calculate(receivedData, TransactionViewModel.TRINARY_SIZE, SpongeFactory.create(SpongeFactory.Mode.CURLP81)));
+            receivedTransactionHash = receivedTransactionViewModel.getHash();
+            transactionValidator.runValidation(receivedTransactionViewModel, transactionValidator.getMinWeightMagnitude());
+
+            synchronized (recentSeenBytes) {
+                recentSeenBytes.put(digest, receivedTransactionHash);
+            }
+
+            //if valid - add to receive queue (receivedTransactionViewModel, neighbor)
+            addReceivedDataToReceiveQueue(receivedTransactionViewModel, neighbor);
+
+        }
+        return receivedTransactionHash;
+    }
+
+    private Hash getReceivedTransaction(Hash receivedTransactionHash, Hash requestedHash) {
+        if (requestedHash.equals(receivedTransactionHash)) {
+            //requesting a random tip
+            requestedHash = Hash.NULL_HASH;
+        }
+        return requestedHash;
+    }
+
+    private void tryCatchAddingNonTheteredNeighbors(String uriString) {
+        try {
+            final URI uri = new URI(uriString);
+            // 3rd parameter false (not tcp), 4th parameter true (configured tethering)
+            final Neighbor newneighbor = newNeighbor(uri, false);
+            if (!getNeighbors().contains(newneighbor)) {
+                getNeighbors().add(newneighbor);
+                Neighbor.incNumPeers();
+            }
+        } catch (URISyntaxException e) {
+            String strErrr = String.format("Invalid URI string: %s", uriString);
+            log.error(strErrr);
+        }
+    }
+
+    private void getGetInfoCount(long hitCount, long missCount) {
+        if (((hitCount + missCount) % 50000L == 0)) {
+            getInfoCount(hitCount, missCount);
+        }
+    }
+
+    private void getTransactionRequester(Hash receivedTransactionHash, Neighbor neighbor, TransactionValidator.StaleTimestampException e) {
+        log.debug(e.getMessage());
+        try {
+            transactionRequester.clearTransactionRequest(receivedTransactionHash);
+        } catch (Exception e1) {
+            log.error(e1.getMessage());
+        }
+        neighbor.incStaleTransactions();
+    }
+
+    private void invalidTransactionVM(Neighbor neighbor, RuntimeException e) {
+        log.error(e.getMessage());
+        log.error("Received an Invalid TransactionViewModel. Dropping it...");
+        neighbor.incInvalidTransactions();
+    }
+
+    private void getAddingNonThetheredNeighbor(String uriString) {
+        String test = String.format("Adding non-tethered neighbor: %s", uriString);
+        log.info(test);
+        messageQ.publish("antn %s", uriString);
+    }
+
+    private void getInfoCount(long hitCount, long missCount) {
+        String strInfo = String.format("RecentSeenBytes cache hit/miss ratio: %d/%d", hitCount, missCount);
+        log.info(strInfo);
+        messageQ.publish("hmr %d/%d", hitCount, missCount);
+        recentSeenBytesMissCount.set(0L);
+        recentSeenBytesHitCount.set(0L);
+    }
+
     /**
-     * Adds incoming transactions to the {@link receiveQueue} to be processed later.
+     * Adds incoming transactions to the {@link *receiveQueue} to be processed later.
      */
     public void addReceivedDataToReceiveQueue(TransactionViewModel receivedTransactionViewModel, Neighbor neighbor) {
         receiveQueue.add(new ImmutablePair<>(receivedTransactionViewModel, neighbor));
@@ -431,7 +468,7 @@ public class Node {
     }
 
     /**
-     * Adds incoming transactions to the {@link replyQueue} to be processed later
+     * Adds incoming transactions to the {@link *replyQueue} to be processed later
      */
     public void addReceivedDataToReplyQueue(Hash requestedHash, Neighbor neighbor) {
         replyQueue.add(new ImmutablePair<>(requestedHash, neighbor));
@@ -442,7 +479,7 @@ public class Node {
 
     /**
      * Picks up a transaction and neighbor pair from receive queue. Calls 
-     * {@link processReceivedData} on the pair. 
+     * {@link *processReceivedData} on the pair.
      */
     public void processReceivedDataFromQueue() {
         final Pair<TransactionViewModel, Neighbor> receivedData = receiveQueue.pollFirst();
@@ -453,7 +490,7 @@ public class Node {
 
     /**
      * Picks up a transaction hash and neighbor pair from reply queue. Calls 
-     * {@link replyToRequest} on the pair. 
+     * {@link *eplyToRequest} on the pair.
      */
     public void replyToRequestFromQueue() {
         final Pair<Hash, Neighbor> receivedData = replyQueue.pollFirst();
@@ -464,7 +501,7 @@ public class Node {
 
     /**
      * This is second step of incoming transaction processing. The newly received 
-     * and validated transactions are stored in {@link receiveQueue}. This function
+     * and validated transactions are stored in {@link *receiveQueue}. This function
      * picks up these transaction and stores them into the {@link Tangle} Database. The 
      * transaction is then added to the broadcast queue, to be fruther spammed to the neighbors. 
      */
@@ -498,7 +535,7 @@ public class Node {
 
     /**
      * This is second step of incoming transaction processing. The newly received 
-     * and validated transactions are stored in {@link receiveQueue}. This function
+     * and validated transactions are stored in {@link *receiveQueue}. This function
      * picks up these transaction and stores them into the {@link Tangle} Database. The 
      * transaction is then added to the broadcast queue, to be fruther spammed to the neighbors. 
      */
@@ -570,7 +607,7 @@ public class Node {
     /**
      * Sends a Datagram to the neighbour. Also appends a random hash request 
      * to the outgoing packet. Note that this is only used for UDP handling. For TCP
-     * the outgoing packets are sent by {@link ReplicatorSinkProcessor}
+     * the outgoing packets are sent by {@link *ReplicatorSinkProcessor}
      * 
      * @param {@link DatagramPacket} sendingPacket the UDP payload buffer
      * @param {@link TransactionViewModel} transactionViewModel which should be sent.  
