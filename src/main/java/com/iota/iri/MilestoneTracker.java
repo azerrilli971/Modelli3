@@ -152,13 +152,7 @@ public class MilestoneTracker {
         AtomicBoolean ledgerValidatorInitialized = new AtomicBoolean(false);
         (new Thread(() -> {
             log.info("Waiting for Ledger Validator initialization...");
-            while(!ledgerValidatorInitialized.get()) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
+            ledgeControl(ledgerValidatorInitialized);
             log.info("Tracker started.");
             while (!shuttingDown) {
                 long scanTime = System.currentTimeMillis();
@@ -166,35 +160,9 @@ public class MilestoneTracker {
                 try {
                     final int previousLatestMilestoneIndex = latestMilestoneIndex;
                     Set<Hash> hashes = AddressViewModel.load(tangle, coordinator).getHashes();
-                            for(Hash hash: hashes) {
-                                if(analyzedMilestoneCandidates.add(hash)) {
-                                    TransactionViewModel t = TransactionViewModel.fromHash(tangle, hash);
-                                    if (t.getCurrentIndex() == 0) {
-                                        final Validity valid = validateMilestone(mode, securityLevel, t, getIndex(t));
-                                        switch (valid) {
-                                            case VALID:
-                                                MilestoneViewModel milestoneViewModel = MilestoneViewModel.latest(tangle);
-                                                if (milestoneViewModel != null && milestoneViewModel.index() > latestMilestoneIndex) {
-                                                    latestMilestone = milestoneViewModel.getHash();
-                                                    setLatestMilestoneIndex(milestoneViewModel.index());
-                                                }
-                                                break;
-                                            case INCOMPLETE:
-                                                analyzedMilestoneCandidates.remove(t.getHash());
-                                                break;
-                                            case INVALID:
-                                                //Do nothing
-                                                break;
-                                        }
-                                    }
-                                }
-                            }
+                    forControl(mode, securityLevel, hashes);
 
-                    if (previousLatestMilestoneIndex != latestMilestoneIndex) {
-                        messageQ.publish("lmi %d %d", previousLatestMilestoneIndex, latestMilestoneIndex);
-                        log.info("Latest milestone has changed from #" + previousLatestMilestoneIndex
-                                + " to #" + latestMilestoneIndex);
-                    }
+                    previousMilestone(previousLatestMilestoneIndex);
 
                     Thread.sleep(Math.max(1, RESCAN_INTERVAL - (System.currentTimeMillis() - scanTime)));
                 } catch (final Exception e) {
@@ -212,34 +180,88 @@ public class MilestoneTracker {
                 log.error("Error initializing snapshots. Skipping.", e);
             }
             log.info("Tracker started.");
-            while (!shuttingDown) {
-                long scanTime = System.currentTimeMillis();
-
-                try {
-                    final int previousSolidSubtangleLatestMilestoneIndex = latestSolidSubtangleMilestoneIndex;
-
-                    if(latestSolidSubtangleMilestoneIndex < latestMilestoneIndex) {
-                        updateLatestSolidSubtangleMilestone();
-                    }
-
-                    if (previousSolidSubtangleLatestMilestoneIndex != latestSolidSubtangleMilestoneIndex) {
-
-                        messageQ.publish("lmsi %d %d", previousSolidSubtangleLatestMilestoneIndex, latestSolidSubtangleMilestoneIndex);
-                        messageQ.publish("lmhs %s", latestSolidSubtangleMilestone);
-                        log.info("Latest SOLID SUBTANGLE milestone has changed from #"
-                                + previousSolidSubtangleLatestMilestoneIndex + " to #"
-                                + latestSolidSubtangleMilestoneIndex);
-                    }
-
-                    Thread.sleep(Math.max(1, RESCAN_INTERVAL - (System.currentTimeMillis() - scanTime)));
-
-                } catch (final Exception e) {
-                    log.error("Error during Solid Milestone updating", e);
-                }
-            }
+            shuttingDown();
         }, "Solid Milestone Tracker")).start();
 
 
+    }
+
+    private void previousMilestone(int previousLatestMilestoneIndex) {
+        if (previousLatestMilestoneIndex != latestMilestoneIndex) {
+            messageQ.publish("lmi %d %d", previousLatestMilestoneIndex, latestMilestoneIndex);
+            if(log.isInfoEnabled()){
+                log.info(String.format("Latest milestone has changed from # %s to # %s ",  previousLatestMilestoneIndex, latestMilestoneIndex));
+            }
+        }
+    }
+
+    private void ledgeControl(AtomicBoolean ledgerValidatorInitialized) {
+        while(!ledgerValidatorInitialized.get()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    private void forControl(SpongeFactory.Mode mode, int securityLevel, Set<Hash> hashes) throws Exception {
+        for(Hash hash: hashes) {
+            if(analyzedMilestoneCandidates.add(hash)) {
+                TransactionViewModel t = TransactionViewModel.fromHash(tangle, hash);
+                crntIndex(mode, securityLevel, t);
+            }
+        }
+    }
+
+    private void crntIndex(SpongeFactory.Mode mode, int securityLevel, TransactionViewModel t) throws Exception {
+        if (t.getCurrentIndex() == 0) {
+            final Validity valid = validateMilestone(mode, securityLevel, t, getIndex(t));
+            switch (valid) {
+                case VALID:
+                    MilestoneViewModel milestoneViewModel = MilestoneViewModel.latest(tangle);
+                    if (milestoneViewModel != null && milestoneViewModel.index() > latestMilestoneIndex) {
+                        latestMilestone = milestoneViewModel.getHash();
+                        setLatestMilestoneIndex(milestoneViewModel.index());
+                    }
+                    break;
+                case INCOMPLETE:
+                    analyzedMilestoneCandidates.remove(t.getHash());
+                    break;
+                case INVALID:
+                    //Do nothing
+                    break;
+            }
+        }
+    }
+
+    private void shuttingDown() {
+        while (!shuttingDown) {
+            long scanTime = System.currentTimeMillis();
+
+            try {
+                final int previousSolidSubtangleLatestMilestoneIndex = latestSolidSubtangleMilestoneIndex;
+
+                if(latestSolidSubtangleMilestoneIndex < latestMilestoneIndex) {
+                    updateLatestSolidSubtangleMilestone();
+                }
+
+                if (previousSolidSubtangleLatestMilestoneIndex != latestSolidSubtangleMilestoneIndex) {
+
+                    messageQ.publish("lmsi %d %d", previousSolidSubtangleLatestMilestoneIndex, latestSolidSubtangleMilestoneIndex);
+                    messageQ.publish("lmhs %s", latestSolidSubtangleMilestone);
+                    if (log.isInfoEnabled()) {
+                        log.info(String.format("Latest SOLID SUBTANGLE milestone has changed from # %s to # %s", previousSolidSubtangleLatestMilestoneIndex
+                                ,latestSolidSubtangleMilestoneIndex));
+                    }
+                }
+
+                Thread.sleep(Math.max(1, RESCAN_INTERVAL - (System.currentTimeMillis() - scanTime)));
+
+            } catch (final Exception e) {
+                log.error("Error during Solid Milestone updating", e);
+            }
+        }
     }
 
     public int getMilestoneStartIndex() {
