@@ -69,16 +69,19 @@ public class ThreadUtils {
      * @return the thread that got spawned by this method
      */
     public static Thread spawnThread(Runnable runnable, String threadName) {
-        logger.info("Starting Thread: " + threadName + " ...");
-
-        Thread thread = new Thread(() -> {
-            logger.info(threadName + " [STARTED]");
-
-            runnable.run();
-
-            logger.info(threadName + " [STOPPED]");
-        }, threadName);
-        thread.start();
+        if(logger.isDebugEnabled()) {
+            logger.info(String.format("Starting Thread: %s ...", threadName));
+        }
+            Thread thread = new Thread(() -> {
+                if (logger.isDebugEnabled()) {
+                    logger.info(String.format("%s [STARTED]", threadName));
+                }
+                runnable.run();
+                if (logger.isDebugEnabled()) {
+                    logger.info(String.format("%s [STOPPED]", threadName));
+                }
+            }, threadName);
+            thread.start();
 
         return thread;
     }
@@ -101,8 +104,8 @@ public class ThreadUtils {
         if (threads.get(threadIdentifier) != null && !threads.get(threadIdentifier).isInterrupted()) {
             final Object lockObj = threadIdentifier;
             synchronized(lockObj) {
-                if (threads.get(threadIdentifier) != null && !threads.get(threadIdentifier).isInterrupted()) {
-                    logger.info("Stopping Thread: " + threadIdentifier.getName() + " ...");
+                if (threads.get(threadIdentifier) != null && !threads.get(threadIdentifier).isInterrupted() && logger.isDebugEnabled()) {
+                    logger.info(String.format("Stopping Thread: %s ...", threadIdentifier.getName()));
 
                     threads.get(threadIdentifier).interrupt();
                 }
