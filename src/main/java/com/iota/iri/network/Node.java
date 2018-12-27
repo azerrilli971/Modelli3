@@ -323,7 +323,8 @@ public class Node {
                     }
 
                 } catch (NoSuchAlgorithmException e) {
-                    log.error("MessageDigest: " + e);
+                    String strErr = String.format("MessageDigest: %s", e);
+                    log.error(strErr);
                 } catch (final TransactionValidator.StaleTimestampException e) {
                     log.debug(e.getMessage());
                     try {
@@ -362,7 +363,8 @@ public class Node {
                         missCount = recentSeenBytesMissCount.incrementAndGet();
                     }
                     if (((hitCount + missCount) % 50000L == 0)) {
-                        log.info("RecentSeenBytes cache hit/miss ratio: " + hitCount + "/" + missCount);
+                        String strInfo = String.format("RecentSeenBytes cache hit/miss ratio: %d/%d", hitCount, missCount);
+                        log.info(strInfo);
                         messageQ.publish("hmr %d/%d", hitCount, missCount);
                         recentSeenBytesMissCount.set(0L);
                         recentSeenBytesHitCount.set(0L);
@@ -375,9 +377,10 @@ public class Node {
 
         if (!addressMatch && configuration.isTestnet()) {
             int maxPeersAllowed = configuration.getMaxPeers();
-            String uriString = uriScheme + ":/" + senderAddress.toString();
+            String uriString = String.format("%s:/%s", uriScheme, senderAddress.toString());
             if (Neighbor.getNumPeers() < maxPeersAllowed) {
-                log.info("Adding non-tethered neighbor: " + uriString);
+                String test = String.format("Adding non-tethered neighbor: %s", uriString);
+                log.info(test);
                 messageQ.publish("antn %s", uriString);
                 try {
                     final URI uri = new URI(uriString);
@@ -388,7 +391,8 @@ public class Node {
                         Neighbor.incNumPeers();
                     }
                 } catch (URISyntaxException e) {
-                    log.error("Invalid URI string: " + uriString);
+                    String strErrr = String.format("Invalid URI string: %s", uriString);
+                    log.error(strErrr);
                 }
             } else {
                 if (rejectedAddresses.size() > 20) {
