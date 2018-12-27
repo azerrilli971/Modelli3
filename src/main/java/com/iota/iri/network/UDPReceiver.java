@@ -48,7 +48,9 @@ public class UDPReceiver {
 
         socket = new DatagramSocket(port);
         node.setUDPSocket(socket);
-        log.info("UDP replicator is accepting connections on udp port " + port);
+        if(log.isInfoEnabled()) {
+            log.info(String.format("UDP replicator is accepting connections on udp port %d", port));
+        }
 
         receivingThread = new Thread(spawnReceiverThread(), "UDP receiving thread");
         receivingThread.start();
@@ -68,7 +70,9 @@ public class UDPReceiver {
             while (!shuttingDown.get()) {
 
                 if (((processed + dropped) % 50000 == 49999)) {
-                    log.info("Receiver thread processed/dropped ratio: "+processed+"/"+dropped);
+                    if(log.isInfoEnabled()) {
+                        log.info(String.format("Receiver thread processed/dropped ratio: %d / %d",processed,dropped));
+                    }
                     processed = 0;
                     dropped = 0;
                 }
@@ -76,19 +80,7 @@ public class UDPReceiver {
                 try {
                     socket.receive(receivingPacket);
 
-                    if (receivingPacket.getLength() == packetSize) {
-
-                        byte[] bytes = Arrays.copyOf(receivingPacket.getData(), receivingPacket.getLength());
-                        SocketAddress address = receivingPacket.getSocketAddress();
-
-                        processor.submit(() -> node.preProcessReceivedData(bytes, address, "udp"));
-                        processed++;
-
-                        Thread.yield();
-
-                    } else {
-                        receivingPacket.setLength(packetSize);
-                    }
+                    processed = getRanProcessed(processed);
                 } catch (final RejectedExecutionException e) {
                     //no free thread, packet dropped
                     dropped++;
@@ -99,6 +91,28 @@ public class UDPReceiver {
             }
             log.info("Shutting down spawning Receiver Thread");
         };
+    }
+
+    private int getRanProcessed(int processed) {
+        if (receivingPacket.getLength() == packetSize) {
+
+            processed = getProcessed(processed);
+
+        } else {
+            receivingPacket.setLength(packetSize);
+        }
+        return processed;
+    }
+
+    private int getProcessed(int processed) {
+        byte[] bytes = Arrays.copyOf(receivingPacket.getData(), receivingPacket.getLength());
+        SocketAddress address = receivingPacket.getSocketAddress();
+
+        processor.submit(() -> node.preProcessReceivedData(bytes, address, "udp"));
+        processed++;
+
+        Thread.yield();
+        return processed;
     }
 
     public void send(final DatagramPacket packet) {
