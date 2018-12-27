@@ -51,7 +51,7 @@ public class UDPNeighbor extends Neighbor {
             socket.send(packet);
             incSentTransactions();
         } catch (final Exception e) {
-            log.error("Error sending UDP packet to [{}]: {}", getAddress(), e.toString());
+            log.error("Error sending UDP packet to [{}]: {}", getAddress(), e);
         }
     }
 
