@@ -672,13 +672,7 @@ public class Node {
                     final TransactionViewModel transactionViewModel = broadcastQueue.pollFirst();
                     if (transactionViewModel != null) {
 
-                        for (final Neighbor neighbor : neighbors) {
-                            try {
-                                sendPacket(sendingPacket, transactionViewModel, neighbor);
-                            } catch (final Exception e) {
-                                // ignore
-                            }
-                        }
+                        sendPacketToNeighbor(transactionViewModel);
                     }
                     Thread.sleep(PAUSE_BETWEEN_TRANSACTIONS);
                 } catch (final Exception e) {
@@ -688,7 +682,17 @@ public class Node {
             log.info("Shutting down Broadcaster Thread");
         };
     }
-    
+
+    private void sendPacketToNeighbor(TransactionViewModel transactionViewModel) {
+        for (final Neighbor neighbor : neighbors) {
+            try {
+                sendPacket(sendingPacket, transactionViewModel, neighbor);
+            } catch (final Exception e) {
+                // ignore
+            }
+        }
+    }
+
     /**
      * We send a tip request packet (transaction corresponding to the latest milestone)
      * to all of our neighbors periodically. 
