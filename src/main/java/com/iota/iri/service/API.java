@@ -100,10 +100,10 @@ public class API extends MilestoneTracker {
 
     private Pattern trytesPattern = Pattern.compile("[9A-Z]*");
 
-    private final static int HASH_SIZE = 81;
-    private final static int TRYTES_SIZE = 2673;
+    private static final int HASH_SIZE = 81;
+    private static final int TRYTES_SIZE = 2673;
 
-    private final static long MAX_TIMESTAMP_VALUE = (long) (Math.pow(3, 27) - 1) / 2; // max positive 27-trits value
+    private static final long MAX_TIMESTAMP_VALUE = (long) (Math.pow(3, 27) - 1) / 2; // max positive 27-trits value
 
     private final int maxFindTxs;
     private final int maxRequestList;
@@ -111,13 +111,13 @@ public class API extends MilestoneTracker {
     private final int maxBodyLength;
     private final boolean testNet;
 
-    private final static String overMaxErrorMessage = "Could not complete request";
-    private final static String invalidParams = "Invalid parameters";
+    private static final String overMaxErrorMessage = "Could not complete request";
+    private static final String invalidParams = "Invalid parameters";
 
     private ConcurrentHashMap<Hash, Boolean> previousEpochsSpentAddresses;
 
-    private final static char ZERO_LENGTH_ALLOWED = 'Y';
-    private final static char ZERO_LENGTH_NOT_ALLOWED = 'N';
+    private static final char ZERO_LENGTH_ALLOWED = 'Y';
+    private static final char ZERO_LENGTH_NOT_ALLOWED = 'N';
     private Iota instance;
     
     public AbstractResponse synchronize () {
@@ -1092,42 +1092,16 @@ public class API extends MilestoneTracker {
 
         List<Integer> tipsIndex = new LinkedList<>();
 
-            for(Hash tip: tps) {
-                TransactionViewModel tx = TransactionViewModel.fromHash(instance.tangle, tip);
-                if (tx.getType() != TransactionViewModel.PREFILLED_SLOT) {
-                    tipsIndex.add(tx.snapshotIndex());
-                }
-            }
+        controlTransaction(tps, tipsIndex);
 
-        
+
         // Finds the lowest tips index, or 0
         int minTipsIndex = tipsIndex.stream().reduce((a,b) -> a < b ? a : b).orElse(0);
         
         // If the lowest tips index (minTipsIndex) is 0 (or lower), 
         // we can't check transactions against snapshots because there were no tips,
         // or tips have not been confirmed by a snapshot yet
-        if(minTipsIndex > 0) {
-            // Finds the highest tips index, or 0
-            int maxTipsIndex = tipsIndex.stream().reduce((a,b) -> a > b ? a : b).orElse(0);
-            int count = 0;
-            
-            // Checks transactions with indexes of tips, and sets inclusionStates byte to 1 or -1 accordingly
-            // Sets to -1 if the transaction is only known by hash, 
-            // or has no index, or index is above the max tip index (not included).
-
-            // Sets to 1 if the transaction index is below the max index of tips (included).
-            for(Hash hash: trans) {
-                TransactionViewModel transaction = TransactionViewModel.fromHash(instance.tangle, hash);
-                if(transaction.getType() == TransactionViewModel.PREFILLED_SLOT || transaction.snapshotIndex() == 0) {
-                    inclusionStates[count] = -1;
-                } else if(transaction.snapshotIndex() > maxTipsIndex) {
-                    inclusionStates[count] = -1;
-                } else if(transaction.snapshotIndex() < maxTipsIndex) {
-                    inclusionStates[count] = 1;
-                }
-                count++;
-            }
-        }
+        controlMinTipsIndex(trans, inclusionStates, tipsIndex, minTipsIndex);
 
         Set<Hash> analyzedTips = new HashSet<>();
         Map<Integer, Integer> sameIndexTransactionCount = new HashMap<>();
@@ -1163,7 +1137,7 @@ public class API extends MilestoneTracker {
             // We have tips on the same level as transactions, do a manual search.
             if (sameIndexTip != null && !exhaustiveSearchWithinIndex(
                         sameIndexTip, analyzedTips, trans, 
-                        inclusionStates, sameIndexTransactionCount.get(index), index)) {
+                        inclusionStates, sameIndexTransactionCount.get(index))) {
                     
                 return ErrorResponse.create(INVALID_SUBTANGLE);
             }
@@ -1178,68 +1152,114 @@ public class API extends MilestoneTracker {
             return GetInclusionStatesResponse.create(inclusionStatesBoolean);
 
     }
-    
+
+    private void controlMinTipsIndex(List<Hash> trans, byte[] inclusionStates, List<Integer> tipsIndex, int minTipsIndex) throws Exception {
+        if(minTipsIndex > 0) {
+            // Finds the highest tips index, or 0
+            int maxTipsIndex = tipsIndex.stream().reduce((a,b) -> a > b ? a : b).orElse(0);
+            int count = 0;
+
+            // Checks transactions with indexes of tips, and sets inclusionStates byte to 1 or -1 accordingly
+            // Sets to -1 if the transaction is only known by hash,
+            // or has no index, or index is above the max tip index (not included).
+
+            // Sets to 1 if the transaction index is below the max index of tips (included).
+            for(Hash hash: trans) {
+                TransactionViewModel transaction = TransactionViewModel.fromHash(instance.tangle, hash);
+                if(transaction.getType() == TransactionViewModel.PREFILLED_SLOT || transaction.snapshotIndex() == 0) {
+                    inclusionStates[count] = -1;
+                } else if(transaction.snapshotIndex() > maxTipsIndex) {
+                    inclusionStates[count] = -1;
+                } else if(transaction.snapshotIndex() < maxTipsIndex) {
+                    inclusionStates[count] = 1;
+                }
+                count++;
+            }
+        }
+    }
+
+    private void controlTransaction(List<Hash> tps, List<Integer> tipsIndex) throws Exception {
+        for(Hash tip: tps) {
+            TransactionViewModel tx = TransactionViewModel.fromHash(instance.tangle, tip);
+            controlIndex(tipsIndex, tx);
+        }
+    }
+
+    private void controlIndex(List<Integer> tipsIndex, TransactionViewModel tx) {
+        if (tx.getType() != TransactionViewModel.PREFILLED_SLOT) {
+            tipsIndex.add(tx.snapshotIndex());
+        }
+    }
+
+    /*
     /**
      * Traverses down the tips until all transactions we wish to validate have been found or transaction data is missing.
      * 
+     * @param count The amount of transactions on the same index level as <tt>nonAnalyzedTransactions</tt>.
      * @param nonAnalyzedTransactions Tips we will analyze.
-     * @param analyzedTips The hashes of tips we have analyzed. 
+     * @param analyzedTips The hashes of tips we have analyzed.
      *                     Hashes specified here won't be analyzed again.
-     * @param transactions All transactions we are validating. 
-     * @param inclusionStates The state of each transaction. 
+     * @param transactions All transactions we are validating.
+     * @param inclusionStates The state of each transaction.
      *                        1 means confirmed, -1 means unconfirmed, 0 is unknown confirmation.
      *                        Should be of equal length as <tt>transactions</tt>.
-     * @param count The amount of transactions on the same index level as <tt>nonAnalyzedTransactions</tt>. 
+     *
      * @param index The snapshot index of the tips in <tt>nonAnalyzedTransactions</tt>.
-     * @return <tt>true</tt> if all <tt>transactions</tt> are directly or indirectly references by 
+     * @return <tt>true</tt> if all <tt>transactions</tt> are directly or indirectly references by
      *         <tt>nonAnalyzedTransactions</tt>. 
      *         If at some point we are missing transaction data <tt>false</tt> is returned immediately.
      * @throws Exception If a {@link TransactionViewModel} cannot be loaded.
      */
     private boolean exhaustiveSearchWithinIndex(
-                Queue<Hash> nonAnalyzedTransactions, 
-                Set<Hash> analyzedTips, 
-                List<Hash> transactions, 
-                byte[] inclusionStates, int count, int index) throws Exception {
-        
+            Queue<Hash> nonAnalyzedTransactions,
+            Set<Hash> analyzedTips,
+            List<Hash> transactions,
+            byte[] inclusionStates, int index) throws Exception {
+
         Hash pointer;
-        MAIN_LOOP:
         // While we have nonAnalyzedTransactions in the Queue
         while ((pointer = nonAnalyzedTransactions.poll()) != null) {
             // Only analyze tips we haven't analyzed yet
             if (analyzedTips.add(pointer)) {
-                
+
                 // Check if the transactions have indeed this index. Otherwise ignore.
                 // Starts off with the tips in nonAnalyzedTransactions, but transaction trunk & branch gets added.
                 final TransactionViewModel transactionViewModel = TransactionViewModel.fromHash(instance.tangle, pointer);
-                if (transactionViewModel.snapshotIndex() == index) {
-                    // Do we have the complete transaction? 
-                    if (transactionViewModel.getType() == TransactionViewModel.PREFILLED_SLOT) {
-                        // Incomplete transaction data, stop search.
-                        return false;
-                    } else {
-                        // check all transactions we wish to verify confirmation for
-                        for (int i = 0; i < inclusionStates.length; i++) {
-                            if (inclusionStates[i] < 1 && pointer.equals(transactions.get(i))) {
-                                // A tip, or its branch/trunk points to this transaction. 
-                                // That means this transaction is confirmed by this tip.
-                                inclusionStates[i] = 1;
-                                
-                                // Only stop search when we have found all transactions we were looking for
-                                if (--count <= 0) {
-                                    break MAIN_LOOP;
-                                }
-                            }
-                        }
-                        
-                        // Add trunk and branch to the queue for the transaction confirmation check
-                        nonAnalyzedTransactions.offer(transactionViewModel.getTrunkTransactionHash());
-                        nonAnalyzedTransactions.offer(transactionViewModel.getBranchTransactionHash());
-                    }
-                }
+                if (controlCompleteTransaction(nonAnalyzedTransactions, transactions, inclusionStates, index, pointer, transactionViewModel)) {
+                    return false; }
             }
         }
         return true;
+    }
+
+    private boolean controlCompleteTransaction(Queue<Hash> nonAnalyzedTransactions, List<Hash> transactions, byte[] inclusionStates, int index, Hash pointer, TransactionViewModel transactionViewModel) {
+        if (transactionViewModel.snapshotIndex() == index) {
+            // Do we have the complete transaction?
+            if (transactionViewModel.getType() == TransactionViewModel.PREFILLED_SLOT) {
+                // Incomplete transaction data, stop search.
+                return true;
+            } else {
+                // check all transactions we wish to verify confirmation for
+                controlInclusionStates(transactions, inclusionStates, pointer);
+
+                // Add trunk and branch to the queue for the transaction confirmation check
+                nonAnalyzedTransactions.offer(transactionViewModel.getTrunkTransactionHash());
+                nonAnalyzedTransactions.offer(transactionViewModel.getBranchTransactionHash());
+            }
+        }
+        return false;
+    }
+
+    private void controlInclusionStates(List<Hash> transactions, byte[] inclusionStates, Hash pointer) {
+        for (int i = 0; i < inclusionStates.length; i++) {
+            if (inclusionStates[i] < 1 && pointer.equals(transactions.get(i))) {
+                // A tip, or its branch/trunk points to this transaction.
+                // That means this transaction is confirmed by this tip.
+                inclusionStates[i] = 1;
+
+                // Only stop search when we have found all transactions we were looking for
+            }
+        }
     }
 
     /**
@@ -1264,28 +1284,10 @@ public class API extends MilestoneTracker {
         boolean containsKey = false;
 
         final Set<Hash> bundlesTransactions = new HashSet<>();
-        if (request.containsKey("bundles")) {
-            final Set<String> bundles = getParameterAsSet(request,"bundles",HASH_SIZE);
-            for (final String bundle : bundles) {
-                bundlesTransactions.addAll(
-                        BundleViewModel.load(instance.tangle, HashFactory.BUNDLE.create(bundle))
-                        .getHashes());
-            }
-            foundTransactions.addAll(bundlesTransactions);
-            containsKey = true;
-        }
+        containsKey = controlContainsKey(request, foundTransactions, containsKey, bundlesTransactions);
 
         final Set<Hash> addressesTransactions = new HashSet<>();
-        if (request.containsKey("addresses")) {
-            final Set<String> addresses = getParameterAsSet(request,"addresses",HASH_SIZE);
-            for (final String address : addresses) {
-                addressesTransactions.addAll(
-                        AddressViewModel.load(instance.tangle, HashFactory.ADDRESS.create(address))
-                        .getHashes());
-            }
-            foundTransactions.addAll(addressesTransactions);
-            containsKey = true;
-        }
+        containsKey = controlKeys(request, foundTransactions, containsKey, addressesTransactions);
 
         final Set<Hash> tagsTransactions = new HashSet<>();
         if (request.containsKey("tags")) {
@@ -1297,12 +1299,7 @@ public class API extends MilestoneTracker {
                         .getHashes());
             }
             if (tagsTransactions.isEmpty()) {
-                for (String tag : tags) {
-                    tag = padTag(tag);
-                    tagsTransactions.addAll(
-                            TagViewModel.loadObsolete(instance.tangle, HashFactory.OBSOLETETAG.create(tag))
-                            .getHashes());
-                }
+                controlTagTransactions(tagsTransactions, tags);
             }
             foundTransactions.addAll(tagsTransactions);
             containsKey = true;
@@ -1348,6 +1345,51 @@ public class API extends MilestoneTracker {
                 .collect(Collectors.toCollection(LinkedList::new));
 
         return FindTransactionsResponse.create(elements);
+    }
+
+    private void controlTagTransactions(Set<Hash> tagsTransactions, Set<String> tags) throws Exception {
+        for (String tag : tags) {
+            tag = padTag(tag);
+            tagsTransactions.addAll(
+                    TagViewModel.loadObsolete(instance.tangle, HashFactory.OBSOLETETAG.create(tag))
+                    .getHashes());
+        }
+    }
+
+    private boolean controlKeys(Map<String, Object> request, Set<Hash> foundTransactions, boolean containsKey, Set<Hash> addressesTransactions) throws Exception {
+        if (request.containsKey("addresses")) {
+            final Set<String> addresses = getParameterAsSet(request,"addresses",HASH_SIZE);
+            controlAddressTransactions(addressesTransactions, addresses);
+            foundTransactions.addAll(addressesTransactions);
+            containsKey = true;
+        }
+        return containsKey;
+    }
+
+    private void controlAddressTransactions(Set<Hash> addressesTransactions, Set<String> addresses) throws Exception {
+        for (final String address : addresses) {
+            addressesTransactions.addAll(
+                    AddressViewModel.load(instance.tangle, HashFactory.ADDRESS.create(address))
+                    .getHashes());
+        }
+    }
+
+    private boolean controlContainsKey(Map<String, Object> request, Set<Hash> foundTransactions, boolean containsKey, Set<Hash> bundlesTransactions) throws Exception {
+        if (request.containsKey("bundles")) {
+            final Set<String> bundles = getParameterAsSet(request,"bundles",HASH_SIZE);
+            controlStringBundle(bundlesTransactions, bundles);
+            foundTransactions.addAll(bundlesTransactions);
+            containsKey = true;
+        }
+        return containsKey;
+    }
+
+    private void controlStringBundle(Set<Hash> bundlesTransactions, Set<String> bundles) throws Exception {
+        for (final String bundle : bundles) {
+            bundlesTransactions.addAll(
+                    BundleViewModel.load(instance.tangle, HashFactory.BUNDLE.create(bundle))
+                    .getHashes());
+        }
     }
 
     /**
