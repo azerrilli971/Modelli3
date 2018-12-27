@@ -469,10 +469,12 @@ public class API extends MilestoneTracker {
             }
 
         } catch (final ValidationException e) {
-            log.info("API Validation failed: " + e.getLocalizedMessage());
+            if(log.isInfoEnabled()) {
+            log.info(String.format("API Validation failed: %s", e.getLocalizedMessage())); }
             return ErrorResponse.create(e.getLocalizedMessage());
         } catch (final InvalidAlgorithmParameterException e) {
-             log.info("API InvalidAlgorithmParameter passed: " + e.getLocalizedMessage());
+            if(log.isInfoEnabled()) {
+             log.info(String.format("API InvalidAlgorithmParameter passed: %s", e.getLocalizedMessage())); }
              return ErrorResponse.create(e.getLocalizedMessage());
         } catch (final Exception e) {
             log.error("API Exception: {}", e.getLocalizedMessage(), e);
@@ -799,7 +801,8 @@ public class API extends MilestoneTracker {
        int numberOfAddedNeighbors = 0;
        try {
            for (final String uriString : uris) {
-               log.info("Adding neighbor: " + uriString);
+               if (log.isInfoEnabled()) {
+               log.info(String.format("Adding neighbor: %s", uriString)); }
                final Neighbor neighbor = instance.node.newNeighbor(new URI(uriString), true);
                if (!instance.node.getNeighbors().contains(neighbor)) {
                    instance.node.getNeighbors().add(neighbor);
@@ -829,7 +832,8 @@ public class API extends MilestoneTracker {
         int numberOfRemovedNeighbors = 0;
         try {
             for (final String uriString : uris) {
-                log.info("Removing neighbor: " + uriString);
+                if (log.isInfoEnabled()) {
+                log.info(String.format("Removing neighbor: %s", uriString)); }
                 if (instance.node.removeNeighbor(new URI(uriString),true)) {
                     numberOfRemovedNeighbors++;
                 }
@@ -925,7 +929,8 @@ public class API extends MilestoneTracker {
             return GetTransactionsToApproveResponse.create(tips.get(0), tips.get(1));
 
         } catch (Exception e) {
-            log.info("Tip selection failed: " + e.getLocalizedMessage());
+            if (log.isInfoEnabled()) {
+            log.info(String.format("Tip selection failed: %s", e.getLocalizedMessage())); }
             return ErrorResponse.create(e.getLocalizedMessage());
         }
     }
