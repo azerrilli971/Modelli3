@@ -207,22 +207,13 @@ public class LedgerValidator {
      * @throws Exception
      */
     private MilestoneViewModel buildSnapshot() throws Exception {
-        MilestoneViewModel consistentMilestone = null;
-        milestoneTracker.getLatestSnapshot().rwlock.writeLock().lock();
+        MilestoneViewModel consistentMilestone = getMilestoneViewModel();
         try {
             MilestoneViewModel candidateMilestone = MilestoneViewModel.first(tangle);
             while (candidateMilestone != null) {
                 if (candidateMilestone.index() % 10000 == 0) {
-                    StringBuilder logMessage = new StringBuilder();
-
-                    logMessage.append("Building snapshot... Consistent: #");
-                    logMessage.append(consistentMilestone != null ? consistentMilestone.index() : -1);
-                    logMessage.append(", Candidate: #");
-                    logMessage.append(candidateMilestone.index());
-
-                    if (log.isDebugEnabled()){
-                        log.info(logMessage.toString());
-                    }
+                    StringBuilder logMessage = getStringBuilder(consistentMilestone, candidateMilestone);
+                    logRan(logMessage);
                 }
                 if (StateDiffViewModel.maybeExists(tangle, candidateMilestone.getHash())) {
                     StateDiffViewModel stateDiffViewModel = StateDiffViewModel.load(tangle, candidateMilestone.getHash());
@@ -242,6 +233,28 @@ public class LedgerValidator {
             milestoneTracker.getLatestSnapshot().rwlock.writeLock().unlock();
         }
         return consistentMilestone;
+    }
+
+    private void logRan(StringBuilder logMessage) {
+        if (log.isDebugEnabled()){
+            log.info(logMessage.toString());
+        }
+    }
+
+    private MilestoneViewModel getMilestoneViewModel() {
+        MilestoneViewModel consistentMilestone = null;
+        milestoneTracker.getLatestSnapshot().rwlock.writeLock().lock();
+        return consistentMilestone;
+    }
+
+    private StringBuilder getStringBuilder(MilestoneViewModel consistentMilestone, MilestoneViewModel candidateMilestone) {
+        StringBuilder logMessage = new StringBuilder();
+
+        logMessage.append("Building snapshot... Consistent: #");
+        logMessage.append(consistentMilestone != null ? consistentMilestone.index() : -1);
+        logMessage.append(", Candidate: #");
+        logMessage.append(candidateMilestone.index());
+        return logMessage;
     }
 
     public boolean updateSnapshot(MilestoneViewModel milestoneVM) throws Exception {
