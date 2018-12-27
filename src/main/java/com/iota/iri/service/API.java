@@ -432,79 +432,88 @@ public class API extends MilestoneTracker {
                     return getGetInclusionStates(request);
 
                 //vecchia linea 445
-                case "getNeighbors": {
+                case "getNeighbors":
                     return getNeighborsStatement();
-                }
-                case "getNodeInfo": {
+
+                case "getNodeInfo":
                     return getNodeInfoStatement();
-                }
-                case "getTips": {
+
+                case "getTips":
                     return getTipsStatement();
-                }
-                case "getTransactionsToApprove": {
-                    Optional<Hash> reference = request.containsKey("reference") ?
-                        Optional.of(HashFactory.TRANSACTION.create(getParameterAsStringAndValidate(request,"reference", HASH_SIZE)))
-                        : Optional.empty();
-                    int depth = getParameterAsInt(request, "depth");
 
-                    return getTransactionsToApproveStatement(depth, reference);
-                }
-                case "getTrytes": {
-                    final List<String> hashes = getParameterAsList(request,"hashes", HASH_SIZE);
-                    return getTrytesStatement(hashes);
-                }
+                case "getTransactionsToApprove":
+                    return getGetTransactionsToApprove(request);
 
-                case "interruptAttachingToTangle": {
+                case "getTrytes":
+                    return getGetTrytes(request);
+
+                case "interruptAttachingToTangle":
                     return interruptAttachingToTangleStatement();
-                }
-                case "removeNeighbors": {
-                    List<String> uris = getParameterAsList(request,"uris",0);
-                    log.debug("Invoking 'removeNeighbors' with {}", uris);
-                    return removeNeighborsStatement(uris);
-                }
 
-                case "storeTransactions": {
-                    try {
-                        final List<String> trytes = getParameterAsList(request,"trytes", TRYTES_SIZE);
-                        storeTransactionsStatement(trytes);
-                        return AbstractResponse.createEmptyResponse();
-                    } catch (RuntimeException e) {
-                        //transaction not valid
-                        return ErrorResponse.create("Invalid trytes input");
-                    }
-                }
+                case "removeNeighbors":
+                    return getRemoveNeighbors(request);
+
+                case "storeTransactions":
+                    return getStoreTransactions(request);
+
                 case "getMissingTransactions":
                     return synchronize();
-                case "checkConsistency": {
-                    if (invalidSubtangleStatus()) {
-                        return ErrorResponse.create(INVALID_SUBTANGLE);
-                    }
-                    final List<String> transactions = getParameterAsList(request,"tails", HASH_SIZE);
-                    return checkConsistencyStatement(transactions);
-                }
-                case "wereAddressesSpentFrom": {
-                    final List<String> addresses = getParameterAsList(request,"addresses", HASH_SIZE);
-                    return wereAddressesSpentFromStatement(addresses);
-                }
-                default: {
-                    AbstractResponse response = ixi.processCommand(command, request);
-                    return response == null ?
-                            ErrorResponse.create("Command [" + command + "] is unknown") :
-                            response;
-                }
+                case "checkConsistency":
+                    return check();
+
+                case "wereAddressesSpentFrom":
+                    return loc();
+
+                default:return defMethod();
+
             }
 
         } catch (final ValidationException e) {
-            log.info("API Validation failed: " + e.getLocalizedMessage());
+            if(log.isInfoEnabled()) {
+            log.info(String.format("API Validation failed: %s", e.getLocalizedMessage())); }
             return ErrorResponse.create(e.getLocalizedMessage());
         } catch (final InvalidAlgorithmParameterException e) {
-             log.info("API InvalidAlgorithmParameter passed: " + e.getLocalizedMessage());
+            if(log.isInfoEnabled()) {
+             log.info(String.format("API InvalidAlgorithmParameter passed: %s", e.getLocalizedMessage())); }
              return ErrorResponse.create(e.getLocalizedMessage());
         } catch (final Exception e) {
             log.error("API Exception: {}", e.getLocalizedMessage(), e);
             return ExceptionResponse.create(e.getLocalizedMessage());
         }
 
+    }
+
+
+    private AbstractResponse getStoreTransactions(Map<String, Object> request) throws Exception {
+        try {
+            final List<String> trytes = getParameterAsList(request,"trytes", TRYTES_SIZE);
+            storeTransactionsStatement(trytes);
+            return AbstractResponse.createEmptyResponse();
+        } catch (RuntimeException e) {
+            //transaction not valid
+            return ErrorResponse.create("Invalid trytes input");
+        }
+    }
+
+
+    private AbstractResponse getRemoveNeighbors(Map<String, Object> request) throws ValidationException {
+        List<String> uris = getParameterAsList(request,"uris",0);
+        log.debug("Invoking 'removeNeighbors' with {}", uris);
+        return removeNeighborsStatement(uris);
+    }
+
+    private AbstractResponse getGetTrytes (Map<String, Object> request) throws Exception {
+        final List<String> hashes = getParameterAsList(request,"hashes", HASH_SIZE);
+        return getTrytesStatement(hashes);
+    }
+
+    private AbstractResponse getGetTransactionsToApprove(Map<String, Object> request) throws Exception {
+        Optional<Hash> reference = request.containsKey("reference") ?
+                Optional.of(HashFactory.TRANSACTION.create(getParameterAsStringAndValidate(request,"reference", HASH_SIZE)))
+                : Optional.empty();
+        int depth = getParameterAsInt(request, "depth");
+
+        return getTransactionsToApproveStatement(depth, reference);
     }
 
     private AbstractResponse getAttachToTangle(Map<String, Object> request) throws ValidationException {
@@ -567,9 +576,45 @@ public class API extends MilestoneTracker {
      * Check if a list of addresses was ever spent from, in the current epoch, or in previous epochs.
      * If an address has a pending transaction, it is also marked as spend.
      * 
-     * @param addresses List of addresses to check if they were ever spent from.
+     * //@param  List of addresses to check if they were ever spent from.
      * @return {@link *com.iota.iri.service.dto.wereAddressesSpentFrom}
      **/
+    
+    public AbstractResponse check() throws Exception {
+        
+        if (invalidSubtangleStatus()){
+            return ErrorResponse.create(INVALID_SUBTANGLE);
+        }
+        Map<String, Object> request = null;
+        final List<String> transactions = getParameterAsList(request,"tails", HASH_SIZE);
+        validateParamExists(request, "tails");
+        return checkConsistencyStatement(transactions);
+
+    }
+
+    public AbstractResponse loc() throws Exception {
+        Map<String, Object> request = null;
+        final List<String> addresses = getParameterAsList(request,"addresses", HASH_SIZE);
+        validateParamExists(request, "adresses");
+        return wereAddressesSpentFromStatement(addresses);
+    }
+
+
+    public AbstractResponse defMethod(){
+        Map<String, Object> request = null;
+        String command = null;
+        AbstractResponse response = ixi.processCommand(command, request);
+        if(response == null){
+            ErrorResponse.create("Command [" + command + "] is unknown");
+            return  response;
+        }
+        return response;
+    }
+    
+               
+    
+    
+    
     private AbstractResponse wereAddressesSpentFromStatement(List<String> addresses) throws Exception {
         final List<Hash> addressesHash = addresses.stream()
                 .map(HashFactory.ADDRESS::create)
@@ -756,7 +801,8 @@ public class API extends MilestoneTracker {
        int numberOfAddedNeighbors = 0;
        try {
            for (final String uriString : uris) {
-               log.info("Adding neighbor: " + uriString);
+               if (log.isInfoEnabled()) {
+               log.info(String.format("Adding neighbor: %s", uriString)); }
                final Neighbor neighbor = instance.node.newNeighbor(new URI(uriString), true);
                if (!instance.node.getNeighbors().contains(neighbor)) {
                    instance.node.getNeighbors().add(neighbor);
@@ -786,7 +832,8 @@ public class API extends MilestoneTracker {
         int numberOfRemovedNeighbors = 0;
         try {
             for (final String uriString : uris) {
-                log.info("Removing neighbor: " + uriString);
+                if (log.isInfoEnabled()) {
+                log.info(String.format("Removing neighbor: %s", uriString)); }
                 if (instance.node.removeNeighbor(new URI(uriString),true)) {
                     numberOfRemovedNeighbors++;
                 }
@@ -882,7 +929,8 @@ public class API extends MilestoneTracker {
             return GetTransactionsToApproveResponse.create(tips.get(0), tips.get(1));
 
         } catch (Exception e) {
-            log.info("Tip selection failed: " + e.getLocalizedMessage());
+            if (log.isInfoEnabled()) {
+            log.info(String.format("Tip selection failed: %s", e.getLocalizedMessage())); }
             return ErrorResponse.create(e.getLocalizedMessage());
         }
     }
@@ -1043,14 +1091,14 @@ public class API extends MilestoneTracker {
         final byte[] inclusionStates = new byte[numberOfNonMetTransactions];
 
         List<Integer> tipsIndex = new LinkedList<>();
-        {
+
             for(Hash tip: tps) {
                 TransactionViewModel tx = TransactionViewModel.fromHash(instance.tangle, tip);
                 if (tx.getType() != TransactionViewModel.PREFILLED_SLOT) {
                     tipsIndex.add(tx.snapshotIndex());
                 }
             }
-        }
+
         
         // Finds the lowest tips index, or 0
         int minTipsIndex = tipsIndex.stream().reduce((a,b) -> a < b ? a : b).orElse(0);
@@ -1126,9 +1174,9 @@ public class API extends MilestoneTracker {
             inclusionStatesBoolean[i] = inclusionStates[i] == 1;
         }
         
-        {
+
             return GetInclusionStatesResponse.create(inclusionStatesBoolean);
-        }
+
     }
     
     /**

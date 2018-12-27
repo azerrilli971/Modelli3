@@ -175,8 +175,9 @@ public class SnapshotProviderImpl implements SnapshotProvider {
                 }
 
                 SnapshotMetaData snapshotMetaData = readSnapshotMetaDatafromFile(localSnapshotMetadDataFile);
-
-                log.info("resumed from local snapshot #" + snapshotMetaData.getIndex() + " ...");
+                if(log.isInfoEnabled()) {
+                    log.info(String.format("resumed from local snapshot #%d ...", snapshotMetaData.getIndex()));
+                }
 
                 return new SnapshotImpl(snapshotState, snapshotMetaData);
             }

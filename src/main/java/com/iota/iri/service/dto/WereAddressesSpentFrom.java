@@ -1,11 +1,13 @@
 package com.iota.iri.service.dto;
 
 import com.iota.iri.service.API;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * 
  * Contains information about the result of a successful {@code wereAddressesSpentFrom} API call.
- * See {@link API#wereAddressesSpentFromStatement} for how this response is created.
+ * See {@link API#*wereAddressesSpentFromStatement} for how this response is created.
  *
  */
 public class WereAddressesSpentFrom extends AbstractResponse {
@@ -34,6 +36,16 @@ public class WereAddressesSpentFrom extends AbstractResponse {
      */
     public boolean[] getStates() {
         return states;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return EqualsBuilder.reflectionEquals(this, obj, false);
+    }
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this, false);
     }
 
 }

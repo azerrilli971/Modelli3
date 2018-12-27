@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  * @param <E> the type parameter
  */
 public class BoundedHashSet<E> extends HashSet<E> implements BoundedSet<E>{
-    final private int maxSize;
+    final protected int maxSize;
 
     /**
      * Instantiates a new Bounded hash set.
@@ -90,5 +90,19 @@ public class BoundedHashSet<E> extends HashSet<E> implements BoundedSet<E>{
                     .collect(Collectors.toSet());
         }
         return super.addAll(c);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        boolean ret = false;
+        if (o == this) { ret = true; }
+        return ret;
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        result = 31 * maxSize;
+        return result;
     }
 }

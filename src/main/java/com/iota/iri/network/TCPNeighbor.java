@@ -90,7 +90,7 @@ public class TCPNeighbor extends Neighbor {
                     this.sink.close();
                     log.info("Sink {} closed", this.getHostAddress());
                 } catch (IOException e) {
-                    log.error("Sink {} close failure: {}", this.getHostAddress(), e.toString());
+                    log.error("Sink {} close failure: {}", this.getHostAddress(), e);
                 }
             }
         }
