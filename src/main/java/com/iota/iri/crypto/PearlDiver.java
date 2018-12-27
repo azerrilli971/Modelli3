@@ -107,10 +107,7 @@ public class PearlDiver {
     private Runnable getRunnable(final int threadIndex, final byte[] transactionTrits, final int minWeightMagnitude,
                                  final long[] midStateCopyLow, final long[] midStateCopyHigh) {
         return () -> {
-            for (int i = 0; i < threadIndex; i++) {
-                increment(midStateCopyLow, midStateCopyHigh, 162 + CURL_HASH_LENGTH / 9,
-                    162 + (CURL_HASH_LENGTH / 9) * 2);
-            }
+            dostff(threadIndex, midStateCopyLow, midStateCopyHigh);
 
             final long[] stateLow = new long[CURL_STATE_LENGTH];
             final long[] stateHigh = new long[CURL_STATE_LENGTH];
@@ -128,28 +125,49 @@ public class PearlDiver {
                 copy(midStateCopyLow, midStateCopyHigh, stateLow, stateHigh);
                 transform(stateLow, stateHigh, scratchpadLow, scratchpadHigh);
 
-                mask = HIGH_BITS;
-                for (int i = maskStartIndex; i < CURL_HASH_LENGTH && mask != 0; i++) {
-                    mask &= ~(stateLow[i] ^ stateHigh[i]);
-                }
+                mask = getMask(stateLow, stateHigh, maskStartIndex);
             }
-            if (mask != 0) {
-                synchronized (syncObj) {
-                    if (state == State.RUNNING) {
-                        state = State.COMPLETED;
-                        long outMask = 1;
-                        while ((outMask & mask) == 0) {
-                            outMask <<= 1;
-                        }
-                        for (int i = 0; i < CURL_HASH_LENGTH; i++) {
-                            transactionTrits[TRANSACTION_LENGTH - CURL_HASH_LENGTH + i] =
-                                (midStateCopyLow[i] & outMask) == 0 ? 1
-                                    : (midStateCopyHigh[i] & outMask) == 0 ? (byte) -1 : (byte) 0;
-                        }
-                    }
-                }
-            }
+            mask(transactionTrits, midStateCopyLow, midStateCopyHigh, mask);
         };
+    }
+
+    private long getMask(long[] stateLow, long[] stateHigh, int maskStartIndex) {
+        long mask;
+        mask = HIGH_BITS;
+        for (int i = maskStartIndex; i < CURL_HASH_LENGTH && mask != 0; i++) {
+            mask &= ~(stateLow[i] ^ stateHigh[i]);
+        }
+        return mask;
+    }
+
+    private void mask(byte[] transactionTrits, long[] midStateCopyLow, long[] midStateCopyHigh, long mask) {
+        if (mask != 0) {
+            synchronized (syncObj) {
+                if (state == State.RUNNING) {
+                    state = State.COMPLETED;
+                    long outMask = 1;
+                    while ((outMask & mask) == 0) {
+                        outMask <<= 1;
+                    }
+                    inmask(transactionTrits, midStateCopyLow, midStateCopyHigh, outMask);
+                }
+            }
+        }
+    }
+
+    private void inmask(byte[] transactionTrits, long[] midStateCopyLow, long[] midStateCopyHigh, long outMask) {
+        for (int i = 0; i < CURL_HASH_LENGTH; i++) {
+            transactionTrits[TRANSACTION_LENGTH - CURL_HASH_LENGTH + i] =
+                (midStateCopyLow[i] & outMask) == 0 ? 1
+                    : (midStateCopyHigh[i] & outMask) == 0 ? (byte) -1 : (byte) 0;
+        }
+    }
+
+    private void dostff(int threadIndex, long[] midStateCopyLow, long[] midStateCopyHigh) {
+        for (int i = 0; i < threadIndex; i++) {
+            increment(midStateCopyLow, midStateCopyHigh, 162 + CURL_HASH_LENGTH / 9,
+                162 + (CURL_HASH_LENGTH / 9) * 2);
+        }
     }
 
     private static void copy(long[] srcLow, long[] srcHigh, long[] destLow, long[] destHigh) {
