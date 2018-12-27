@@ -117,7 +117,8 @@ public enum HashFactory {
             return new ObsoleteTagHash(source, sourceOffset, sourceSize);  
             
         } else {
-            log.warn("Tried to construct hash from unknown class " + modelClass);
+            String test = String.format("Tried to construct hash from unknown class %s", modelClass);
+            log.warn( test );
             //Default to transaction hash or NULL_HASH?
             return new TransactionHash(source, sourceOffset, sourceSize);
         }
