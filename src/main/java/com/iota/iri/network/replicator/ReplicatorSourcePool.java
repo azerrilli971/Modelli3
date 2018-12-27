@@ -41,7 +41,9 @@ public class ReplicatorSourcePool implements Runnable {
         this.pool = pool;
         try {
             server = new ServerSocket(port);
-            log.info("TCP replicator is accepting connections on tcp port " + server.getLocalPort());
+            if(log.isInfoEnabled()) {
+                log.info(String.format("TCP replicator is accepting connections on tcp port ", server.getLocalPort()) );
+            }
             while (!shutdown) {
                 try {
                     Socket request = server.accept();
