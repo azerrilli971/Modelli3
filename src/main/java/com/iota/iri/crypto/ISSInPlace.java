@@ -151,35 +151,48 @@ public class ISSInPlace {
 
         for (int i = 0; i < NUMBER_OF_SECURITY_LEVELS; i++) {
             int sum = 0;
-            for (int j = i * (Curl.HASH_LENGTH / TRYTE_WIDTH / NUMBER_OF_SECURITY_LEVELS);
-                    j < (i + 1) * (Curl.HASH_LENGTH / TRYTE_WIDTH / NUMBER_OF_SECURITY_LEVELS); j++) {
-
-                normalizedBundle[j] = (byte) (bundle[j * TRYTE_WIDTH] + bundle[j * TRYTE_WIDTH + 1] * 3
-                        + bundle[j * TRYTE_WIDTH + 2] * 9);
-                sum += normalizedBundle[j];
-            }
+            sum = getSum(bundle, normalizedBundle, i, sum);
             if (sum > 0) {
-                while (sum-- > 0) {
-
-                    for (int j = i * (Curl.HASH_LENGTH / TRYTE_WIDTH / NUMBER_OF_SECURITY_LEVELS);
-                            j < (i + 1) * (Curl.HASH_LENGTH / TRYTE_WIDTH / NUMBER_OF_SECURITY_LEVELS); j++) {
-
-                        if (normalizedBundle[j] > MIN_TRYTE_VALUE) {
-                            normalizedBundle[j]--;
-                            break;
-                        }
-                    }
-                }
+                doIt(normalizedBundle, i, sum);
             } else {
-                while (sum++ < 0) {
-                    for (int j = i * (Curl.HASH_LENGTH / TRYTE_WIDTH / NUMBER_OF_SECURITY_LEVELS);
-                            j < (i + 1) * (Curl.HASH_LENGTH / TRYTE_WIDTH / NUMBER_OF_SECURITY_LEVELS); j++) {
+                miracle(normalizedBundle, i, sum);
+            }
+        }
+    }
 
-                        if (normalizedBundle[j] < MAX_TRYTE_VALUE) {
-                            normalizedBundle[j]++;
-                            break;
-                        }
-                    }
+    private static int getSum(byte[] bundle, byte[] normalizedBundle, int i, int sum) {
+        for (int j = i * (Curl.HASH_LENGTH / TRYTE_WIDTH / NUMBER_OF_SECURITY_LEVELS);
+             j < (i + 1) * (Curl.HASH_LENGTH / TRYTE_WIDTH / NUMBER_OF_SECURITY_LEVELS); j++) {
+
+            normalizedBundle[j] = (byte) (bundle[j * TRYTE_WIDTH] + bundle[j * TRYTE_WIDTH + 1] * 3
+                    + bundle[j * TRYTE_WIDTH + 2] * 9);
+            sum += normalizedBundle[j];
+        }
+        return sum;
+    }
+
+    private static void doIt(byte[] normalizedBundle, int i, int sum) {
+        while (sum-- > 0) {
+
+            for (int j = i * (Curl.HASH_LENGTH / TRYTE_WIDTH / NUMBER_OF_SECURITY_LEVELS);
+                 j < (i + 1) * (Curl.HASH_LENGTH / TRYTE_WIDTH / NUMBER_OF_SECURITY_LEVELS); j++) {
+
+                if (normalizedBundle[j] > MIN_TRYTE_VALUE) {
+                    normalizedBundle[j]--;
+                    break;
+                }
+            }
+        }
+    }
+
+    private static void miracle(byte[] normalizedBundle, int i, int sum) {
+        while (sum++ < 0) {
+            for (int j = i * (Curl.HASH_LENGTH / TRYTE_WIDTH / NUMBER_OF_SECURITY_LEVELS);
+                 j < (i + 1) * (Curl.HASH_LENGTH / TRYTE_WIDTH / NUMBER_OF_SECURITY_LEVELS); j++) {
+
+                if (normalizedBundle[j] < MAX_TRYTE_VALUE) {
+                    normalizedBundle[j]++;
+                    break;
                 }
             }
         }
