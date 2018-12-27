@@ -95,7 +95,7 @@ public class BoundedHashSet<E> extends HashSet<E> implements BoundedSet<E>{
     @Override
     public boolean equals(Object o) {
         boolean ret = false;
-        if (o == this) ret = true;
+        if (o == this) { ret = true; }
         return ret;
     }
 
