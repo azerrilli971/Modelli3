@@ -562,41 +562,54 @@ public class Node {
             }
         } else {
             //find requested trytes
-            try {
-                //transactionViewModel = TransactionViewModel.find(Arrays.copyOf(requestedHash.bytes(), TransactionRequester.REQUEST_HASH_SIZE));
-                transactionViewModel = TransactionViewModel.fromHash(tangle, HashFactory.TRANSACTION.create(requestedHash.bytes(), 0, reqHashSize));
-                //log.debug("Requested Hash: " + requestedHash + " \nFound: " + transactionViewModel.getHash());
-            } catch (Exception e) {
-                log.error("Error while searching for transaction.", e);
-            }
+            transactionViewModel = getBodyElseTVM(requestedHash, transactionViewModel);
         }
 
         if (transactionViewModel != null && transactionViewModel.getType() == TransactionViewModel.FILLED_SLOT) {
             //send trytes back to neighbor
-            try {
-                sendPacket(sendingPacket, transactionViewModel, neighbor);
-
-                ByteBuffer digest = getBytesDigest(transactionViewModel.getBytes());
-                synchronized (recentSeenBytes) {
-                    recentSeenBytes.put(digest, transactionViewModel.getHash());
-                }
-            } catch (Exception e) {
-                log.error("Error fetching transaction to request.", e);
-            }
+            getCorpoIfTryCatch(neighbor, transactionViewModel);
         } else {
             //trytes not found
             if (!requestedHash.equals(Hash.NULL_HASH) && rnd.nextDouble() < configuration.getpPropagateRequest()) {
                 //request is an actual transaction and missing in request queue add it.
-                try {
-                    transactionRequester.requestTransaction(requestedHash, false);
-
-                } catch (Exception e) {
-                    log.error("Error adding transaction to request.", e);
-                }
+                getBodyIf(requestedHash);
 
             }
         }
 
+    }
+
+    private void getCorpoIfTryCatch(Neighbor neighbor, TransactionViewModel transactionViewModel) {
+        try {
+            sendPacket(sendingPacket, transactionViewModel, neighbor);
+
+            ByteBuffer digest = getBytesDigest(transactionViewModel.getBytes());
+            synchronized (recentSeenBytes) {
+                recentSeenBytes.put(digest, transactionViewModel.getHash());
+            }
+        } catch (Exception e) {
+            log.error("Error fetching transaction to request.", e);
+        }
+    }
+
+    private void getBodyIf(Hash requestedHash) {
+        try {
+            transactionRequester.requestTransaction(requestedHash, false);
+
+        } catch (Exception e) {
+            log.error("Error adding transaction to request.", e);
+        }
+    }
+
+    private TransactionViewModel getBodyElseTVM(Hash requestedHash, TransactionViewModel transactionViewModel) {
+        try {
+            //transactionViewModel = TransactionViewModel.find(Arrays.copyOf(requestedHash.bytes(), TransactionRequester.REQUEST_HASH_SIZE));
+            transactionViewModel = TransactionViewModel.fromHash(tangle, HashFactory.TRANSACTION.create(requestedHash.bytes(), 0, reqHashSize));
+            //log.debug("Requested Hash: " + requestedHash + " \nFound: " + transactionViewModel.getHash());
+        } catch (Exception e) {
+            log.error("Error while searching for transaction.", e);
+        }
+        return transactionViewModel;
     }
 
     private Hash getRandomTipPointer() throws Exception {
