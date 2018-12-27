@@ -146,7 +146,9 @@ class ReplicatorSourceProcessor implements Runnable {
     }
 
     private void transactionLog(Exception e) {
-        log.info("Transaction processing exception " + e.getMessage());
+        if (log.isInfoEnabled()) {
+            log.info(String.format("Transaction processing exception %s ", e.getMessage()));
+        }
         log.error("Transaction processing exception ",e);
     }
 
