@@ -61,7 +61,7 @@ public class TransactionValidator {
      * @param config configuration for obtaining snapshot data
      */
     TransactionValidator(Tangle tangle, TipsViewModel tipsViewModel, TransactionRequester transactionRequester,
-                                SnapshotConfig config) {
+                         SnapshotConfig config) {
         this.tangle = tangle;
         this.tipsViewModel = tipsViewModel;
         this.transactionRequester = transactionRequester;
@@ -252,34 +252,55 @@ public class TransactionValidator {
         }
         boolean solid = true;
         final Queue<Hash> nonAnalyzedTransactions = new LinkedList<>(Collections.singleton(hash));
-        Hash hashPointer;
-        while ((hashPointer = nonAnalyzedTransactions.poll()) != null) {
-            if (analyzedHashes.add(hashPointer)) {
-                if(analyzedHashes.size() >= maxProcessedTransactions) {
-                    return false;
-                }
-
-                final TransactionViewModel transaction = fromHash(tangle, hashPointer);
-                if(!transaction.isSolid()) {
-                    if (transaction.getType() == PREFILLED_SLOT && !hashPointer.equals(Hash.NULL_HASH)) {
-                        solid = false;
-
-                        if (!transactionRequester.isTransactionRequested(hashPointer, milestone)) {
-                            transactionRequester.requestTransaction(hashPointer, milestone);
-                            break;
-                        }
-                    } else {
-                        nonAnalyzedTransactions.offer(transaction.getTrunkTransactionHash());
-                        nonAnalyzedTransactions.offer(transaction.getBranchTransactionHash());
-                    }
-                }
-            }
-        }
+        solid = pointerCheck(milestone, maxProcessedTransactions, analyzedHashes, solid, nonAnalyzedTransactions);
         if (solid) {
             updateSolidTransactions(tangle, analyzedHashes);
         }
         analyzedHashes.clear();
         return solid;
+    }
+
+    private boolean pointerCheck(boolean milestone, int maxProcessedTransactions, Set<Hash> analyzedHashes, boolean solid, Queue<Hash> nonAnalyzedTransactions) throws Exception {
+        Hash hashPointer;
+        while ((hashPointer = nonAnalyzedTransactions.poll()) != null) {
+            if (analyzedHashes.add(hashPointer)) {
+                if(analyzedHashes.size() >= maxProcessedTransactions) {
+                    solid = false;
+                    break;
+                }
+                final TransactionViewModel transaction = fromHash(tangle, hashPointer);
+                int counter = 0;
+                solid = newIsSolid(milestone, solid, nonAnalyzedTransactions, hashPointer, transaction, counter);
+            }
+        }
+        return solid;
+    }
+
+    private boolean newIsSolid(boolean milestone, boolean solid, Queue<Hash> nonAnalyzedTransactions, Hash hashPointer, TransactionViewModel transaction, int counter) throws Exception {
+        while (counter == 0) {
+            if (!transaction.isSolid()) {
+                if (transaction.getType() == PREFILLED_SLOT && !hashPointer.equals(Hash.NULL_HASH)) {
+                    solid = false;
+
+                    if (controlStatement(milestone, hashPointer)) {
+                        break;
+                    }
+                } else {
+                    nonAnalyzedTransactions.offer(transaction.getTrunkTransactionHash());
+                    nonAnalyzedTransactions.offer(transaction.getBranchTransactionHash());
+                }
+            }
+            counter++;
+        }
+        return solid;
+    }
+
+    private boolean controlStatement(boolean milestone, Hash hashPointer) throws Exception {
+        if (!transactionRequester.isTransactionRequested(hashPointer, milestone)) {
+            transactionRequester.requestTransaction(hashPointer, milestone);
+            return true;
+        }
+        return false;
     }
 
     public void addSolidTransaction(Hash hash) {
