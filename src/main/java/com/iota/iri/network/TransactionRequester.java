@@ -117,7 +117,9 @@ public class TransactionRequester {
                 // if we have received the transaction in the mean time ....
                 if (TransactionViewModel.exists(tangle, hash)) {
                     // ... dump a log message ...
-                    log.info("Removed existing tx from request list: " + hash);
+                    if(log.isInfoEnabled()) {
+                        log.info(String.format("Removed existing tx from request list: %s", hash));
+                    }
                     messageQ.publish("rtl %s", hash);
 
                     // ... and continue to the next element in the set
