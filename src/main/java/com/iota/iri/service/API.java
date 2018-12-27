@@ -416,7 +416,7 @@ public class API extends MilestoneTracker {
                 case "addNeighbors":
                     return getAbstractResponse(request);
 
-                case "attachToTangle": 
+                case "attachToTangle":
                     return getAttachToTangle(request);
 
                 case "broadcastTransactions":
