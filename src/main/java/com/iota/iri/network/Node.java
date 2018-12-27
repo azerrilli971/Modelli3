@@ -195,33 +195,7 @@ public class Node {
                                 messageQ.publish("dnscv %s %s", hostname, ip);
                                 final String neighborAddress = neighborIpCache.get(hostname);
 
-                                if (neighborAddress == null) {
-                                    neighborIpCache.put(hostname, ip);
-                                } else {
-                                    if (neighborAddress.equals(ip)) {
-                                        log.info("{} seems fine.", hostname);
-                                        messageQ.publish("dnscc %s", hostname);
-                                    } else {
-                                        if (configuration.isDnsRefresherEnabled()) {
-                                            log.info("IP CHANGED for {}! Updating...", hostname);
-                                            messageQ.publish("dnscu %s", hostname);
-                                            String protocol = (n instanceof TCPNeighbor) ? "tcp://" : "udp://";
-                                            String port = ":" + n.getAddress().getPort();
-
-                                            uri(protocol + hostname + port).ifPresent(uri -> {
-                                                removeNeighbor(uri, n.isFlagged());
-
-                                                uri(protocol + ip + port).ifPresent(nuri -> {
-                                                    Neighbor neighbor = newNeighbor(nuri, n.isFlagged());
-                                                    addNeighbor(neighbor);
-                                                    neighborIpCache.put(hostname, ip);
-                                                });
-                                            });
-                                        } else {
-                                            log.info("IP CHANGED for {}! Skipping... DNS_REFRESHER_ENABLED is false.", hostname);
-                                        }
-                                    }
-                                }
+                                test2(n, hostname, ip, neighborAddress);
                             });
                         });
 
@@ -237,6 +211,44 @@ public class Node {
                 log.info("Ignoring DNS Refresher Thread... DNS_RESOLUTION_ENABLED is false");
             }
         };
+    }
+
+    private void test2(Neighbor n, String hostname, String ip, String neighborAddress) {
+        if (neighborAddress == null) {
+            neighborIpCache.put(hostname, ip);
+        } else {
+            if (neighborAddress.equals(ip)) {
+                log.info("{} seems fine.", hostname);
+                messageQ.publish("dnscc %s", hostname);
+            } else {
+                test1(n, hostname, ip);
+            }
+        }
+    }
+
+    private void test1(Neighbor n, String hostname, String ip) {
+        if (configuration.isDnsRefresherEnabled()) {
+            log.info("IP CHANGED for {}! Updating...", hostname);
+            messageQ.publish("dnscu %s", hostname);
+            String protocol = (n instanceof TCPNeighbor) ? "tcp://" : "udp://";
+            String port = ":" + n.getAddress().getPort();
+
+            test(n, hostname, ip, protocol, port);
+        } else {
+            log.info("IP CHANGED for {}! Skipping... DNS_REFRESHER_ENABLED is false.", hostname);
+        }
+    }
+
+    private void test(Neighbor n, String hostname, String ip, String protocol, String port) {
+        uri(protocol + hostname + port).ifPresent(uri -> {
+            removeNeighbor(uri, n.isFlagged());
+
+            uri(protocol + ip + port).ifPresent(nuri -> {
+                Neighbor neighbor = newNeighbor(nuri, n.isFlagged());
+                addNeighbor(neighbor);
+                neighborIpCache.put(hostname, ip);
+            });
+        });
     }
 
     /**
