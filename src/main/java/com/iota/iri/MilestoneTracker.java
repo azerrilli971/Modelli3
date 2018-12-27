@@ -268,32 +268,9 @@ public class MilestoneTracker {
                     // the Merkle tree siblings.
                     final TransactionViewModel siblingsTx = bundleTransactionViewModels.get(securityLevel);
 
-                    if (isMilestoneBundleStructureValid(bundleTransactionViewModels, securityLevel)) {
-                        //milestones sign the normalized hash of the sibling transaction.
-                        byte[] signedHash = ISS.normalizedBundle(siblingsTx.getHash().trits());
-
-                        //validate leaf signature
-                        ByteBuffer bb = ByteBuffer.allocate(Curl.HASH_LENGTH * securityLevel);
-                        byte[] digest = new byte[Curl.HASH_LENGTH];
-
-                        for (int i = 0; i < securityLevel; i++) {
-                            ISSInPlace.digest(mode, signedHash, ISS.NUMBER_OF_FRAGMENT_CHUNKS * i,
-                                    bundleTransactionViewModels.get(i).getSignature(), 0, digest);
-                            bb.put(digest);
-                        }
-
-                        byte[] digests = bb.array();
-                        byte[] address = ISS.address(mode, digests);
-
-                        //validate Merkle path
-                        byte[] merkleRoot = ISS.getMerkleRoot(mode, address,
-                                siblingsTx.trits(), 0, index, numOfKeysInMilestone);
-                        if ((testnet && acceptAnyTestnetCoo) || (HashFactory.ADDRESS.create(merkleRoot)).equals(coordinator)) {
-                            new MilestoneViewModel(index, transactionViewModel.getHash()).store(tangle);
-                            return VALID;
-                        } else {
-                            return INVALID;
-                        }
+                    Dostuff dostuff = new Dostuff(mode, securityLevel, transactionViewModel, index, bundleTransactionViewModels, siblingsTx).invoke();
+                    if (dostuff.is()) {
+                        return getValidity(transactionViewModel, index, dostuff.getMerkleRoot());
                     }
                 }
             }
@@ -301,7 +278,16 @@ public class MilestoneTracker {
         return INVALID;
     }
 
-    void updateLatestSolidSubtangleMilestone() throws Exception {
+    private Validity getValidity(TransactionViewModel transactionViewModel, int index, byte[] merkleRoot) throws Exception {
+        if ((testnet && acceptAnyTestnetCoo) || (HashFactory.ADDRESS.create(merkleRoot)).equals(coordinator)) {
+            new MilestoneViewModel(index, transactionViewModel.getHash()).store(tangle);
+            return VALID;
+        } else {
+            return INVALID;
+        }
+    }
+
+    void updateLatestSolidSubtangleMilestone() throws java.lang.Exception {
         MilestoneViewModel milestoneViewModel;
         MilestoneViewModel latest = MilestoneViewModel.latest(tangle);
         if (latest != null) {
@@ -334,11 +320,71 @@ public class MilestoneTracker {
         SlackBotFeed.reportToSlack(message);
     }
 
-    private boolean isMilestoneBundleStructureValid(List<TransactionViewModel> bundleTxs, int securityLevel) {
-        TransactionViewModel head = bundleTxs.get(securityLevel);
-        return bundleTxs.stream()
-                .limit(securityLevel)
-                .allMatch(tx ->
-                        tx.getBranchTransactionHash().equals(head.getTrunkTransactionHash()));
+    private class Dostuff {
+        private boolean myResult;
+        private SpongeFactory.Mode mode;
+        private int securityLevel;
+        TransactionViewModel transactionViewModel;
+        private int index;
+        private List<TransactionViewModel> bundleTransactionViewModels;
+        private TransactionViewModel siblingsTx;
+        private byte[] merkleRoot;
+
+        public Dostuff(SpongeFactory.Mode mode, int securityLevel, TransactionViewModel transactionViewModel, int index, List<TransactionViewModel> bundleTransactionViewModels, TransactionViewModel siblingsTx) {
+            this.mode = mode;
+            this.securityLevel = securityLevel;
+            this.transactionViewModel = transactionViewModel;
+            this.index = index;
+            this.bundleTransactionViewModels = bundleTransactionViewModels;
+            this.siblingsTx = siblingsTx;
+        }
+
+        boolean is() {
+            return myResult;
+        }
+
+        public byte[] getMerkleRoot() {
+            return merkleRoot;
+        }
+
+        public Dostuff invoke()  {
+            if (isMilestoneBundleStructureValid(bundleTransactionViewModels, securityLevel)) {
+                //milestones sign the normalized hash of the sibling transaction.
+                byte[] signedHash = ISS.normalizedBundle(siblingsTx.getHash().trits());
+
+                //validate leaf signature
+                ByteBuffer bb = ByteBuffer.allocate(Curl.HASH_LENGTH * securityLevel);
+                byte[] digest = new byte[Curl.HASH_LENGTH];
+
+                loops(mode, securityLevel, bundleTransactionViewModels, signedHash, bb, digest);
+
+                byte[] digests = bb.array();
+                byte[] address = ISS.address(mode, digests);
+
+                //validate Merkle path
+                merkleRoot = ISS.getMerkleRoot(mode, address,
+                        siblingsTx.trits(), 0, index, numOfKeysInMilestone);
+                myResult = true;
+                return this;
+            }
+            myResult = false;
+            return this;
+        }
+
+        private boolean isMilestoneBundleStructureValid(List<TransactionViewModel> bundleTxs, int securityLevel) {
+            TransactionViewModel head = bundleTxs.get(securityLevel);
+            return bundleTxs.stream()
+                    .limit(securityLevel)
+                    .allMatch(tx ->
+                            tx.getBranchTransactionHash().equals(head.getTrunkTransactionHash()));
+        }
+
+        private void loops(SpongeFactory.Mode mode, int securityLevel, List<TransactionViewModel> bundleTransactionViewModels, byte[] signedHash, ByteBuffer bb, byte[] digest) {
+            for (int i = 0; i < securityLevel; i++) {
+                ISSInPlace.digest(mode, signedHash, ISS.NUMBER_OF_FRAGMENT_CHUNKS * i,
+                        bundleTransactionViewModels.get(i).getSignature(), 0, digest);
+                bb.put(digest);
+            }
+        }
     }
 }
