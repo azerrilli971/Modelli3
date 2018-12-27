@@ -62,48 +62,8 @@ public class LedgerValidator {
                 final TransactionViewModel transactionViewModel = TransactionViewModel.fromHash(tangle, transactionPointer);
                 if (transactionViewModel.snapshotIndex() == 0 || transactionViewModel.snapshotIndex() > latestSnapshotIndex) {
                     numberOfAnalyzedTransactions++;
-                    if (transactionViewModel.getType() == TransactionViewModel.PREFILLED_SLOT) {
-                        transactionRequester.requestTransaction(transactionViewModel.getHash(), milestone);
+                    if (typeControl(milestone, state, countedTx, nonAnalyzedTransactions, transactionViewModel)) {
                         return null;
-
-                    } else {
-
-                        if (transactionViewModel.getCurrentIndex() == 0) {
-
-                            boolean validBundle = false;
-
-                            final List<List<TransactionViewModel>> bundleTransactions = BundleValidator.validate(tangle, transactionViewModel.getHash());
-
-                            for (final List<TransactionViewModel> bundleTransactionViewModels : bundleTransactions) {
-
-                                if(BundleValidator.isInconsistent(bundleTransactionViewModels)) {
-                                    break;
-                                }
-                                if (bundleTransactionViewModels.get(0).getHash().equals(transactionViewModel.getHash())) {
-
-                                    validBundle = true;
-
-                                    for (final TransactionViewModel bundleTransactionViewModel : bundleTransactionViewModels) {
-
-                                        if (bundleTransactionViewModel.value() != 0 && countedTx.add(bundleTransactionViewModel.getHash())) {
-
-                                            final Hash address = bundleTransactionViewModel.getAddressHash();
-                                            final Long value = state.get(address);
-                                            state.put(address, value == null ? bundleTransactionViewModel.value()
-                                                    : Math.addExact(value, bundleTransactionViewModel.value()));
-                                        }
-                                    }
-
-                                    break;
-                                }
-                            }
-                            if (!validBundle) {
-                                return null;
-                            }
-                        }
-
-                        nonAnalyzedTransactions.offer(transactionViewModel.getTrunkTransactionHash());
-                        nonAnalyzedTransactions.offer(transactionViewModel.getBranchTransactionHash());
                     }
                 }
             }
@@ -120,6 +80,62 @@ public class LedgerValidator {
             log.debug(String.format("Confirmed transactions =  %d", numberOfConfirmedTransactions));
         }
         return state;
+    }
+
+    private boolean typeControl(boolean milestone, Map<Hash, Long> state, Set<Hash> countedTx, Queue<Hash> nonAnalyzedTransactions, TransactionViewModel transactionViewModel) throws Exception {
+        if (transactionViewModel.getType() == TransactionViewModel.PREFILLED_SLOT) {
+            transactionRequester.requestTransaction(transactionViewModel.getHash(), milestone);
+            return true;
+
+        } else {
+
+            if (transactionViewModel.getCurrentIndex() == 0) {
+
+                boolean validBundle = false;
+
+                final List<List<TransactionViewModel>> bundleTransactions = BundleValidator.validate(tangle, transactionViewModel.getHash());
+
+                validBundle = isValidBundle(state, countedTx, transactionViewModel, validBundle, bundleTransactions);
+                if (!validBundle) {
+                    return true;
+                }
+            }
+
+            nonAnalyzedTransactions.offer(transactionViewModel.getTrunkTransactionHash());
+            nonAnalyzedTransactions.offer(transactionViewModel.getBranchTransactionHash());
+        }
+        return false;
+    }
+
+    private boolean isValidBundle(Map<Hash, Long> state, Set<Hash> countedTx, TransactionViewModel transactionViewModel, boolean validBundle, List<List<TransactionViewModel>> bundleTransactions) {
+        for (final List<TransactionViewModel> bundleTransactionViewModels : bundleTransactions) {
+
+            if(BundleValidator.isInconsistent(bundleTransactionViewModels)) {
+                break;
+            }
+            if (bundleTransactionViewModels.get(0).getHash().equals(transactionViewModel.getHash())) {
+
+                validBundle = true;
+
+                for (final TransactionViewModel bundleTransactionViewModel : bundleTransactionViewModels) {
+
+                    bundleCheck(state, countedTx, bundleTransactionViewModel);
+                }
+
+                break;
+            }
+        }
+        return validBundle;
+    }
+
+    private void bundleCheck(Map<Hash, Long> state, Set<Hash> countedTx, TransactionViewModel bundleTransactionViewModel) {
+        if (bundleTransactionViewModel.value() != 0 && countedTx.add(bundleTransactionViewModel.getHash())) {
+
+            final Hash address = bundleTransactionViewModel.getAddressHash();
+            final Long value = state.get(address);
+            state.put(address, value == null ? bundleTransactionViewModel.value()
+                    : Math.addExact(value, bundleTransactionViewModel.value()));
+        }
     }
 
     /**

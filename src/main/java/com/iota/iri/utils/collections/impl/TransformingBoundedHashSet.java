@@ -44,7 +44,9 @@ public class TransformingBoundedHashSet<E> extends BoundedHashSet<E>{
     @Override
     public boolean equals(Object o) {
         boolean ritorno = false;
-        if (o == this) ritorno = true;
+        if (o == this) {
+            ritorno = true;
+        }
         return ritorno;
     }
 
