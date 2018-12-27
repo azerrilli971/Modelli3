@@ -85,8 +85,15 @@ public class WalkValidatorImpl extends MilestoneTracker implements WalkValidator
         //if tip unconfirmed, check if any referenced tx is confirmed below maxDepth
         Queue<Hash> nonAnalyzedTransactions = new LinkedList<>(Collections.singleton(tip));
         Set<Hash> analyzedTransactions = new HashSet<>();
-        Hash hash;
         final int maxAnalyzedTransactions = config.getBelowMaxDepthTransactionLimit();
+        if (analysisTransactions(lowerAllowedSnapshotIndex, nonAnalyzedTransactions, analyzedTransactions, maxAnalyzedTransactions)) {
+            return true; }
+        maxDepthOkMemoization.add(tip);
+        return false;
+    }
+
+    private boolean analysisTransactions(int lowerAllowedSnapshotIndex, Queue<Hash> nonAnalyzedTransactions, Set<Hash> analyzedTransactions, int maxAnalyzedTransactions) throws Exception {
+        Hash hash;
         while ((hash = nonAnalyzedTransactions.poll()) != null) {
             if (analyzedTransactions.size() == maxAnalyzedTransactions) {
                 log.debug("failed below max depth because of exceeding max threshold of {} analyzed transactions",
@@ -96,10 +103,7 @@ public class WalkValidatorImpl extends MilestoneTracker implements WalkValidator
 
             if (analyzedTransactions.add(hash)) {
                 TransactionViewModel transaction = TransactionViewModel.fromHash(tangle, hash);
-                if ((transaction.snapshotIndex() != 0 || Objects.equals(Hash.NULL_HASH, transaction.getHash()))
-                        && transaction.snapshotIndex() < lowerAllowedSnapshotIndex) {
-                    log.debug("failed below max depth because of reaching a tx below the allowed snapshot index {}",
-                            lowerAllowedSnapshotIndex);
+                if (transactionsControl(lowerAllowedSnapshotIndex, transaction)) {
                     return true;
                 }
                 if (transaction.snapshotIndex() == 0) {
@@ -110,7 +114,16 @@ public class WalkValidatorImpl extends MilestoneTracker implements WalkValidator
                 }
             }
         }
-        maxDepthOkMemoization.add(tip);
+        return false;
+    }
+
+    private boolean transactionsControl(int lowerAllowedSnapshotIndex, TransactionViewModel transaction) {
+        if ((transaction.snapshotIndex() != 0 || Objects.equals(Hash.NULL_HASH, transaction.getHash()))
+                && transaction.snapshotIndex() < lowerAllowedSnapshotIndex) {
+            log.debug("failed below max depth because of reaching a tx below the allowed snapshot index {}",
+                    lowerAllowedSnapshotIndex);
+            return true;
+        }
         return false;
     }
 
