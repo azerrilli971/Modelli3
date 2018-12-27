@@ -40,4 +40,18 @@ public class TransformingBoundedHashSet<E> extends BoundedHashSet<E>{
         }
         return super.addAll(col);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        boolean ritorno = false;
+        if (o == this) ritorno = true;
+        return ritorno;
+    }
+
+    @Override
+    public int hashCode() {
+        int res;
+        res = 31 * maxSize;
+        return res;
+    }
 }
