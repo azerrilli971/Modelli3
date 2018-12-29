@@ -36,6 +36,9 @@ import com.iota.iri.model.Hash;
  */
 public class ISS {
 
+    private ISS() {
+        throw new IllegalStateException("Crypto class");
+    }
     public static final int NUMBER_OF_FRAGMENT_CHUNKS = 27;
     public static final int FRAGMENT_LENGTH = Curl.HASH_LENGTH * NUMBER_OF_FRAGMENT_CHUNKS;
     private static final int NUMBER_OF_SECURITY_LEVELS = 3;
