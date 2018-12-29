@@ -65,7 +65,7 @@ public class TipsSolidifier {
                 isTip = false;
             }
             if (hash != null && isTip && transactionValidator.checkSolidity(hash, false)) {
-                
+
                 tipsViewModel.setSolid(hash);
             }
         }
