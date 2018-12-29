@@ -203,17 +203,5 @@ public class Tangle {
         }
     }
 
-    /*
-    public boolean merge(Persistable model, Indexable index) throws Exception {
-        boolean exists = false;
-        for(PersistenceProvider provider: persistenceProviders) {
-            if(exists) {
-                provider.save(model, index);
-            } else {
-                exists = provider.merge(model, index);
-            }
-        }
-        return exists;
-    }
-    */
+
 }

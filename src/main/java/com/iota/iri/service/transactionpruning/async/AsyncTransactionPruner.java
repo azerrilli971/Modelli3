@@ -312,9 +312,9 @@ public class AsyncTransactionPruner implements TransactionPruner {
                 () -> jobQueues.values().stream()
                       .<TransactionPrunerJob>flatMap(JobQueue::stream)
                       .<CharSequence>map(jobEntry -> {
-                          //c = new TransactionPrunerJob;   
+
                           jobsPersisted.incrementAndGet();
-                          //c = this.serializeJobEntry(jobEntry);
+
                           return null;
                       })
                       .iterator()
