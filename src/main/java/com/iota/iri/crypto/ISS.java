@@ -239,15 +239,21 @@ public class ISS {
      * @param keyFragment secret key
      * @return signature
      */
+
+
     public static byte[] signatureFragment(SpongeFactory.Mode mode, final byte[] normalizedBundleFragment,
                                            final byte[] keyFragment) {
 
+
+        class MyException extends RuntimeException {
+            public MyException (String message) {super (message);}
+        }
         if (normalizedBundleFragment.length != NORMALIZED_FRAGMENT_LENGTH) {
-            throw new RuntimeException(
+            throw new MyException(
                     "Invalid normalized bundleValidator fragment length: " + normalizedBundleFragment.length);
         }
         if (keyFragment.length != FRAGMENT_LENGTH) {
-            throw new RuntimeException("Invalid key fragment length: " + keyFragment.length);
+            throw new MyException("Invalid key fragment length: " + keyFragment.length);
         }
 
         final byte[] signatureFragment = Arrays.copyOf(keyFragment, keyFragment.length);

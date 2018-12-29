@@ -13,6 +13,9 @@ import java.util.Arrays;
  */
 public class ISSInPlace {
 
+    private ISSInPlace() {
+        throw new IllegalStateException("Utility class");
+    }
     public static final int NUMBER_OF_FRAGMENT_CHUNKS = 27;
     public static final int FRAGMENT_LENGTH = Kerl.HASH_LENGTH * NUMBER_OF_FRAGMENT_CHUNKS;
     public static final int TRYTE_WIDTH = 3;
