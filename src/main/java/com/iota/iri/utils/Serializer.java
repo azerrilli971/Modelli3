@@ -4,6 +4,9 @@ package com.iota.iri.utils;
  * Created by paul on 3/13/17 for iri-testnet.
  */
 public class Serializer {
+    private Serializer() {
+        throw new IllegalStateException("serializer class");
+    }
     public static byte[] serialize(long value) {
     	byte[] result = new byte[Long.BYTES];
         for (int i = Long.BYTES - 1; i >= 0; i--) {

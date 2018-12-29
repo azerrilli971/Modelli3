@@ -708,7 +708,7 @@ public class Node {
                     System.arraycopy(transactionViewModel.getBytes(), 0, tipRequestingPacket.getData(), 0, TransactionViewModel.SIZE);
                     System.arraycopy(transactionViewModel.getHash().bytes(), 0, tipRequestingPacket.getData(), TransactionViewModel.SIZE,
                            reqHashSize);
-                    //Hash.SIZE_IN_BYTES);
+
 
                     neighbors.forEach(n -> n.send(tipRequestingPacket));
 
