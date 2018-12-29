@@ -134,7 +134,7 @@ public class TipsViewModel {
                 hash = hashIterator.next();
             }
             return hash;
-           
+
         }
     }
 
