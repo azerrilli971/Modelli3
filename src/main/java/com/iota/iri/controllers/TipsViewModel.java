@@ -110,7 +110,7 @@ public class TipsViewModel {
                 hash = hashIterator.next();
             }
             return hash;
-            //return solidTips.size() != 0 ? solidTips.get(seed.nextInt(solidTips.size())) : getRandomNonSolidTipHash();
+
         }
     }
 
@@ -134,7 +134,7 @@ public class TipsViewModel {
                 hash = hashIterator.next();
             }
             return hash;
-            //return tips.size() != 0 ? tips.get(seed.nextInt(tips.size())) : null;
+
         }
     }
 

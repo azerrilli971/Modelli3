@@ -706,7 +706,6 @@ public class TransactionViewModel {
     public void setMetadata() {
         transaction.setValue(Converter.longValue(trits(), VALUE_TRINARY_OFFSET, VALUE_USABLE_TRINARY_SIZE));
         transaction.setTimestamp(Converter.longValue(trits(), TIMESTAMP_TRINARY_OFFSET, TIMESTAMP_TRINARY_SIZE));
-        //if (transaction.timestamp > 1262304000000L ) transaction.timestamp /= 1000L;  // if > 01.01.2010 in milliseconds
         transaction.setCurrentIndex(Converter.longValue(trits(), CURRENT_INDEX_TRINARY_OFFSET, CURRENT_INDEX_TRINARY_SIZE));
         transaction.setLastIndex(Converter.longValue(trits(), LAST_INDEX_TRINARY_OFFSET, LAST_INDEX_TRINARY_SIZE));
         transaction.setType(transaction.getBytes() == null ? TransactionViewModel.PREFILLED_SLOT : TransactionViewModel.FILLED_SLOT);
