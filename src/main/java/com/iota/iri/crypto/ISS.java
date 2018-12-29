@@ -100,11 +100,19 @@ public class ISS {
      */
     public static byte[] key(SpongeFactory.Mode mode, final byte[] subseed, final int numberOfFragments) {
 
+
+        class MyException extends RuntimeException{
+            public MyException(String message){
+                super(message);
+            }
+
+        }
+
         if (subseed.length != Curl.HASH_LENGTH) {
-            throw new RuntimeException("Invalid subseed length: " + subseed.length);
+            throw new MyException("Invalid subseed length: " + subseed.length);
         }
         if (numberOfFragments <= 0) {
-            throw new RuntimeException("Invalid number of key fragments: " + numberOfFragments);
+            throw new MyException("Invalid number of key fragments: " + numberOfFragments);
         }
 
         final byte[] key = new byte[FRAGMENT_LENGTH * numberOfFragments];
@@ -167,8 +175,15 @@ public class ISS {
      */
     public static byte[] address(SpongeFactory.Mode mode, final byte[] digests) {
 
+        class MyException extends RuntimeException{
+            public MyException(String message){
+                super(message);
+            }
+
+        }
+
         if (digests.length == 0 || digests.length % Curl.HASH_LENGTH != 0) {
-            throw new RuntimeException("Invalid digests length: " + digests.length);
+            throw new MyException("Invalid digests length: " + digests.length);
         }
 
         final byte[] address = new byte[Curl.HASH_LENGTH];
@@ -195,8 +210,15 @@ public class ISS {
      */
     public static byte[] normalizedBundle(final byte[] bundle) {
 
+        class MyException extends RuntimeException{
+            public MyException(String message){
+                super(message);
+            }
+
+        }
+
         if (bundle.length != Curl.HASH_LENGTH) {
-            throw new RuntimeException("Invalid bundleValidator length: " + bundle.length);
+            throw new MyException("Invalid bundleValidator length: " + bundle.length);
         }
 
         final byte[] normalizedBundle = new byte[Curl.HASH_LENGTH / TRYTE_WIDTH];
