@@ -15,6 +15,10 @@ import java.util.stream.Stream;
 
 public class IotaUtils {
 
+    private IotaUtils() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static List<String> splitStringToImmutableList(String string, String regexSplit) {
         return Arrays.stream(string.split(regexSplit))
                 .filter(StringUtils::isNoneBlank)
