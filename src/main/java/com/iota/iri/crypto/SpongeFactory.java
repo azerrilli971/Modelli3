@@ -27,7 +27,6 @@ public abstract class SpongeFactory {
             case CURLP81: return new Curl(mode);
             case CURLP27: return new Curl(mode);
             case KERL: return new Kerl();
-            //case BCURLT: return new Curl(true, mode);
             default: return null;
         }
     }

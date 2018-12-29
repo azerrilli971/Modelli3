@@ -42,7 +42,6 @@ public class Transaction implements Persistable {
     private int type = TransactionViewModel.PREFILLED_SLOT;
     private long arrivalTime = 0;
 
-    //public boolean confirmed = false;
     private boolean parsed = false;
 
     //get e set arrivalTime
@@ -257,7 +256,6 @@ public class Transaction implements Persistable {
         buffer.put(Serializer.serialize(type));
         buffer.put(Serializer.serialize(arrivalTime));
         buffer.put(Serializer.serialize(height));
-        //buffer.put((byte) (confirmed ? 1:0));
 
         // encode booleans in 1 byte
         byte flags = 0;
@@ -310,10 +308,6 @@ public class Transaction implements Persistable {
             i += Long.BYTES;
             height = Serializer.getLong(bytes, i);
             i += Long.BYTES;
-            /*
-            confirmed = bytes[i] == 1;
-            i++;
-            */
 
             // decode the boolean byte by checking the bitmasks
             solid = (bytes[i] & IS_SOLID_BITMASK) != 0;

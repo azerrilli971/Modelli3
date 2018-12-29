@@ -132,7 +132,6 @@ public class WalkerAlpha implements Walker {
         List<Integer> walkRatings = approvers.stream().map(ratings::get).collect(Collectors.toList());
 
         Integer maxRating = walkRatings.stream().max(Integer::compareTo).orElse(0);
-        //walkRatings.stream().reduce(0, Integer::max);
 
         //transition probability function (normalize ratings based on Hmax)
         List<Integer> normalizedWalkRatings = walkRatings.stream().map(w -> w - maxRating).collect(Collectors.toList());
