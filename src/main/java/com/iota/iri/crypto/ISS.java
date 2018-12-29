@@ -292,12 +292,16 @@ public class ISS {
     public static byte[] digest(SpongeFactory.Mode mode, final byte[] normalizedBundleFragment,
                                 final byte[] signatureFragment) {
 
+        class MyException extends RuntimeException {
+            public MyException (String message) {super (message);}
+        }
+
         if (normalizedBundleFragment.length != Curl.HASH_LENGTH / TRYTE_WIDTH / NUMBER_OF_SECURITY_LEVELS) {
-            throw new RuntimeException(
+            throw new MyException(
                     "Invalid normalized bundleValidator fragment length: " + normalizedBundleFragment.length);
         }
         if (signatureFragment.length != FRAGMENT_LENGTH) {
-            throw new RuntimeException("Invalid signature fragment length: " + signatureFragment.length);
+            throw new MyException("Invalid signature fragment length: " + signatureFragment.length);
         }
 
         final byte[] digest = new byte[Curl.HASH_LENGTH];
