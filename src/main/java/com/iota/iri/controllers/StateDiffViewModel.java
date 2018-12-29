@@ -90,7 +90,7 @@ public class StateDiffViewModel {
      * @throws Exception Thrown if there is an error while saving the {@link StateDiff}
      */
     public boolean store(Tangle tangle) throws Exception {
-        
+
         return tangle.save(stateDiff, hash);
     }
 
