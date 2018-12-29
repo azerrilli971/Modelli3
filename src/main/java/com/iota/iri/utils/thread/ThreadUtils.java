@@ -16,6 +16,10 @@ public class ThreadUtils {
     /**
      * Logger for this class allowing us to dump debug and status messages.
      */
+    private ThreadUtils() {
+        throw new IllegalStateException("ThreadUtils class");
+    }
+
     private static final Logger logger = LoggerFactory.getLogger(ThreadUtils.class);
 
     /**

@@ -14,6 +14,10 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class SlackBotFeed {
 
+    private SlackBotFeed() {
+        throw new IllegalStateException("SlackBotFeed class");
+    }
+
     public static void reportToSlack(final String message) {
 
         boolean ritorno = true;
