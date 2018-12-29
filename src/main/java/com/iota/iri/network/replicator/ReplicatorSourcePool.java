@@ -71,7 +71,6 @@ public class ReplicatorSourcePool implements Runnable {
 
     public void shutdown() throws InterruptedException {
         shutdown = true;
-        //notify();
         pool.shutdown();
         pool.awaitTermination(6, TimeUnit.SECONDS);
     }
