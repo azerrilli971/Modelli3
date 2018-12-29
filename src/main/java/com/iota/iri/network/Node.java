@@ -603,9 +603,9 @@ public class Node {
 
     private TransactionViewModel getBodyElseTVM(Hash requestedHash, TransactionViewModel transactionViewModel) {
         try {
-            //transactionViewModel = TransactionViewModel.find(Arrays.copyOf(requestedHash.bytes(), TransactionRequester.REQUEST_HASH_SIZE));
+
             transactionViewModel = TransactionViewModel.fromHash(tangle, HashFactory.TRANSACTION.create(requestedHash.bytes(), 0, reqHashSize));
-            //log.debug("Requested Hash: " + requestedHash + " \nFound: " + transactionViewModel.getHash());
+
         } catch (Exception e) {
             log.error("Error while searching for transaction.", e);
         }
@@ -637,8 +637,7 @@ public class Node {
             sendPacketsTimer.set(now);
         }
         if (sendLimit >= 0 && sendPacketsCounter.get() > sendLimit) {
-            //if exceeded limit - don't send
-            //log.info("exceeded limit - don't send - {}",sendPacketsCounter.get());
+            
             return;
         }
 
