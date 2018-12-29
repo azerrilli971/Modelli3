@@ -36,6 +36,9 @@ import com.iota.iri.model.Hash;
  */
 public class ISS {
 
+    private ISS() {
+        throw new IllegalStateException("Crypto class");
+    }
     public static final int NUMBER_OF_FRAGMENT_CHUNKS = 27;
     public static final int FRAGMENT_LENGTH = Curl.HASH_LENGTH * NUMBER_OF_FRAGMENT_CHUNKS;
     private static final int NUMBER_OF_SECURITY_LEVELS = 3;
@@ -61,8 +64,14 @@ public class ISS {
      */
     public static byte[] subseed(SpongeFactory.Mode mode, final byte[] seed, int index) {
 
+        class MyException extends RuntimeException {
+            public MyException(String message){
+                super(message);
+            }
+        }
+
         if (index < 0) {
-            throw new RuntimeException("Invalid subseed index: " + index);
+            throw new MyException("Invalid subseed index: " + index);
         }
 
         final byte[] subseedPreimage = Arrays.copyOf(seed, seed.length);
@@ -138,8 +147,13 @@ public class ISS {
      */
     public static byte[] digests(SpongeFactory.Mode mode, final byte[] key) {
 
+        class MyException extends RuntimeException{
+            public MyException(String message){
+                super(message);
+            }
+        }
         if (key.length == 0 || key.length % FRAGMENT_LENGTH != 0) {
-            throw new RuntimeException("Invalid key length: " + key.length);
+            throw new MyException("Invalid key length: " + key.length);
         }
 
         final byte[] digests = new byte[key.length / FRAGMENT_LENGTH * Curl.HASH_LENGTH];
