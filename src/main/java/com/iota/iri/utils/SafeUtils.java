@@ -8,6 +8,10 @@ import java.util.Collection;
  */
 public class SafeUtils {
 
+    private SafeUtils() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static <T> boolean isContaining(Collection<T> collection, T element) {
         return collection != null && element != null && collection.contains(element);
     }
