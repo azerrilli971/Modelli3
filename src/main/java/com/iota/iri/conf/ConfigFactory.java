@@ -15,6 +15,10 @@ import java.util.Properties;
 
 public class ConfigFactory {
 
+    private ConfigFactory() {
+        throw new IllegalStateException("Conf class");
+    }
+
     public static IotaConfig createIotaConfig(boolean isTestnet) {
         IotaConfig iotaConfig;
         if (isTestnet) {
