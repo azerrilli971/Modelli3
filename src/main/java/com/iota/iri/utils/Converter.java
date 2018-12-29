@@ -19,6 +19,9 @@ import java.util.Arrays;
  */
 public class Converter {
 
+    private Converter(){
+        throw new IllegalStateException("Utility class");
+    }
 	public static final int RADIX = 3;
     public static final int BYTE_RADIX = 256;
 	public static final int MAX_TRIT_VALUE = (RADIX - 1) / 2, MIN_TRIT_VALUE = -MAX_TRIT_VALUE;
