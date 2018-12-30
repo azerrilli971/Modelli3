@@ -45,14 +45,7 @@ public class ReplicatorSourcePool implements Runnable {
                 log.info(String.format("TCP replicator is accepting connections on tcp port %s", server.getLocalPort()) );
             }
             while (!shutdown) {
-                try {
-                    Socket request = server.accept();
-                    request.setSoLinger(true, 0);
-                    Runnable proc = new ReplicatorSourceProcessor( replicatorSinkPool, request, node, maxPeers, testnet);
-                    pool.submit(proc);
-                } catch (IOException ex) {
-                    log.error("Error accepting connection", ex);
-                }
+                tryAcceptingConnection(pool, server);
             }
             log.info("ReplicatorSinkPool shutting down");
         } catch (IOException e) {
@@ -66,6 +59,17 @@ public class ReplicatorSourcePool implements Runnable {
                     // don't care.
                 }
             }
+        }
+    }
+
+    private void tryAcceptingConnection(ExecutorService pool, ServerSocket server) {
+        try {
+            Socket request = server.accept();
+            request.setSoLinger(true, 0);
+            Runnable proc = new ReplicatorSourceProcessor( replicatorSinkPool, request, node, maxPeers, testnet);
+            pool.submit(proc);
+        } catch (IOException ex) {
+            log.error("Error accepting connection", ex);
         }
     }
 
