@@ -24,7 +24,6 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class RocksDBPersistenceProvider implements PersistenceProvider {
 
