@@ -424,16 +424,7 @@ public class RocksDBPersistenceProvider implements PersistenceProvider {
         try (MergeOperator mergeOperator = new StringAppendOperator();
              ColumnFamilyOptions columnFamilyOptions = new ColumnFamilyOptions();
              ) {
-            try {
-                RocksDB.loadLibrary();
-            } catch (Exception e) {
-                if (SystemUtils.IS_OS_WINDOWS) {
-                    log.error("Error loading RocksDB library. Please ensure that " +
-                            "Microsoft Visual C++ 2015 Redistributable Update 3 " +
-                            "is installed and updated");
-                }
-                throw e;
-            }
+            nestedTry();
 
             File pathToLogDir = Paths.get(logPath).toFile();
             if (!pathToLogDir.exists() || !pathToLogDir.isDirectory()) {
@@ -490,6 +481,19 @@ public class RocksDBPersistenceProvider implements PersistenceProvider {
         } catch (Exception e) {
             log.error("Error while initializing RocksDb", e);
             IotaIOUtils.closeQuietly(db);
+        }
+    }
+
+    private void nestedTry() {
+        try {
+            RocksDB.loadLibrary();
+        } catch (Exception e) {
+            if (SystemUtils.IS_OS_WINDOWS) {
+                log.error("Error loading RocksDB library. Please ensure that " +
+                        "Microsoft Visual C++ 2015 Redistributable Update 3 " +
+                        "is installed and updated");
+            }
+            throw e;
         }
     }
 
