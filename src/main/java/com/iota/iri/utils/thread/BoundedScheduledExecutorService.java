@@ -646,7 +646,7 @@ public class BoundedScheduledExecutorService implements SilentScheduledExecutorS
          * running right now (otherwise this will be fired inside the wrapped task).<br />
          */
         @Override
-        public boolean cancel(boolean mayInterruptIfRunning) {
+        public boolean cancel(boolean mayInterruptIfRunning2) {
             if (!delegate().isCancelled() && !delegate().isDone()) {
                 onCancelTask(taskDetails);
             }
@@ -655,7 +655,7 @@ public class BoundedScheduledExecutorService implements SilentScheduledExecutorS
                 onCompleteTask(taskDetails, null);
             }
 
-            return delegate().cancel(mayInterruptIfRunning);
+            return delegate().cancel(mayInterruptIfRunning2);
         }
 
         @Override
