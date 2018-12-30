@@ -78,6 +78,12 @@ public class RocksDBPersistenceProvider implements PersistenceProvider {
         this.cacheSize = cacheSize;
     }
 
+    public class DbException extends Exception {
+        public DbException(String msg) {
+            super(msg);
+        }
+    }
+
     @Override
     public void init() {
         log.info("Initializing Database Backend... ");
@@ -291,13 +297,6 @@ public class RocksDBPersistenceProvider implements PersistenceProvider {
         }
     }
 
-    // 2018 March 28 - Unused code
-    public boolean merge(Persistable model, Indexable index) throws Exception {
-        boolean exists = mayExist(model.getClass(), index);
-        db.merge(classTreeMap.get(model.getClass()), index.bytes(), model.bytes());
-        return exists;
-    }
-
     @Override
     public boolean saveBatch(List<Pair<Indexable, Persistable>> models) throws Exception {
         try (WriteBatch writeBatch = new WriteBatch();
@@ -403,23 +402,6 @@ public class RocksDBPersistenceProvider implements PersistenceProvider {
         }
     }
 
-    // 2018 March 28 - Unused Code
-    public void restoreBackup(String path, String logPath) throws Exception {
-        try (Env env = Env.getDefault();
-             BackupableDBOptions backupableDBOptions = new BackupableDBOptions(path)) {
-
-            // shutdown after successful creation of env and backupable ...
-            shutdown();
-
-            try (BackupEngine backupEngine = BackupEngine.open(env, backupableDBOptions);
-                 RestoreOptions restoreOptions = new RestoreOptions(false)) {
-
-                backupEngine.restoreDbFromLatestBackup(path, logPath, restoreOptions);
-            }
-        }
-        initDB(path, logPath);
-    }
-
     private void initDB(String path, String logPath) {
         try (MergeOperator mergeOperator = new StringAppendOperator();
              ColumnFamilyOptions columnFamilyOptions = new ColumnFamilyOptions();
@@ -497,7 +479,7 @@ public class RocksDBPersistenceProvider implements PersistenceProvider {
         }
     }
 
-    private void fillModelColumnHandles() throws Exception {
+    private void fillModelColumnHandles() throws RocksDBException {
         int i = 0;
         transactionHandle = columnFamilyHandles.get(++i);
         transactionMetadataHandle = columnFamilyHandles.get(++i);
@@ -514,40 +496,4 @@ public class RocksDBPersistenceProvider implements PersistenceProvider {
         }
     }
 
-    // 2018 March 28 - Unused Code
-    private void fillMissingColumns(List<ColumnFamilyDescriptor> familyDescriptors, String path) throws Exception {
-        try (
-                Options option = new Options().setCreateIfMissing(true);) {
-            List<ColumnFamilyDescriptor> columnFamilies = RocksDB.listColumnFamilies(option, path)
-                    .stream()
-                    .map(b -> new ColumnFamilyDescriptor(b, new ColumnFamilyOptions()))
-                    .collect(Collectors.toList());
-
-            columnFamilies.add(0, familyDescriptors.get(0));
-
-            List<ColumnFamilyDescriptor> missingFromDatabase = familyDescriptors.stream().filter(d -> columnFamilies.stream().filter(desc -> new String(desc.columnFamilyName()).equals(new String(d.columnFamilyName()))).toArray().length == 0).collect(Collectors.toList());
-            List<ColumnFamilyDescriptor> missingFromDescription = columnFamilies.stream().filter(d -> familyDescriptors.stream().filter(desc -> new String(desc.columnFamilyName()).equals(new String(d.columnFamilyName()))).toArray().length == 0).collect(Collectors.toList());
-
-            if (missingFromDatabase.size() != 0) {
-                missingFromDatabase.remove(familyDescriptors.get(0));
-
-                try (RocksDB rocksDB = db = RocksDB.open(options, path, columnFamilies, columnFamilyHandles)) {
-                    for (ColumnFamilyDescriptor description : missingFromDatabase) {
-                        addColumnFamily(description.columnFamilyName(), rocksDB);
-                    }
-                }
-            }
-            if (missingFromDescription.size() != 0) {
-                familyDescriptors.addAll(missingFromDescription);
-            }
-        }
-    }
-
-    // 2018 March 28 - Unused Code
-    private void addColumnFamily(byte[] familyName, RocksDB db) throws RocksDBException {
-        try(final ColumnFamilyHandle columnFamilyHandle = db.createColumnFamily(
-                new ColumnFamilyDescriptor(familyName, new ColumnFamilyOptions())); ) {
-            assert (columnFamilyHandle != null);
-        }
-    }
 }
