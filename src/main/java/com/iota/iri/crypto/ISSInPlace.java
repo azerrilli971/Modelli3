@@ -171,8 +171,13 @@ public class ISSInPlace {
     }
 
     public static void normalizedBundle(final byte[] bundle, byte[] normalizedBundle) {
+
+        class MyException extends RuntimeException{
+            public MyException (String message) {super (message);}
+        }
+
         if (bundle.length != Curl.HASH_LENGTH) {
-            throw new RuntimeException("Invalid bundleValidator length: " + bundle.length);
+            throw new MyException("Invalid bundleValidator length: " + bundle.length);
         }
 
         for (int i = 0; i < NUMBER_OF_SECURITY_LEVELS; i++) {

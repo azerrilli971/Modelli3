@@ -389,7 +389,7 @@ public class TransactionViewModel {
      * @return A complete list of all {@link Transaction} component objects paired with their {@link Hash} identifiers
      * @throws Exception Thrown if the metadata fails to fetch, or if the bytes are not retrieved correctly
      */
-    public List<Pair<Indexable, Persistable>> getSaveBatch() throws Exception {
+    public List<Pair<Indexable, Persistable>> getSaveBatch() {
         List<Pair<Indexable, Persistable>> hashesList = new ArrayList<>();
         hashesList.addAll(getMetadataSaveBatch());
         getBytes();
