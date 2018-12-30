@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -117,7 +118,7 @@ public class ZmqPublishProvider implements PersistenceProvider {
 
     @Override
     public Set<Indexable> keysWithMissingReferences(Class<?> modelClass, Class<?> otherClass) throws Exception {
-        return null;
+        return Collections.emptySet();
     }
 
     @Override
@@ -137,7 +138,7 @@ public class ZmqPublishProvider implements PersistenceProvider {
 
     @Override
     public Set<Indexable> keysStartingWith(Class<?> modelClass, byte[] value) {
-        return null;
+        return Collections.emptySet();
     }
 
     @Override
