@@ -368,7 +368,7 @@ public class TransactionViewModel {
      *         there is a problem populating the list.
      */
 
-    public List<Pair<Indexable, Persistable>> getMetadataSaveBatch() throws Exception {
+    public List<Pair<Indexable, Persistable>> getMetadataSaveBatch() {
         List<Pair<Indexable, Persistable>> hashesList = new ArrayList<>();
         hashesList.add(new Pair<>(getAddressHash(), new Address(hash)));
         hashesList.add(new Pair<>(getBundleHash(), new Bundle(hash)));
@@ -737,7 +737,7 @@ public class TransactionViewModel {
      * @param solid The solidity of the transaction in the database
      * @return True if the {@link Transaction#getSolid()} } has been updated, False if not.
      */
-    public boolean updateSolid(boolean solid) throws Exception {
+    public boolean updateSolid(boolean solid) {
         if(solid != transaction.getSolid()) {
             transaction.setSolid(solid);
             return true;
@@ -814,7 +814,7 @@ public class TransactionViewModel {
      * Updates the {@link Transaction#getHeight()} }.
      * @param height The new height of the {@link Transaction}
      */
-    private void updateHeight(long height) throws Exception {
+    private void updateHeight(long height){
         transaction.setHeight(height);
     }
 
@@ -860,7 +860,7 @@ public class TransactionViewModel {
      * Updates the {@link Transaction#sender}.
      * @param sender The sender of the {@link Transaction}
      */
-    public void updateSender(String sender) throws Exception {
+    public void updateSender(String sender){
         transaction.setSender(sender);
     }
 
