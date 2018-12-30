@@ -127,7 +127,7 @@ public class Node {
      * Intialize the operations by spawning all the worker threads.
      * 
      */
-    public void init() throws Exception {
+    public void init() {
 
         //TODO ask Alon
         sendLimit = (long) ((configuration.getSendLimit() * 1000000) / (configuration.getTransactionPacketSize() * 8));
@@ -612,7 +612,7 @@ public class Node {
         return transactionViewModel;
     }
 
-    private Hash getRandomTipPointer() throws Exception {
+    private Hash getRandomTipPointer() {
         Hash tip = rnd.nextDouble() < configuration.getpSendMilestone() ? milestoneTracker.getLatestMilestone() : tipsViewModel.getRandomSolidTipHash();
         return tip == null ? Hash.NULL_HASH : tip;
     }
@@ -869,6 +869,14 @@ public class Node {
     }
 
     public Neighbor newNeighbor(final URI uri, boolean isConfigured) {
+
+        class MyException extends RuntimeException{
+            public MyException(String message){
+                super(message);
+            }
+
+        }
+
         if (isUriValid(uri)) {
             if (uri.getScheme().equals("tcp")) {
                 return new TCPNeighbor(new InetSocketAddress(uri.getHost(), uri.getPort()), isConfigured);
@@ -877,7 +885,7 @@ public class Node {
                 return new UDPNeighbor(new InetSocketAddress(uri.getHost(), uri.getPort()), udpSocket, isConfigured);
             }
         }
-        throw new RuntimeException(uri.toString());
+        throw new MyException(uri.toString());
     }
 
     public static Optional<URI> uri(final String uri) {
