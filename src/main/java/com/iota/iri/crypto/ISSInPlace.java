@@ -26,8 +26,12 @@ public class ISSInPlace {
 
     public static void subseed(SpongeFactory.Mode mode, byte[] subseed, int index) {
 
+        class MyException extends RuntimeException {
+            public MyException (String message) {super (message);}
+        }
+
         if (index < 0) {
-            throw new RuntimeException("Invalid subseed index: " + index);
+            throw new MyException("Invalid subseed index: " + index);
         }
 
         if (subseed.length != Kerl.HASH_LENGTH) {
@@ -53,8 +57,12 @@ public class ISSInPlace {
 
     public static void key(SpongeFactory.Mode mode, final byte[] subseed, byte[] key) {
 
+        class MyException extends RuntimeException {
+            public MyException (String message) {super (message);}
+        }
+
         if (subseed.length != Kerl.HASH_LENGTH) {
-            throw new RuntimeException("Invalid subseed length: " + subseed.length);
+            throw new MyException("Invalid subseed length: " + subseed.length);
         }
 
         if ((key.length % FRAGMENT_LENGTH) != 0) {
@@ -64,7 +72,7 @@ public class ISSInPlace {
         int numberOfFragments = key.length / FRAGMENT_LENGTH;
 
         if (numberOfFragments <= 0) {
-            throw new RuntimeException("Invalid number of key fragments: " + numberOfFragments);
+            throw new MyException("Invalid number of key fragments: " + numberOfFragments);
         }
 
         final Sponge hash = SpongeFactory.create(mode);
@@ -74,8 +82,12 @@ public class ISSInPlace {
 
     public static void digests(SpongeFactory.Mode mode, final byte[] key, byte[] digests) {
 
+        class MyException extends RuntimeException {
+            public MyException (String message) {super (message);}
+        }
+
         if (key.length == 0 || key.length % FRAGMENT_LENGTH != 0) {
-            throw new RuntimeException("Invalid key length: " + key.length);
+            throw new MyException("Invalid key length: " + key.length);
         }
 
         if (digests.length != (key.length / FRAGMENT_LENGTH * Kerl.HASH_LENGTH)) {
@@ -103,8 +115,12 @@ public class ISSInPlace {
 
     public static void address(SpongeFactory.Mode mode, final byte[] digests, byte[] address) {
 
+        class MyException extends RuntimeException {
+            public MyException (String message) {super (message);}
+        }
+
         if (digests.length == 0 || digests.length % Kerl.HASH_LENGTH != 0) {
-            throw new RuntimeException("Invalid digests length: " + digests.length);
+            throw new MyException("Invalid digests length: " + digests.length);
         }
 
         if (address.length != Kerl.HASH_LENGTH) {
