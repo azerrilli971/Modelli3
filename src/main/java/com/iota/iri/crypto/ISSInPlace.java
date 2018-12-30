@@ -135,12 +135,19 @@ public class ISSInPlace {
     public static void digest(SpongeFactory.Mode mode, final byte[] normalizedBundleFragment, int nbOff,
             final byte[] signatureFragment, int sfOff, byte[] digest) {
 
+        class MyException extends RuntimeException{
+            public MyException(String message){
+                super(message);
+            }
+
+        }
+
         if (normalizedBundleFragment.length - nbOff < (Curl.HASH_LENGTH / TRYTE_WIDTH / NUMBER_OF_SECURITY_LEVELS)) {
-            throw new RuntimeException(
+            throw new MyException(
                     "Invalid normalized bundleValidator fragment length: " + normalizedBundleFragment.length);
         }
         if (signatureFragment.length - sfOff < FRAGMENT_LENGTH) {
-            throw new RuntimeException("Invalid signature fragment length: " + signatureFragment.length);
+            throw new MyException("Invalid signature fragment length: " + signatureFragment.length);
         }
 
         if (digest.length != Curl.HASH_LENGTH) {
