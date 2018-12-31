@@ -95,12 +95,20 @@ public class PearlDiver {
     }
 
     private static void validateParameters(byte[] transactionTrits, int minWeightMagnitude) {
+
+        class MyException extends RuntimeException{
+            public MyException(String message){
+                super(message);
+            }
+
+        }
+
         if (transactionTrits.length != TRANSACTION_LENGTH) {
-            throw new RuntimeException(
+            throw new MyException(
                     "Invalid transaction trits length: " + transactionTrits.length);
         }
         if (minWeightMagnitude < 0 || minWeightMagnitude > CURL_HASH_LENGTH) {
-            throw new RuntimeException("Invalid min weight magnitude: " + minWeightMagnitude);
+            throw new MyException("Invalid min weight magnitude: " + minWeightMagnitude);
         }
     }
 
