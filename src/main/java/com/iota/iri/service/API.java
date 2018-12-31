@@ -270,7 +270,7 @@ public class API extends MilestoneTracker {
      *                      This will be used to set the response duration in {@link AbstractResponse#setDuration(Integer)}
      * @throws IOException When connection to client has been lost - Currently being caught.
      */
-    private void sendResponse(HttpServerExchange exchange, AbstractResponse res, long beginningTime) throws IOException {
+    private void sendResponse(HttpServerExchange exchange, AbstractResponse res, long beginningTime) {
         res.setDuration((int) (System.currentTimeMillis() - beginningTime));
         final String response = gson.toJson(res);
 
@@ -985,7 +985,7 @@ public class API extends MilestoneTracker {
       *
       * @return {@link com.iota.iri.service.dto.GetTipsResponse}
       **/
-    private synchronized AbstractResponse getTipsStatement() throws Exception {
+    private synchronized AbstractResponse getTipsStatement() {
         return GetTipsResponse.create(instance.tipsViewModel.getTips()
                 .stream()
                 .map(Hash::toString)
