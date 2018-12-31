@@ -45,7 +45,7 @@ public class ZmqPublishProvider implements PersistenceProvider {
 
     @Override
     public void delete(Class<?> model, Indexable index) throws Exception {
-
+        //do something
     }
 
     @Override
@@ -168,7 +168,7 @@ public class ZmqPublishProvider implements PersistenceProvider {
 
     @Override
     public void deleteBatch(Collection<Pair<Indexable, ? extends Class<? extends Persistable>>> models) throws Exception {
-
+        //do something
     }
 
     @Override
