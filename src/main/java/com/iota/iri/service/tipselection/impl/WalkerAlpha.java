@@ -124,7 +124,7 @@ public class WalkerAlpha implements Walker {
         List<Hash> approvers = approversSet.stream().filter(ratings::containsKey).collect(Collectors.toList());
 
         //After filtering, if no approvers are available, it's a tip.
-        if (approvers.size() == 0) {
+        if (approvers.isEmpty()) {
             return Optional.empty();
         }
 
