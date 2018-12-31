@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketAddress;
+import java.net.SocketException;
 import java.util.Arrays;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -44,9 +45,14 @@ public class UDPReceiver {
         this.receivingPacket = new DatagramPacket(new byte[packetSize], packetSize);
     }
 
-    public void init() throws Exception {
 
-        socket = new DatagramSocket(port);
+    public void init() {
+
+        try {
+            socket = new DatagramSocket(port);
+        } catch (SocketException e) {
+            log.info("", e);
+        }
         node.setUDPSocket(socket);
         if(log.isInfoEnabled()) {
             log.info(String.format("UDP replicator is accepting connections on udp port %d", port));
