@@ -88,7 +88,6 @@ public class Snapshot {
             }
         } catch (IOException e) {
             //syso is left until logback is fixed
-            System.out.println("Failed to load snapshot.");
             log.error("Failed to load snapshot.", e);
             System.exit(-1);
         }
