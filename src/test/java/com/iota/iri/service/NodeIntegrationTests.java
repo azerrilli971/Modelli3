@@ -96,11 +96,7 @@ public class NodeIntegrationTests {
 
     private Runnable spawnMaster() {
         return () -> {
-            try {
-                Thread.sleep(20000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+
             shutdown.set(true);
             synchronized (waitObj) {
                 waitObj.notifyAll();
@@ -117,11 +113,7 @@ public class NodeIntegrationTests {
                 e.printStackTrace();
             }
             while(!shutdown.get()) {
-                try {
-                    Thread.sleep(spacing);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+
                 try {
                     sendMilestone(api, index++);
                 } catch (Exception e) {

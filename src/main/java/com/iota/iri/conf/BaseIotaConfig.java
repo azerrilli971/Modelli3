@@ -2,7 +2,6 @@ package com.iota.iri.conf;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParameterException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.iota.iri.IRI;
@@ -104,7 +103,7 @@ public abstract class BaseIotaConfig implements IotaConfig {
     }
 
     @Override
-    public JCommander parseConfigFromArgs(String[] args) throws ParameterException {
+    public JCommander parseConfigFromArgs(String[] args)  {
         //One can invoke help via INI file (feature/bug) so we always create JCommander even if args is empty
         JCommander jCommander = JCommander.newBuilder()
                 .addObject(this)

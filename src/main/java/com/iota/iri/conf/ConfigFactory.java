@@ -30,8 +30,7 @@ public class ConfigFactory {
         return iotaConfig;
     }
 
-    public static IotaConfig createFromFile(File configFile, boolean testnet) throws IOException,
-            IllegalArgumentException {
+    public static IotaConfig createFromFile(File configFile, boolean testnet) throws IOException {
         IotaConfig iotaConfig;
 
         try (FileInputStream confStream = new FileInputStream(configFile)) {

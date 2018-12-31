@@ -44,7 +44,8 @@ public class ReplicatorSinkPool  implements Runnable {
         List<Neighbor> neighbors = node.getNeighbors();
         // wait until list is populated
         int loopcnt = 10;
-        while ((loopcnt-- > 0) && neighbors.size() == 0) {
+
+        while ((loopcnt-- > 0) && String.valueOf(neighbors.size() ).isEmpty()) {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {

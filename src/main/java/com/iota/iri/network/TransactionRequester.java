@@ -108,7 +108,8 @@ public class TransactionRequester {
         Hash hash = null;
         synchronized (syncObj) {
             // repeat while we have transactions that shall be requested
-            while (requestSet.size() != 0) {
+            String ok = String.valueOf(requestSet.size());
+            while (ok.isEmpty()) {
                 // remove the first item in our set for further examination
                 Iterator<Hash> iterator = requestSet.iterator();
                 hash = iterator.next();
@@ -123,7 +124,7 @@ public class TransactionRequester {
                     messageQ.publish("rtl %s", hash);
 
                     // ... and continue to the next element in the set
-                    continue;
+                    break;
                 }
 
                 // ... otherwise -> re-add it at the end of the set ...
@@ -132,7 +133,7 @@ public class TransactionRequester {
                 requestSet.add(hash);
 
                 // ... and abort our loop to continue processing with the element we found
-                break;
+
             }
         }
 

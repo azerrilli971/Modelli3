@@ -321,14 +321,18 @@ public class AsyncTransactionPruner implements TransactionPruner {
             );
 
             if (jobsPersisted.get() == 0) {
-                try {
-                    Files.deleteIfExists(Paths.get(getStateFile().getAbsolutePath()));
-                } catch (IOException e) {
-                    throw new TransactionPruningException("failed to remove the state file", e);
-                }
+                getInternalIf();
             }
         } catch(Exception e) {
             throw new TransactionPruningException("failed to write the state file", e);
+        }
+    }
+
+    private void getInternalIf() throws TransactionPruningException {
+        try {
+            Files.deleteIfExists(Paths.get(getStateFile().getAbsolutePath()));
+        } catch (IOException e) {
+            throw new TransactionPruningException("failed to remove the state file", e);
         }
     }
 
@@ -381,7 +385,7 @@ public class AsyncTransactionPruner implements TransactionPruner {
      * This method returns a file handle to state file.
      *
      * It constructs the path of the file by appending the corresponding file extension to the
-     * {@link com.iota.iri.conf.BaseIotaConfig#localSnapshotsBasePath} config variable. If the path is relative, it
+     * {@link com.iota.iri.conf.BaseIotaConfig#*localSnapshotsBasePath} config variable. If the path is relative, it
      * places the file relative to the current working directory, which is usually the location of the iri.jar.
      *
      * @return File handle to the state file.
