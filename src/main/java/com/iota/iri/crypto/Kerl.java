@@ -37,8 +37,16 @@ public final class Kerl implements Sponge {
 
     @Override
     public void absorb(final byte[] trits, final int offset, final int length) {
+
+        class MyException extends RuntimeException{
+            public MyException(String message){
+                super(message);
+            }
+
+        }
+
         if (length % 243 != 0) {
-            throw new RuntimeException("Illegal length: " + length);
+            throw new MyException("Illegal length: " + length);
         }
         for (int pos = offset; pos < offset + length; pos += HASH_LENGTH) {
             //convert to bytes && update
@@ -58,6 +66,14 @@ public final class Kerl implements Sponge {
      */
     @Override
     public void squeeze(final byte[] trits, final int offset, final int length) {
+
+        class MyException extends RuntimeException{
+            public MyException(String message , DigestException except){
+                super( message , except);
+            }
+
+        }
+
         if (length % 243 != 0) {
             throw new IllegalArgumentException("Illegal length: " + length);
         }
@@ -79,8 +95,7 @@ public final class Kerl implements Sponge {
                 keccak.update(state);
             }
         } catch (DigestException e) {
-            e.printStackTrace(System.err);
-            throw new RuntimeException(e);
+            throw new MyException("got you and rethrow" , e);
         }
     }
 
