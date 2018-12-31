@@ -654,7 +654,7 @@ public class API extends MilestoneTracker {
                 
                 // Transaction is pending
                 Hash tail = findTail(hash);
-                if (tail != null && BundleValidator.validate(instance.tangle, tail).size() != 0) {
+                if (tail != null && (BundleValidator.validate(instance.tangle, tail).isEmpty() == false)) {
                     return true;
                 }
             }
@@ -737,7 +737,7 @@ public class API extends MilestoneTracker {
                 state = false;
                 info = "tails are not solid (missing a referenced tx): " + transaction;
                 break;
-            } else if (BundleValidator.validate(instance.tangle, txVM.getHash()).size() == 0) {
+            } else if (BundleValidator.validate(instance.tangle, txVM.getHash()).isEmpty()) {
                 state = false;
                 info = "tails are not consistent (bundle is invalid): " + transaction;
                 break;
@@ -1495,7 +1495,7 @@ public class API extends MilestoneTracker {
         instance.milestoneTracker.getLatestSnapshot().rwlock.readLock().lock();
         final int index = instance.milestoneTracker.getLatestSnapshot().index();
         
-        if (tips == null || tips.size() == 0) {
+        if (tips == null || tips.isEmpty()) {
             hashes = Collections.singletonList(instance.milestoneTracker.getLatestSolidSubtangleMilestone());
         } else {
             hashes = tips.stream()
