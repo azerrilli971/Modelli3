@@ -20,7 +20,7 @@ public interface IotaConfig extends APIConfig, NodeConfig,
      * @return {@link JCommander} instance that was used for parsing. It contains metadata about the parsing.
      * @throws ParameterException if the parsing failed
      */
-    JCommander parseConfigFromArgs(String[] args) throws ParameterException;
+    JCommander parseConfigFromArgs(String[] args);
 
     boolean isHelp();
 }

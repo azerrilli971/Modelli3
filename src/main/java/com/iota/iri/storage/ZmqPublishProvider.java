@@ -173,11 +173,11 @@ public class ZmqPublishProvider implements PersistenceProvider {
 
     @Override
     public void clear(Class<?> column) throws Exception {
-
+    //this method clear a column
     }
 
     @Override
     public void clearMetadata(Class<?> column) throws Exception {
-
+    //this method clear Metadata from a column
     }
 }
