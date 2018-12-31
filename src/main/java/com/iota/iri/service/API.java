@@ -384,7 +384,7 @@ public class API extends MilestoneTracker {
 
 
     private AbstractResponse process(final String requestString, InetSocketAddress sourceAddress)
-            throws UnsupportedEncodingException {
+            {
 
         try {
             // Request JSON data into map
@@ -643,6 +643,7 @@ public class API extends MilestoneTracker {
         }
         
         Set<Hash> hashes = AddressViewModel.load(instance.tangle, address).getHashes();
+        boolean flag = false;
         for (Hash hash : hashes) {
             final TransactionViewModel tx = TransactionViewModel.fromHash(instance.tangle, hash);
             // Check for spending transactions
@@ -654,7 +655,7 @@ public class API extends MilestoneTracker {
                 
                 // Transaction is pending
                 Hash tail = findTail(hash);
-                if (tail != null && (BundleValidator.validate(instance.tangle, tail).isEmpty() == false)) {
+                if (tail != null && (BundleValidator.validate(instance.tangle, tail).isEmpty() == flag)) {
                     return true;
                 }
             }

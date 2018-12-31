@@ -24,8 +24,8 @@ public class ZmqPublishProvider implements PersistenceProvider {
     }
 
     @Override
-    public void init() throws Exception {
-
+    public void init() {
+       //Random override
     }
 
     @Override
@@ -35,7 +35,7 @@ public class ZmqPublishProvider implements PersistenceProvider {
 
     @Override
     public void shutdown() {
-
+        //Random override
     }
 
     @Override
