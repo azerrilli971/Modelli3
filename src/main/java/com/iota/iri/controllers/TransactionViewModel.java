@@ -833,7 +833,7 @@ public class TransactionViewModel {
             trunk2 = transactionVM.getTrunkTransaction(tangle);
             transactionViewModels.push(transactionVM.getHash());
         }
-        while(transactionViewModels.isEmpty()) {
+        while(!transactionViewModels.isEmpty()) {
             transactionVM = TransactionViewModel.fromHash(tangle, transactionViewModels.pop());
             long currentHeight = transactionVM.getHeight();
             if(Hash.NULL_HASH.equals(trunk2.getHash()) && trunk2.getHeight() == 0
