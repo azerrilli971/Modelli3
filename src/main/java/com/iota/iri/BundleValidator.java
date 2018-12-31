@@ -225,7 +225,7 @@ public class BundleValidator {
                 value += bundleTransactionViewModel.value();
             }
         }
-        return (value != 0 || transactionViewModels.size() == 0);
+        return (value != 0 || transactionViewModels.isEmpty());
     }
 
     /**

@@ -102,7 +102,7 @@ public class TransactionRequester {
         // determine which set of transactions to operate on
         Set<Hash> primarySet = milestone ? milestoneTransactionsToRequest : transactionsToRequest;
         Set<Hash> alternativeSet = milestone ? transactionsToRequest : milestoneTransactionsToRequest;
-        Set<Hash> requestSet = primarySet.size() == 0 ? alternativeSet : primarySet;
+        Set<Hash> requestSet = primarySet.isEmpty() ? alternativeSet : primarySet;
 
         // determine the first hash in our set that needs to be processed
         Hash hash = null;

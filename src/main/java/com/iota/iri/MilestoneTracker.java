@@ -278,7 +278,7 @@ public class MilestoneTracker {
             return VALID;
         }
         final List<List<TransactionViewModel>> bundleTransactions = BundleValidator.validate(tangle, transactionViewModel.getHash());
-        if (bundleTransactions.size() == 0) {
+        if (bundleTransactions.isEmpty()) {
             return INCOMPLETE;
         }
         else {
