@@ -919,7 +919,7 @@ public class BoundedScheduledExecutorService implements SilentScheduledExecutorS
      * @return the passed in object (if it is not null)
      * @throws RejectedExecutionException if the passed in object was null
      */
-    private <V> V throwCapacityExhaustedIfNull(V result) throws RejectedExecutionException {
+    private <V> V throwCapacityExhaustedIfNull(V result) {
         if (result == null) {
             throw new RejectedExecutionException("the capacity is exhausted");
         }
