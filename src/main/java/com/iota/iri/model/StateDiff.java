@@ -46,6 +46,7 @@ public class StateDiff implements Persistable {
 
     @Override
     public void readMetadata(byte[] bytes) {
+        //Random override
     }
 
     @Override
