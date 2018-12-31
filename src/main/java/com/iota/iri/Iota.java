@@ -174,7 +174,8 @@ public class Iota {
      * Gracefully shuts down by calling <tt>shutdown()</tt> on all used services.
      * Exceptions during shutdown are not caught.
      */
-    public void shutdown() throws Exception {
+
+    public void shutdown() throws InterruptedException {
         milestoneTracker.shutDown();
         tipsSolidifier.shutdown();
         node.shutdown();

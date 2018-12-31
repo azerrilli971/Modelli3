@@ -28,7 +28,7 @@ public class Tangle {
     }
 
 
-    public void shutdown() throws Exception {
+    public void shutdown() {
         log.info("Shutting down Tangle Persistence Providers... ");
         this.persistenceProviders.forEach(PersistenceProvider::shutdown);
         this.persistenceProviders.clear();
