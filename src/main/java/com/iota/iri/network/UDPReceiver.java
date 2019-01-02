@@ -1,7 +1,6 @@
 package com.iota.iri.network;
 
 import com.iota.iri.conf.NodeConfig;
-import com.iota.iri.model.Hash;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,9 +66,6 @@ public class UDPReceiver {
 
 
             log.info("Spawning Receiver Thread");
-
-
-            final byte[] requestedTransaction = new byte[Hash.SIZE_IN_BYTES];
 
             int processed = 0;
             int dropped = 0;
