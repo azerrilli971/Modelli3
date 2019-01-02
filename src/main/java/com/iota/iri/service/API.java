@@ -80,7 +80,7 @@ import static io.undertow.Handlers.path;
 public class API extends MilestoneTracker {
 
     private static final String ADDRESSES_FINAL = "addresses";
-
+    public static final String INPUT = "input";
     public static final String REFERENCE_TRANSACTION_NOT_FOUND = "reference transaction not found";
     public static final String REFERENCE_TRANSACTION_TOO_OLD = "reference transaction is too old";
     
@@ -88,6 +88,7 @@ public class API extends MilestoneTracker {
                                                  + "The subtangle has not been updated yet.";
     
     private static final Logger log = LoggerFactory.getLogger(API.class);
+    private static final String BUNDLES = "bundles";
     private final IXI ixi;
     private final int startIndex; //old milestoneStartIndex
 
@@ -1325,7 +1326,7 @@ public class API extends MilestoneTracker {
         }
 
         //Using multiple of these input fields returns the intersection of the values.
-        if (request.containsKey("bundles")) {
+        if (request.containsKey(BUNDLES)) {
             foundTransactions.retainAll(bundlesTransactions);
         }
         if (request.containsKey(ADDRESSES_FINAL)) {
@@ -1376,8 +1377,8 @@ public class API extends MilestoneTracker {
     }
 
     private boolean controlContainsKey(Map<String, Object> request, Set<Hash> foundTransactions, boolean containsKey, Set<Hash> bundlesTransactions) throws Exception {
-        if (request.containsKey("bundles")) {
-            final Set<String> bundles = getParameterAsSet(request,"bundles",HASH_SIZE);
+        if (request.containsKey(BUNDLES)) {
+            final Set<String> bundles = getParameterAsSet(request,BUNDLES,HASH_SIZE);
             controlStringBundle(bundlesTransactions, bundles);
             foundTransactions.addAll(bundlesTransactions);
             containsKey = true;
@@ -1430,7 +1431,7 @@ public class API extends MilestoneTracker {
                 .collect(Collectors.toCollection(HashSet::new));
         
         if (result.contains(Hash.NULL_HASH.toString())) {
-            throw new ValidationException("Invalid " + paramName + " input");
+            throw new ValidationException("Invalid " + paramName + INPUT);
         }
         return result;
     }
@@ -1705,7 +1706,7 @@ public class API extends MilestoneTracker {
         try {
             result = ((Double) request.get(paramName)).intValue();
         } catch (ClassCastException e) {
-            throw new ValidationException("Invalid " + paramName + " input");
+            throw new ValidationException("Invalid " + paramName + INPUT);
         }
         return result;
     }
@@ -1738,7 +1739,7 @@ public class API extends MilestoneTracker {
      */
     private void validateTrytes(String paramName, int size, String result) throws ValidationException {
         if (!validTrytes(result,size,ZERO_LENGTH_NOT_ALLOWED)) {
-            throw new ValidationException("Invalid " + paramName + " input");
+            throw new ValidationException("Invalid " + paramName + INPUT);
         }
     }
 
