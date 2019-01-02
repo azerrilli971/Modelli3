@@ -159,7 +159,8 @@ public class Curl implements Sponge {
     }
 
     Pair<long[], long[]> squeeze(Pair<long[], long[]> pair, int offset, int length) {
-        int o = offset, l = length, i = 0;
+        int o = offset;
+        int l = length;
         long[] low = pair.low;
         long[] hi = pair.hi;
         do {
