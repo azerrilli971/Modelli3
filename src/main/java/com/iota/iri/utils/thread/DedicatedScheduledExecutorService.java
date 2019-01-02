@@ -340,7 +340,9 @@ public class DedicatedScheduledExecutorService extends BoundedScheduledExecutorS
      * @param taskDetails metadata holding the relevant information of the task
      */
     private void printScheduledMessage(TaskDetails taskDetails) {
-        logger.info(buildScheduledMessage(taskDetails));
+        if (logger.isInfoEnabled()) {
+            logger.info(buildScheduledMessage(taskDetails));
+        }
     }
 
     /**
