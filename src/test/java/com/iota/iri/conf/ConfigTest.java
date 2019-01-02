@@ -79,6 +79,7 @@ public class ConfigTest {
                 "--fake-config"
         };
         IotaConfig iotaConfig = ConfigFactory.createIotaConfig(false);
+
         Assert.assertThat("wrong config class created", iotaConfig, CoreMatchers.instanceOf(MainnetConfig.class));
 
         iotaConfig.parseConfigFromArgs(args);
@@ -148,7 +149,6 @@ public class ConfigTest {
         };
         IotaConfig iotaConfig = ConfigFactory.createIotaConfig(true);
         Assert.assertThat("wrong config class created", iotaConfig, CoreMatchers.instanceOf(TestnetConfig.class));
-
         iotaConfig.parseConfigFromArgs(args);
         Assert.assertEquals("port value", 14000, iotaConfig.getPort());
         Assert.assertEquals("udp port", 13000, iotaConfig.getUdpReceiverPort());
