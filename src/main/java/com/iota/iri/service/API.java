@@ -114,6 +114,8 @@ public class API extends MilestoneTracker {
 
     private static final String overMaxErrorMessage = "Could not complete request";
     private static final String invalidParams = "Invalid parameters";
+    private static final String INVALID = "Invalid ";
+    private static final String TRYTES = "trytes";
 
     private ConcurrentHashMap<Hash, Boolean> previousEpochsSpentAddresses;
 
@@ -487,7 +489,7 @@ public class API extends MilestoneTracker {
 
     private AbstractResponse getStoreTransactions(Map<String, Object> request) throws Exception {
         try {
-            final List<String> trytes = getParameterAsList(request,"trytes", TRYTES_SIZE);
+            final List<String> trytes = getParameterAsList(request,TRYTES, TRYTES_SIZE);
             storeTransactionsStatement(trytes);
             return AbstractResponse.createEmptyResponse();
         } catch (RuntimeException e) {
@@ -522,14 +524,14 @@ public class API extends MilestoneTracker {
         final Hash branchTransaction = HashFactory.TRANSACTION.create(getParameterAsStringAndValidate(request,"branchTransaction", HASH_SIZE));
         final int minWeightMagnitude = getParameterAsInt(request,"minWeightMagnitude");
 
-        final List<String> trytes = getParameterAsList(request,"trytes", TRYTES_SIZE);
+        final List<String> trytes = getParameterAsList(request,TRYTES, TRYTES_SIZE);
 
         List<String> elements = attachToTangleStatement(trunkTransaction, branchTransaction, minWeightMagnitude, trytes);
         return AttachToTangleResponse.create(elements);
     }
 
     private AbstractResponse getBroadcastTransactions(Map<String, Object> request) throws ValidationException {
-        final List<String> trytes = getParameterAsList(request,"trytes", TRYTES_SIZE);
+        final List<String> trytes = getParameterAsList(request,TRYTES, TRYTES_SIZE);
         broadcastTransactionsStatement(trytes);
         return AbstractResponse.createEmptyResponse();
     }
@@ -1431,7 +1433,7 @@ public class API extends MilestoneTracker {
                 .collect(Collectors.toCollection(HashSet::new));
         
         if (result.contains(Hash.NULL_HASH.toString())) {
-            throw new ValidationException("Invalid " + paramName + INPUT);
+            throw new ValidationException(INVALID + paramName + INPUT);
         }
         return result;
     }
@@ -1706,7 +1708,7 @@ public class API extends MilestoneTracker {
         try {
             result = ((Double) request.get(paramName)).intValue();
         } catch (ClassCastException e) {
-            throw new ValidationException("Invalid " + paramName + INPUT);
+            throw new ValidationException(INVALID + paramName + INPUT);
         }
         return result;
     }
@@ -1739,7 +1741,7 @@ public class API extends MilestoneTracker {
      */
     private void validateTrytes(String paramName, int size, String result) throws ValidationException {
         if (!validTrytes(result,size,ZERO_LENGTH_NOT_ALLOWED)) {
-            throw new ValidationException("Invalid " + paramName + INPUT);
+            throw new ValidationException(INVALID + paramName + INPUT);
         }
     }
 
