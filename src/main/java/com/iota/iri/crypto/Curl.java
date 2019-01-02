@@ -148,7 +148,8 @@ public class Curl implements Sponge {
     }
 
     void absorb(final Pair<long[], long[]> pair, int offset, int length) {
-        int o = offset, l = length, i = 0;
+        int o = offset;
+        int l = length;
         do {
             System.arraycopy(pair.low, o, stateLow, 0, l < HASH_LENGTH ? l : HASH_LENGTH);
             System.arraycopy(pair.hi, o, stateHigh, 0, l < HASH_LENGTH ? l : HASH_LENGTH);
