@@ -369,7 +369,10 @@ public class DedicatedScheduledExecutorService extends BoundedScheduledExecutorS
      * @param taskDetails metadata holding the relevant information of the task
      */
     private void printFinishedMessage(TaskDetails taskDetails) {
-        logger.info(buildFinishedMessage(taskDetails));
+        String message = buildFinishedMessage(taskDetails);
+        if (!(message.isEmpty())){
+            logger.info(message);
+        }
     }
 
     /**
@@ -381,7 +384,10 @@ public class DedicatedScheduledExecutorService extends BoundedScheduledExecutorS
      * @param taskDetails metadata holding the relevant information of the task
      */
     private void printStopMessage(TaskDetails taskDetails) {
-        logger.info(buildStopMessage(taskDetails));
+        String message = buildStopMessage(taskDetails);
+        if (!(message.isEmpty())) {
+            logger.info(message);
+        }
     }
 
     /**
