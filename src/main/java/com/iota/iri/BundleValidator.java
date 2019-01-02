@@ -136,7 +136,8 @@ public class BundleValidator {
                                         if (transactionViewModel.value() < 0) {
                                             // let's verify the signature by recalculating the public address
                                             addressInstance.reset();
-                                            int offset = 0, offsetNext = 0;
+                                            int offset = 0;
+                                            int offsetNext = 0;
                                             do {
                                                 offsetNext = (offset + ISS.NUMBER_OF_FRAGMENT_CHUNKS - 1) % (Curl.HASH_LENGTH / Converter.NUMBER_OF_TRITS_IN_A_TRYTE) + 1;
                                                 ISSInPlace.digest(SpongeFactory.Mode.KERL,
@@ -241,7 +242,8 @@ public class BundleValidator {
         final Hash bundleHash = tail.getBundleHash();
         try {
             TransactionViewModel tx = tail;
-            long i = 0, end = tx.lastIndex();
+            long i = 0;
+            long end = tx.lastIndex();
             do {
                 bundleTransactions.put(tx.getHash(), tx);
                 tx = tx.getTrunkTransaction(tangle);
