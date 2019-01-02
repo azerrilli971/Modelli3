@@ -456,10 +456,10 @@ public class BoundedScheduledExecutorService implements SilentScheduledExecutorS
      * delegated {@link ScheduledExecutorService} by passing in the wrapped command.<br />
      *
      * @param <R> the kind of future returned by this factory ({@link ScheduledFuture} vs {@link Future})
-     * @param <ARGUMENT> type of the wrapped command that is passed in ({@link Runnable} vs {@link Callable})
+     * @param <A> type of the wrapped command that is passed in ({@link Runnable} vs {@link Callable})
      */
     @FunctionalInterface
-    private interface FutureFactory<R, ARGUMENT> {
+    private interface FutureFactory<R, A> {
         /**
          * This method creates the unwrapped future from the wrapped task by passing it on to the delegated
          * {@link ScheduledExecutorService}.
@@ -467,7 +467,7 @@ public class BoundedScheduledExecutorService implements SilentScheduledExecutorS
          * @param task the wrapped task that shall be scheduled
          * @return the unwrapped "original" {@link Future} of the delegated {@link ScheduledExecutorService}
          */
-        R create(ARGUMENT task);
+        R create(A task);
     }
 
     /**

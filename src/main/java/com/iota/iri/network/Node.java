@@ -374,8 +374,11 @@ public class Node {
             rejectedAddresses.clear();
         } else if (rejectedAddresses.add(uriString)) {
             messageQ.publish("rntn %s %s", uriString, String.valueOf(maxPeersAllowed));
-            log.info("Refused non-tethered neighbor: " + uriString +
-                    " (max-peers = " + String.valueOf(maxPeersAllowed) + ")");
+            if(log.isDebugEnabled()){
+                log.info("Refused non-tethered neighbor: " + uriString +
+                        " (max-peers = " + String.valueOf(maxPeersAllowed) + ")");
+            }
+
         }
     }
 

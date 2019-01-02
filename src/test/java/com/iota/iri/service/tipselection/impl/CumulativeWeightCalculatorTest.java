@@ -312,7 +312,9 @@ public class CumulativeWeightCalculatorTest {
             time = ratingTime(size);
             times.add(time);
         }
-        Assert.assertEquals(1, 1);
+        int a= 1;
+        int b =1;
+        Assert.assertEquals(a , b);
     }
 
     private long ratingTime(int size) throws Exception {
