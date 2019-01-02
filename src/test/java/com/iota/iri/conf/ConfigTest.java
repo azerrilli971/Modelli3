@@ -149,6 +149,7 @@ public class ConfigTest {
         };
         IotaConfig iotaConfig = ConfigFactory.createIotaConfig(true);
         Assert.assertThat("wrong config class created", iotaConfig, CoreMatchers.instanceOf(TestnetConfig.class));
+
         iotaConfig.parseConfigFromArgs(args);
         Assert.assertEquals("port value", 14000, iotaConfig.getPort());
         Assert.assertEquals("udp port", 13000, iotaConfig.getUdpReceiverPort());
@@ -245,7 +246,7 @@ public class ConfigTest {
         Assert.assertEquals("NUMBER_OF_KEYS_IN_A_MILESTONE", 3, iotaConfig.getNumberOfKeysInMilestone());
         Assert.assertEquals("TIPSELECTION_ALPHA", 1.1d, iotaConfig.getAlpha(), 0);
         Assert.assertEquals("DONT_VALIDATE_TESTNET_MILESTONE_SIG",
-                iotaConfig.isDontValidateTestnetMilestoneSig(), true);
+                true, iotaConfig.isDontValidateTestnetMilestoneSig());
         //prove that REMOTE did nothing
         Assert.assertEquals("API_HOST", iotaConfig.getApiHost(), "localhost");
     }

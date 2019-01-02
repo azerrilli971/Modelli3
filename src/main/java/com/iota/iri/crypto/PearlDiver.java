@@ -266,16 +266,23 @@ public class PearlDiver {
                                   final int fromIndex, final int toIndex) {
 
         for (int i = fromIndex; i < toIndex; i++) {
-            if (midStateCopyLow[i] == LOW_BITS) {
-                midStateCopyLow[i] = HIGH_BITS;
-                midStateCopyHigh[i] = LOW_BITS;
-            } else if (midStateCopyHigh[i] == LOW_BITS) {
-                midStateCopyHigh[i] = HIGH_BITS;
-                break;
-            } else {
-                midStateCopyLow[i] = LOW_BITS;
+            if (copy(midStateCopyLow, midStateCopyHigh, i)) {
                 break;
             }
         }
+    }
+
+    private static boolean copy(long[] midStateCopyLow, long[] midStateCopyHigh, int i) {
+        if (midStateCopyLow[i] == LOW_BITS) {
+            midStateCopyLow[i] = HIGH_BITS;
+            midStateCopyHigh[i] = LOW_BITS;
+        } else if (midStateCopyHigh[i] == LOW_BITS) {
+            midStateCopyHigh[i] = HIGH_BITS;
+            return true;
+        } else {
+            midStateCopyLow[i] = LOW_BITS;
+            return true;
+        }
+        return false;
     }
 }
