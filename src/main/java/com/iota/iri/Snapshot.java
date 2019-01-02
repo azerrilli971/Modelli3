@@ -108,6 +108,11 @@ public class Snapshot {
     }
 
     public Snapshot clone() {
+        try {
+            super.clone();
+        } catch (CloneNotSupportedException e) {
+            log.info("Got you", e);
+        }
         return new Snapshot(state, index);
     }
 
