@@ -455,11 +455,11 @@ public class BoundedScheduledExecutorService implements SilentScheduledExecutorS
      * This interface is used to generically describe the lambda that is used to create the unwrapped future from the
      * delegated {@link ScheduledExecutorService} by passing in the wrapped command.<br />
      *
-     * @param <RESULT> the kind of future returned by this factory ({@link ScheduledFuture} vs {@link Future})
+     * @param <R> the kind of future returned by this factory ({@link ScheduledFuture} vs {@link Future})
      * @param <ARGUMENT> type of the wrapped command that is passed in ({@link Runnable} vs {@link Callable})
      */
     @FunctionalInterface
-    private interface FutureFactory<RESULT, ARGUMENT> {
+    private interface FutureFactory<R, ARGUMENT> {
         /**
          * This method creates the unwrapped future from the wrapped task by passing it on to the delegated
          * {@link ScheduledExecutorService}.
@@ -467,7 +467,7 @@ public class BoundedScheduledExecutorService implements SilentScheduledExecutorS
          * @param task the wrapped task that shall be scheduled
          * @return the unwrapped "original" {@link Future} of the delegated {@link ScheduledExecutorService}
          */
-        RESULT create(ARGUMENT task);
+        R create(ARGUMENT task);
     }
 
     /**
