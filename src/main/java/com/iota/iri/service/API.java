@@ -79,7 +79,7 @@ import static io.undertow.Handlers.path;
 @SuppressWarnings("unchecked")
 public class API extends MilestoneTracker {
 
-
+    private static final String ADDRESSES_FINAL = "addresses";
 
     public static final String REFERENCE_TRANSACTION_NOT_FOUND = "reference transaction not found";
     public static final String REFERENCE_TRANSACTION_TOO_OLD = "reference transaction is too old";
@@ -534,7 +534,7 @@ public class API extends MilestoneTracker {
     }
 
     private AbstractResponse getGetBalance(Map<String, Object> request) throws Exception {
-        final List<String> addresses = getParameterAsList(request,"addresses", HASH_SIZE);
+        final List<String> addresses = getParameterAsList(request,ADDRESSES_FINAL, HASH_SIZE);
         final List<String> tips = request.containsKey("tips") ?
                 getParameterAsList(request,"tips", HASH_SIZE):
                 null;
@@ -594,7 +594,7 @@ public class API extends MilestoneTracker {
 
     public AbstractResponse loc() throws Exception {
         Map<String, Object> request = null;
-        final List<String> addresses = getParameterAsList(request,"addresses", HASH_SIZE);
+        final List<String> addresses = getParameterAsList(request,ADDRESSES_FINAL, HASH_SIZE);
         validateParamExists(request, "adresses");
         return wereAddressesSpentFromStatement(addresses);
     }
@@ -1328,7 +1328,7 @@ public class API extends MilestoneTracker {
         if (request.containsKey("bundles")) {
             foundTransactions.retainAll(bundlesTransactions);
         }
-        if (request.containsKey("addresses")) {
+        if (request.containsKey(ADDRESSES_FINAL)) {
             foundTransactions.retainAll(addressesTransactions);
         }
         if (request.containsKey("tags")) {
@@ -1358,8 +1358,8 @@ public class API extends MilestoneTracker {
     }
 
     private boolean controlKeys(Map<String, Object> request, Set<Hash> foundTransactions, boolean containsKey, Set<Hash> addressesTransactions) throws Exception {
-        if (request.containsKey("addresses")) {
-            final Set<String> addresses = getParameterAsSet(request,"addresses",HASH_SIZE);
+        if (request.containsKey(ADDRESSES_FINAL)) {
+            final Set<String> addresses = getParameterAsSet(request,ADDRESSES_FINAL,HASH_SIZE);
             controlAddressTransactions(addressesTransactions, addresses);
             foundTransactions.addAll(addressesTransactions);
             containsKey = true;
