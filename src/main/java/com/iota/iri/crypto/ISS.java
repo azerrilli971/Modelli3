@@ -43,9 +43,11 @@ public class ISS {
     public static final int FRAGMENT_LENGTH = Curl.HASH_LENGTH * NUMBER_OF_FRAGMENT_CHUNKS;
     private static final int NUMBER_OF_SECURITY_LEVELS = 3;
 
-    private static final int MIN_TRIT_VALUE = -1, MAX_TRIT_VALUE = 1;
+    private static final int MIN_TRIT_VALUE = -1;
+    private static final int MAX_TRIT_VALUE = 1;
     public static final int TRYTE_WIDTH = 3;
-    private static final int MIN_TRYTE_VALUE = -13, MAX_TRYTE_VALUE = 13;
+    private static final int MIN_TRYTE_VALUE = -13;
+    private static final int MAX_TRYTE_VALUE = 13;
     public static final int NORMALIZED_FRAGMENT_LENGTH = Curl.HASH_LENGTH / TRYTE_WIDTH / NUMBER_OF_SECURITY_LEVELS;
 
 
