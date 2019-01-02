@@ -21,8 +21,10 @@ public class ISSInPlace {
     public static final int TRYTE_WIDTH = 3;
     private static final int NUMBER_OF_SECURITY_LEVELS = 3;
     public static final int NORMALIZED_FRAGMENT_LENGTH = Kerl.HASH_LENGTH / TRYTE_WIDTH / NUMBER_OF_SECURITY_LEVELS;
-    private static final byte MIN_TRIT_VALUE = -1, MAX_TRIT_VALUE = 1;
-    private static final byte MIN_TRYTE_VALUE = -13, MAX_TRYTE_VALUE = 13;
+    private static final byte MIN_TRIT_VALUE = -1;
+    private static final byte MAX_TRIT_VALUE = 1;
+    private static final byte MIN_TRYTE_VALUE = -13;
+    private static final byte MAX_TRYTE_VALUE = 13;
 
     public static void subseed(SpongeFactory.Mode mode, byte[] subseed, int index) {
 

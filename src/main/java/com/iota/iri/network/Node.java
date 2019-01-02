@@ -338,7 +338,8 @@ public class Node {
 
                 //recentSeenBytes statistics
 
-                    long hitCount, missCount;
+                    long hitCount;
+                    long missCount;
                     if (cached) {
                         hitCount = recentSeenBytesHitCount.incrementAndGet();
                         missCount = recentSeenBytesMissCount.get();

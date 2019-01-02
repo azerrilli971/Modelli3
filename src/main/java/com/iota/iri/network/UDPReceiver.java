@@ -71,7 +71,8 @@ public class UDPReceiver {
 
             final byte[] requestedTransaction = new byte[Hash.SIZE_IN_BYTES];
 
-            int processed = 0, dropped = 0;
+            int processed = 0;
+            int dropped = 0;
 
             while (!shuttingDown.get()) {
 
