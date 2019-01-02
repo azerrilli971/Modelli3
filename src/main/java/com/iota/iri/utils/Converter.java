@@ -24,7 +24,8 @@ public class Converter {
     }
 	public static final int RADIX = 3;
     public static final int BYTE_RADIX = 256;
-	public static final int MAX_TRIT_VALUE = (RADIX - 1) / 2, MIN_TRIT_VALUE = -MAX_TRIT_VALUE;
+	public static final int MAX_TRIT_VALUE = (RADIX - 1) / 2;
+    public static final int MIN_TRIT_VALUE = -MAX_TRIT_VALUE;
 
     public static final int NUMBER_OF_TRITS_IN_A_BYTE = 5;
     public static final int NUMBER_OF_TRITS_IN_A_TRYTE = 3;
@@ -37,7 +38,8 @@ public class Converter {
 
     public static final String TRYTE_ALPHABET = "9ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    public static final int MIN_TRYTE_VALUE = -13, MAX_TRYTE_VALUE = 13;
+    public static final int MIN_TRYTE_VALUE = -13;
+    public static final int MAX_TRYTE_VALUE = 13;
 
     //lookup tables for bytes->trits and trytes->trits conversion
     static {

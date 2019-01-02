@@ -1307,9 +1307,9 @@ public class API extends MilestoneTracker {
         }
 
         final Set<Hash> approveeTransactions = new HashSet<>();
-
-        if (request.containsKey("approvees")) {
-            final Set<String> approvees = getParameterAsSet(request,"approvees",HASH_SIZE);
+       final String approveaction = "approvees";
+        if (request.containsKey(approveaction)) {
+            final Set<String> approvees = getParameterAsSet(request,approveaction,HASH_SIZE);
             for (final String approvee : approvees) {
                 approveeTransactions.addAll(
                         TransactionViewModel.fromHash(instance.tangle, HashFactory.TRANSACTION.create(approvee))
@@ -1334,7 +1334,7 @@ public class API extends MilestoneTracker {
         if (request.containsKey("tags")) {
             foundTransactions.retainAll(tagsTransactions);
         }
-        if (request.containsKey("approvees")) {
+        if (request.containsKey(approveaction)) {
             foundTransactions.retainAll(approveeTransactions);
         }
         if (foundTransactions.size() > maxFindTxs){
