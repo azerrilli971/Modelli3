@@ -259,13 +259,11 @@ class ReplicatorSourceProcessor implements Runnable {
     }
 
     private void finalClause(boolean finallyClose) {
-        if (neighbor != null) {
-            if (finallyClose) {
-                replicatorSinkPool.shutdownSink(neighbor);
-                neighbor.setSource(null);
-                neighbor.setSink(null);
+        if (neighbor != null && finallyClose) {
+            replicatorSinkPool.shutdownSink(neighbor);
+            neighbor.setSource(null);
+            neighbor.setSink(null);
 
-            }
         }
     }
 

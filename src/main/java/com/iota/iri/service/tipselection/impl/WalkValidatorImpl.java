@@ -106,11 +106,9 @@ public class WalkValidatorImpl extends MilestoneTracker implements WalkValidator
                 if (transactionsControl(lowerAllowedSnapshotIndex, transaction)) {
                     return true;
                 }
-                if (transaction.snapshotIndex() == 0) {
-                    if (!maxDepthOkMemoization.contains(hash)) {
-                        nonAnalyzedTransactions.offer(transaction.getTrunkTransactionHash());
-                        nonAnalyzedTransactions.offer(transaction.getBranchTransactionHash());
-                    }
+                if (transaction.snapshotIndex() == 0 && !maxDepthOkMemoization.contains(hash)) {
+                    nonAnalyzedTransactions.offer(transaction.getTrunkTransactionHash());
+                    nonAnalyzedTransactions.offer(transaction.getBranchTransactionHash());
                 }
             }
         }
