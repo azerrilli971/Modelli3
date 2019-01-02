@@ -19,13 +19,13 @@ public class SlackBotFeed {
     }
 
     public static void reportToSlack(final String message) {
-
+        final String set = "UTF-8";
         boolean ritorno = true;
         try {
 
             final String request = "token=" 
-                    + URLEncoder.encode("<botToken>", "UTF-8") + "&channel=" 
-                    + URLEncoder.encode("#botbox", "UTF-8") + "&text=" + URLEncoder.encode(message, "UTF-8") + "&as_user=true";
+                    + URLEncoder.encode("<botToken>", set) + "&channel="
+                    + URLEncoder.encode("#botbox", set) + "&text=" + URLEncoder.encode(message, set) + "&as_user=true";
 
             final HttpURLConnection connection = (HttpsURLConnection) (new URL("https://slack.com/api/chat.postMessage")).openConnection();
             ((HttpsURLConnection)connection).setHostnameVerifier((hostname, session) -> ritorno);
@@ -33,7 +33,7 @@ public class SlackBotFeed {
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
             OutputStream out = connection.getOutputStream();
-            out.write(request.getBytes("UTF-8"));
+            out.write(request.getBytes(set));
             out.close();
             ByteArrayOutputStream result = new ByteArrayOutputStream();
             InputStream inputStream = connection.getInputStream();
