@@ -248,7 +248,7 @@ public class ConfigTest {
         Assert.assertEquals("DONT_VALIDATE_TESTNET_MILESTONE_SIG",
                 true, iotaConfig.isDontValidateTestnetMilestoneSig());
         //prove that REMOTE did nothing
-        Assert.assertEquals("API_HOST", iotaConfig.getApiHost(), "localhost");
+        Assert.assertEquals("API_HOST", "localhost", iotaConfig.getApiHost());
     }
 
     @Test(expected = IllegalArgumentException.class)
