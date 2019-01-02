@@ -74,7 +74,7 @@ public class HashTest {
     public void toStringTest() throws Exception {
         byte[] trits = TransactionViewModelTest.getRandomTransactionTrits();
         Hash hash = TransactionHash.calculate(SpongeFactory.Mode.CURLP81, trits);
-        Assert.assertEquals(Hash.NULL_HASH.toString(), "999999999999999999999999999999999999999999999999999999999999999999999999999999999");
+        Assert.assertEquals("999999999999999999999999999999999999999999999999999999999999999999999999999999999", Hash.NULL_HASH.toString());
         Assert.assertNotEquals(hash.toString(), "999999999999999999999999999999999999999999999999999999999999999999999999999999999");
         Assert.assertNotEquals(hash.toString().length(), 0);
 
