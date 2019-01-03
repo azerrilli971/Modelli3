@@ -292,9 +292,6 @@ public class AsyncTransactionPruner implements TransactionPruner {
      * @param job job that shall get serialized
      * @return serialized representation of the job
      */
-    private String serializeJobEntry(TransactionPrunerJob job) {
-        return job.getClass().getCanonicalName() + ";" + job.serialize();
-    }
 
     /**
      * Saves the state by serializing the jobs into a state file that is stored on the hard disk of the node.

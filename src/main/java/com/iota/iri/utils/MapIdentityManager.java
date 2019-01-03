@@ -73,7 +73,7 @@ public class MapIdentityManager implements IdentityManager {
         if (users.containsKey(id)) {
             return new Account() {
 
-                private final Principal principal = new Principal() {
+                private final transient Principal principal = new Principal() {
 
                     @Override
                     public String getName() {
