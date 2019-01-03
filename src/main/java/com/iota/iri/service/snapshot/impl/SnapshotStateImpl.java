@@ -6,7 +6,7 @@ import com.iota.iri.model.HashFactory;
 import com.iota.iri.service.snapshot.SnapshotException;
 import com.iota.iri.service.snapshot.SnapshotState;
 import com.iota.iri.service.snapshot.SnapshotStateDiff;
-import com.iota.iri.utils.IotaIOUtils;
+
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

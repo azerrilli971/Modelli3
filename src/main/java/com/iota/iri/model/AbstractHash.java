@@ -12,10 +12,10 @@ import com.iota.iri.storage.Indexable;
 import com.iota.iri.utils.Converter;
 
 public abstract class AbstractHash implements Hash, Serializable {
-    private final Object lock = new Object();
+    private final transient Object  lock = new Object();
 
     private ByteSafe byteSafe;
-    private TritSafe tritSafe;
+    private transient TritSafe tritSafe;
 
     public AbstractHash(byte[] source, int sourceOffset, int sourceSize) {
         if(sourceSize < SIZE_IN_TRITS) {

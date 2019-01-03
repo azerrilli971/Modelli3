@@ -155,7 +155,8 @@ public class Curl implements Sponge {
             System.arraycopy(pair.hi, o, stateHigh, 0, l < HASH_LENGTH ? l : HASH_LENGTH);
             pairTransform();
             o += HASH_LENGTH;
-        } while ((l -= HASH_LENGTH) > 0);
+            l -= HASH_LENGTH;
+        } while ( l > 0);
     }
 
     Pair<long[], long[]> squeeze(Pair<long[], long[]> pair, int offset, int length) {
