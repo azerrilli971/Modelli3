@@ -14,7 +14,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class PearlDiverTest {
-    
+
     private static final int TRYTE_LENGTH = 2673;
     private static final int MIN_WEIGHT_MAGNITUDE = 9;
     private static final int NUM_CORES = -1; // use n-1 cores
