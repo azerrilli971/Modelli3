@@ -9,7 +9,7 @@ import java.io.File;
  *  A container for all possible configuration parameters of IRI.
  *  In charge of how we parse the configuration from given inputs.
  */
-public abstract class IotaConfig implements APIConfig, NodeConfig, IXIConfig, DbConfig, ConsensusConfig, ZMQConfig, TipSelConfig, PearlDiverConfig {
+public abstract class  IotaConfig implements APIConfig, NodeConfig, IXIConfig, DbConfig, ConsensusConfig, ZMQConfig, TipSelConfig, PearlDiverConfig {
     public IotaConfig(){
 
     }

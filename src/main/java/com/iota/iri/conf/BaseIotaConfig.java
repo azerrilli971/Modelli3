@@ -698,84 +698,87 @@ public abstract class BaseIotaConfig extends IotaConfig {
         this.powThreads = powThreads;
     }
 
-    public interface Defaults {
-        //API
-        int API_PORT = 14265;
-        String API_HOST = "localhost";
+    public abstract static class Defaults {
+        private Defaults(){
 
-        int MAX_FIND_TRANSACTIONS = 100_000;
-        int MAX_REQUESTS_LIST = 1_000;
-        int MAX_GET_TRYTES = 10_000;
-        int MAX_BODY_LENGTH = 1_000_000;
-        String REMOTE_AUTH = "";
+        }
+        //API
+        public static final int API_PORT = 14265;
+        public static final String API_HOST = "localhost";
+
+        public static final int MAX_FIND_TRANSACTIONS = 100_000;
+        public static final int MAX_REQUESTS_LIST = 1_000;
+        public static final int MAX_GET_TRYTES = 10_000;
+        public static final int MAX_BODY_LENGTH = 1_000_000;
+        public static final String REMOTE_AUTH = "";
 
         //Network
-        int UDP_RECEIVER_PORT = 14600;
-        int TCP_RECEIVER_PORT = 15600;
-        double P_REMOVE_REQUEST = 0.01d;
-        int SEND_LIMIT = -1;
-        int MAX_PEERS = 0;
-        boolean DNS_REFRESHER_ENABLED = true;
-        boolean DNS_RESOLUTION_ENABLED = true;
+        public static final int UDP_RECEIVER_PORT = 14600;
+        public static final int TCP_RECEIVER_PORT = 15600;
+        public static final double P_REMOVE_REQUEST = 0.01d;
+        public static final int SEND_LIMIT = -1;
+        public static final int MAX_PEERS = 0;
+        public static final boolean DNS_REFRESHER_ENABLED = true;
+        public static final boolean DNS_RESOLUTION_ENABLED = true;
 
         //ixi
-        String IXI_DIR = "ixi";
+        public static final String IXI_DIR = "ixi";
 
         //DB
-        String DB_PATH = "mainnetdb";
-        String DB_LOG_PATH = "mainnet.log";
-        int DB_CACHE_SIZE = 100_000;
-        String ROCKS_DB = "rocksdb";
-        boolean REVALIDATE = false;
-        boolean RESCAN_DB = false;
+        public static final String DB_PATH = "mainnetdb";
+        public static final String DB_LOG_PATH = "mainnet.log";
+        public static final int DB_CACHE_SIZE = 100_000;
+        public static final String ROCKS_DB = "rocksdb";
+        public static final boolean REVALIDATE = false;
+        public static final boolean RESCAN_DB = false;
 
         //Protocol
-        double P_REPLY_RANDOM_TIP = 0.66d;
-        double P_DROP_TRANSACTION = 0d;
-        double P_SELECT_MILESTONE_CHILD = 0.7d;
-        double P_SEND_MILESTONE = 0.02d;
-        double P_PROPAGATE_REQUEST = 0.01d;
-        int MWM = 14;
-        int PACKET_SIZE = 1650;
-        int REQ_HASH_SIZE = 46;
-        int QUEUE_SIZE = 1_000;
-        double P_DROP_CACHE_ENTRY = 0.02d;
-        int CACHE_SIZE_BYTES = 150_000;
+        public static final double P_REPLY_RANDOM_TIP = 0.66d;
+        public static final double P_DROP_TRANSACTION = 0d;
+        public static final double P_SELECT_MILESTONE_CHILD = 0.7d;
+        public static final double P_SEND_MILESTONE = 0.02d;
+        public static final double P_PROPAGATE_REQUEST = 0.01d;
+        public static final int MWM = 14;
+        public static final int PACKET_SIZE = 1650;
+        public static final int REQ_HASH_SIZE = 46;
+        public static final int QUEUE_SIZE = 1_000;
+        public static final double P_DROP_CACHE_ENTRY = 0.02d;
+        public static final int CACHE_SIZE_BYTES = 150_000;
 
 
 
         //Zmq
-        int ZMQ_THREADS = 1;
-        String ZMQ_IPC = "ipc://iri";
-        boolean ZMQ_ENABLED = false;
-        int ZMQ_PORT = 5556;
+        public static final int ZMQ_THREADS = 1;
+        public static final String ZMQ_IPC = "ipc://iri";
+        public static final boolean ZMQ_ENABLED = false;
+        public static final int ZMQ_PORT = 5556;
 
         //TipSel
-        int MAX_DEPTH = 15;
-        double ALPHA = 0.001d;
+        public static final int MAX_DEPTH = 15;
+        public static final double ALPHA = 0.001d;
 
         //PearlDiver
-        int POW_THREADS = 0;
+        public static final int POW_THREADS = 0;
 
         //Coo
-        String COORDINATOR_ADDRESS =
+        public static final String COORDINATOR_ADDRESS =
                 "KPWCHICGJZXKE9GSUDXZYUAPLHAKAHYHDXNPHENTERYMMBQOPSQIDENXKLKCEYCPVTZQLEEJVYJZV9BWU";
 
         //Snapshot
-        boolean LOCAL_SNAPSHOTS_ENABLED = true;
-        boolean LOCAL_SNAPSHOTS_PRUNING_ENABLED = true;
-        int LOCAL_SNAPSHOTS_PRUNING_DELAY = 50000;
-        int LOCAL_SNAPSHOTS_INTERVAL_SYNCED = 10;
-        int LOCAL_SNAPSHOTS_INTERVAL_UNSYNCED = 1000;
-        String LOCAL_SNAPSHOTS_BASE_PATH = "mainnet";
-        int LOCAL_SNAPSHOTS_DEPTH = 100;
-        String SNAPSHOT_FILE = "/snapshotMainnet.txt";
-        String SNAPSHOT_SIG_FILE = "/snapshotMainnet.sig";
-        String PREVIOUS_EPOCHS_SPENT_ADDRESSES_TXT =
+        public static final boolean LOCAL_SNAPSHOTS_ENABLED = true;
+        public static final boolean LOCAL_SNAPSHOTS_PRUNING_ENABLED = true;
+        public static final int LOCAL_SNAPSHOTS_PRUNING_DELAY = 50000;
+        public static final int LOCAL_SNAPSHOTS_INTERVAL_SYNCED = 10;
+        public static final int LOCAL_SNAPSHOTS_INTERVAL_UNSYNCED = 1000;
+        public static final String LOCAL_SNAPSHOTS_BASE_PATH = "mainnet";
+        public static final int LOCAL_SNAPSHOTS_DEPTH = 100;
+        public static final String SNAPSHOT_FILE = "/snapshotMainnet.txt";
+        public static final String SNAPSHOT_SIG_FILE = "/snapshotMainnet.sig";
+        public static final String PREVIOUS_EPOCHS_SPENT_ADDRESSES_TXT =
                 "/previousEpochsSpentAddresses1.txt /previousEpochsSpentAddresses2.txt";
-        long GLOBAL_SNAPSHOT_TIME = 1537203600;
-        int MILESTONE_START_INDEX = 774_805;
-        int NUM_KEYS_IN_MILESTONE = 20;
-        int MAX_ANALYZED_TXS = 20_000;
+        public static final long GLOBAL_SNAPSHOT_TIME = 1537203600;
+        public static final int MILESTONE_START_INDEX = 774_805;
+        public static final int NUM_KEYS_IN_MILESTONE = 20;
+        public static final int MAX_ANALYZED_TXS = 20_000;
     }
 }
