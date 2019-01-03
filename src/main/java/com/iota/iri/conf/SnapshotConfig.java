@@ -70,23 +70,29 @@ public interface SnapshotConfig extends Config {
      */
     String getPreviousEpochSpentAddressesFiles();
 
-    interface Descriptions {
+    abstract static class Descriptions {
 
-        String LOCAL_SNAPSHOTS_ENABLED = "Flag that determines if local snapshots are enabled.";
-        String LOCAL_SNAPSHOTS_PRUNING_ENABLED = "Flag that determines if pruning of old data is enabled.";
-        String LOCAL_SNAPSHOTS_PRUNING_DELAY = "Only prune data that precedes the local snapshot by n milestones.";
-        String LOCAL_SNAPSHOTS_INTERVAL_SYNCED = "Take local snapshots every n milestones if the node is fully synced.";
-        String LOCAL_SNAPSHOTS_INTERVAL_UNSYNCED = "Take local snapshots every n milestones if the node is syncing.";
-        String LOCAL_SNAPSHOTS_DEPTH = "Number of milestones to keep.";
-        String LOCAL_SNAPSHOTS_BASE_PATH = "Path to the snapshot files (without file extensions).";
-        String SNAPSHOT_TIME = "Epoch time of the last snapshot.";
-        String SNAPSHOT_FILE = "Path of the file that contains the state of the ledger at the last snapshot.";
-        String SNAPSHOT_SIGNATURE_FILE = "Path to the file that contains a signature for the snapshot file.";
-        String MILESTONE_START_INDEX = "The start index of the milestones. This index is encoded in each milestone " +
+        private Descriptions(){
+            super();
+        }
+
+
+
+        public static final String LOCAL_SNAPSHOTS_ENABLED = "Flag that determines if local snapshots are enabled.";
+        public static final String LOCAL_SNAPSHOTS_PRUNING_ENABLED = "Flag that determines if pruning of old data is enabled.";
+        public static final String LOCAL_SNAPSHOTS_PRUNING_DELAY = "Only prune data that precedes the local snapshot by n milestones.";
+        public static final String LOCAL_SNAPSHOTS_INTERVAL_SYNCED = "Take local snapshots every n milestones if the node is fully synced.";
+        public static final String LOCAL_SNAPSHOTS_INTERVAL_UNSYNCED = "Take local snapshots every n milestones if the node is syncing.";
+        public static final String LOCAL_SNAPSHOTS_DEPTH = "Number of milestones to keep.";
+        public static final String LOCAL_SNAPSHOTS_BASE_PATH = "Path to the snapshot files (without file extensions).";
+        public static final String SNAPSHOT_TIME = "Epoch time of the last snapshot.";
+        public static final String SNAPSHOT_FILE = "Path of the file that contains the state of the ledger at the last snapshot.";
+        public static final String SNAPSHOT_SIGNATURE_FILE = "Path to the file that contains a signature for the snapshot file.";
+        public static final String MILESTONE_START_INDEX = "The start index of the milestones. This index is encoded in each milestone " +
                 "transaction by the coordinator.";
-        String NUMBER_OF_KEYS_IN_A_MILESTONE = "The depth of the Merkle tree which in turn determines the number of" +
+        public static final String NUMBER_OF_KEYS_IN_A_MILESTONE = "The depth of the Merkle tree which in turn determines the number of" +
                 "leaves (private keys) that the coordinator can use to sign a message.";
-        String PREVIOUS_EPOCH_SPENT_ADDRESSES_FILE = "The file that contains the list of all used addresses " +
+        public static final String PREVIOUS_EPOCH_SPENT_ADDRESSES_FILE = "The file that contains the list of all used addresses " +
                 "from previous epochs";
     }
 }
