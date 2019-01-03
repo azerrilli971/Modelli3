@@ -12,7 +12,11 @@ public interface IXIConfig extends Config {
      */
     String getIxiDir();
 
-    interface Descriptions {
-        String IXI_DIR = "The folder where ixi modules should be added for automatic discovery by IRI.";
+    abstract class Descriptions {
+        private Descriptions() {
+            throw new IllegalStateException("Utility class");
+        }
+
+        public static final String IXI_DIR = "The folder where ixi modules should be added for automatic discovery by IRI.";
     }
 }
