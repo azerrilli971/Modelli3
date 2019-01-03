@@ -490,7 +490,7 @@ public class RocksDBPersistenceProvider implements PersistenceProvider {
         obsoleteTagHandle = columnFamilyHandles.get(++i);
         tagHandle = columnFamilyHandles.get(++i);
 
-        for (; ++i < columnFamilyHandles.size(); ) {
+        while (++i < columnFamilyHandles.size()) {
             db.dropColumnFamily(columnFamilyHandles.get(i));
         }
     }
