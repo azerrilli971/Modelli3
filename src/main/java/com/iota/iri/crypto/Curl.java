@@ -12,7 +12,7 @@ import java.util.NoSuchElementException;
  * Curl belongs to the sponge function family.
  *
  */
-public class Curl implements Sponge {
+public class Curl extends Sponge {
 
     static final int NUMBER_OF_ROUNDSP81 = 81;
     static final int NUMBER_OF_ROUNDSP27 = 27;

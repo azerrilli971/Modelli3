@@ -14,7 +14,7 @@ import java.util.stream.IntStream;
  *
  * @see <a href="https://github.com/iotaledger/kerl/blob/master/IOTA-Kerl-spec.md">Kerl spec</a>
  */
-public final class Kerl implements Sponge {
+public final class Kerl extends Sponge {
 
     private static final int BIT_HASH_LENGTH = 384;
     static final int BYTE_HASH_LENGTH = BIT_HASH_LENGTH / 8; //Package Private For Testing
