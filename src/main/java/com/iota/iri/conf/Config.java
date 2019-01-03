@@ -12,9 +12,11 @@ public interface Config  {
      */
     boolean isTestnet();
 
-    interface Descriptions {
+    abstract static class Descriptions {
+        private Descriptions() {
 
-        String TESTNET = "Start in testnet mode.";
+        }
+        public static final String TESTNET = "Start in testnet mode.";
     }
 
      class DescriptionHelper {
