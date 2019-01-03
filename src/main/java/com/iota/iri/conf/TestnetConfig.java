@@ -159,19 +159,25 @@ public class TestnetConfig extends BaseIotaConfig {
             super.setDbLogPath(dbLogPath);
     }
 
-    public interface Defaults {
-        String COORDINATOR_ADDRESS = "EQQFCZBIHRHWPXKMTOLMYUYPCN9XLMJPYZVFJSAY9FQHCCLWTOLLUGKKMXYFDBOOYFBLBI9WUEILGECYM";
-        boolean DONT_VALIDATE_MILESTONE_SIG = false;
-        String LOCAL_SNAPSHOTS_BASE_PATH = "testnet";
-        String SNAPSHOT_FILE = "/snapshotTestnet.txt";
-        int REQUEST_HASH_SIZE = 49;
-        String SNAPSHOT_SIG = "/snapshotTestnet.sig";
-        int SNAPSHOT_TIME = 1522306500;
-        int MWM = 9;
-        int MILESTONE_START_INDEX = 434525;
-        int KEYS_IN_MILESTONE = 22;
-        int PACKET_SIZE = 1653;
-        String DB_PATH = "testnetdb";
-        String DB_LOG_PATH = "testnetdb.log";
+    public abstract static class Defaults {
+
+        private  Defaults(){
+            super();
+        }
+
+
+        public static final String COORDINATOR_ADDRESS = "EQQFCZBIHRHWPXKMTOLMYUYPCN9XLMJPYZVFJSAY9FQHCCLWTOLLUGKKMXYFDBOOYFBLBI9WUEILGECYM";
+        public static final boolean DONT_VALIDATE_MILESTONE_SIG = false;
+        public static final String LOCAL_SNAPSHOTS_BASE_PATH = "testnet";
+        public static final String SNAPSHOT_FILE = "/snapshotTestnet.txt";
+        public static final int REQUEST_HASH_SIZE = 49;
+        public static final String SNAPSHOT_SIG = "/snapshotTestnet.sig";
+        public static final int SNAPSHOT_TIME = 1522306500;
+        public static final int MWM = 9;
+        public static final int MILESTONE_START_INDEX = 434525;
+        public static final int KEYS_IN_MILESTONE = 22;
+        public static final int PACKET_SIZE = 1653;
+        public static final String DB_PATH = "testnetdb";
+        public static final String DB_LOG_PATH = "testnetdb.log";
     }
 }
