@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 public class TransformingBoundedHashSet<E> extends BoundedHashSet<E>{
 
-    private final UnaryOperator<E> transformer;
+    private final transient UnaryOperator<E> transformer;
 
     public TransformingBoundedHashSet(int maxSize, UnaryOperator<E> transformer) {
         super(maxSize);
