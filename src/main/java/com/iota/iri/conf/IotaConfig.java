@@ -9,9 +9,11 @@ import java.io.File;
  *  A container for all possible configuration parameters of IRI.
  *  In charge of how we parse the configuration from given inputs.
  */
-public interface IotaConfig extends APIConfig, NodeConfig,
-        IXIConfig, DbConfig, ConsensusConfig, ZMQConfig, TipSelConfig, PearlDiverConfig {
-    File CONFIG_FILE = new File("iota.ini");
+public abstract class IotaConfig implements APIConfig, NodeConfig, IXIConfig, DbConfig, ConsensusConfig, ZMQConfig, TipSelConfig, PearlDiverConfig {
+    public IotaConfig(){
+
+    }
+    public static final File CONFIG_FILE = new File("iota.ini");
 
     /**
      * Parses the args to populate the configuration object
@@ -20,7 +22,7 @@ public interface IotaConfig extends APIConfig, NodeConfig,
      * @return {@link JCommander} instance that was used for parsing. It contains metadata about the parsing.
      * @throws ParameterException if the parsing failed
      */
-    JCommander parseConfigFromArgs(String[] args);
+    public abstract JCommander parseConfigFromArgs(String[] args);
 
-    boolean isHelp();
+    public abstract boolean isHelp();
 }

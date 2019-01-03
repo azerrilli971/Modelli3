@@ -16,7 +16,7 @@ import java.util.List;
   Meaning that every field must have a getter that is prefixed with `get` unless it is a boolean and then it should be
   prefixed with `is`.
  */
-public abstract class BaseIotaConfig implements IotaConfig {
+public abstract class BaseIotaConfig extends IotaConfig {
 
     protected static final String SPLIT_STRING_TO_LIST_REGEX = ",| ";
 
