@@ -13,7 +13,10 @@ public interface PearlDiverConfig extends Config {
     /**
     * Field descriptions
     */
-    interface Descriptions {
-        String POW_THREADS = "Number of threads to use for proof-of-work calculation";
+    abstract  class Descriptions {
+        private Descriptions(){
+            
+        }
+        public static final String POW_THREADS = "Number of threads to use for proof-of-work calculation";
     }
 }

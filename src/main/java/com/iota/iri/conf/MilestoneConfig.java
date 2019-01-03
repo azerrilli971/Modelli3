@@ -19,7 +19,7 @@ public interface MilestoneConfig extends Config {
 
     abstract  class Descriptions {
         private Descriptions(){
-            
+
         }
         public static final String COORDINATOR = "The address of the coordinator";
         public static final String DONT_VALIDATE_TESTNET_MILESTONE_SIG = "Disable coordinator validation on testnet";
