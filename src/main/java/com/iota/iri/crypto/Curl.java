@@ -53,7 +53,8 @@ public class Curl implements Sponge {
             System.arraycopy(trits, offset, state, 0, length < HASH_LENGTH ? length : HASH_LENGTH);
             transform();
             offset += HASH_LENGTH;
-        } while ((length -= HASH_LENGTH) > 0);
+            length -= HASH_LENGTH;
+        } while ((length) > 0);
     }
 
     @Override
@@ -63,7 +64,8 @@ public class Curl implements Sponge {
             System.arraycopy(state, 0, trits, offset, length < HASH_LENGTH ? length : HASH_LENGTH);
             transform();
             offset += HASH_LENGTH;
-        } while ((length -= HASH_LENGTH) > 0);
+            length -= HASH_LENGTH;
+        } while ((length) > 0);
     }
 
     /**
