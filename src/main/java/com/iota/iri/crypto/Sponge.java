@@ -12,8 +12,13 @@ package com.iota.iri.crypto;
  * </pre>
  *
  */
-public interface Sponge {
-    int HASH_LENGTH = 243;
+public abstract class Sponge {
+
+     Sponge() {
+        super();
+    }
+
+    public static final int HASH_LENGTH = 243;
 
     /**
      * Absorbs {@code trits}, in chunks of {@value #HASH_LENGTH}.<br>
@@ -23,7 +28,7 @@ public interface Sponge {
      * @param offset starting position in trits array
      * @param length amount of trits to absorb, multiple of {@value #HASH_LENGTH}
      */
-    void absorb(final byte[] trits, int offset, int length);
+    public abstract void absorb(final byte[] trits, int offset, int length);
 
     /**
      * Squeezes {@code length} trits from the sponge, in chunks of {@value #HASH_LENGTH}.<br>
@@ -34,11 +39,11 @@ public interface Sponge {
      * @param offset starting position to write to in trits array
      * @param length amount of trits to squeeze, multiple of {@value #HASH_LENGTH}
      */
-    void squeeze(final byte[] trits, int offset, int length);
+    public abstract void squeeze(final byte[] trits, int offset, int length);
 
     /**
      * Resets the internal state of the sponge.<br>
      * Can be used to re-use a Sponge object.
      */
-    void reset();
+    public abstract void reset();
 }
