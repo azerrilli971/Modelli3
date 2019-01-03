@@ -221,9 +221,12 @@ class ReplicatorSinkProcessor implements Runnable {
 
 
         private String getString(String crc32String) {
+            StringBuilder app = new StringBuilder();
             while (crc32String.length() < CRC32_BYTES) {
-                crc32String = "0"+crc32String;
+                app.append("0");
+                app.append(crc32String);
             }
+            crc32String = app.toString();
             return crc32String;
         }
 
