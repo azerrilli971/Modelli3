@@ -253,7 +253,7 @@ class ReplicatorSourceProcessor implements Runnable {
     private String getString(CRC32 crc32) {
         String crc32String = Long.toHexString(crc32.getValue());
         while (crc32String.length() < ReplicatorSinkProcessor.CRC32_BYTES) {
-            crc32String = "0"+crc32String;
+            crc32String = String.format("0%s", crc32String);
         }
         return crc32String;
     }
