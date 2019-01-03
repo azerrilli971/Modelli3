@@ -36,13 +36,11 @@ public class ReplicatorSourcePool implements Runnable {
     @Override
     public void run() {
         ExecutorService pool;
-        ServerSocket server = null;
         pool = Executors.newFixedThreadPool(Replicator.NUM_THREADS);
         this.pool = pool;
-        try {
-            server = new ServerSocket(port);
-            if(log.isInfoEnabled()) {
-                log.info(String.format("TCP replicator is accepting connections on tcp port %s", server.getLocalPort()) );
+        try (ServerSocket server = new ServerSocket(port)) {
+            if (log.isInfoEnabled()) {
+                log.info(String.format("TCP replicator is accepting connections on tcp port %s", server.getLocalPort()));
             }
             while (!shutdown) {
                 tryAcceptingConnection(pool, server);
@@ -50,16 +48,8 @@ public class ReplicatorSourcePool implements Runnable {
             log.info("ReplicatorSinkPool shutting down");
         } catch (IOException e) {
             log.error("***** NETWORK ALERT ***** Cannot create server socket on port {}, {}", port, e.getMessage());
-        } finally {
-            if (server != null) {
-                try {
-                    server.close();
-                }
-                catch (Exception e) {
-                    // don't care.
-                }
-            }
         }
+        // don't care.
     }
 
     private void tryAcceptingConnection(ExecutorService pool, ServerSocket server) {
