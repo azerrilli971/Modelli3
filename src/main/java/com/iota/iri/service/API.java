@@ -900,15 +900,6 @@ public class API extends MilestoneTracker {
     private static long getEllapsedTimeGetTxToApprove() {
         return ellapsedTime_getTxToApprove;
     }
-    
-    /**
-     * Increases the current amount of time spent on sending transactions to approve
-     * 
-     * @param ellapsedTime the time to add, in milliseconds
-     */
-    private static void incEllapsedTimeGetTxToApprove(long ellapsedTime) {
-        ellapsedTime_getTxToApprove += ellapsedTime;
-    }
 
     /**
       * Tip selection which returns <tt>trunkTransaction</tt> and <tt>branchTransaction</tt>.
@@ -1404,9 +1395,11 @@ public class API extends MilestoneTracker {
      * @throws ValidationException If the <tt>tag</tt> is a {@link Hash#NULL_HASH}.
      */
     private String padTag(String tag) throws ValidationException {
-        while (tag.length() < HASH_SIZE) {
-            tag += Converter.TRYTE_ALPHABET.charAt(0);
+        StringBuilder tagBuilder = new StringBuilder(tag);
+        while (tagBuilder.length() < HASH_SIZE) {
+            tagBuilder.append(Converter.TRYTE_ALPHABET.charAt(0));
         }
+        tag = tagBuilder.toString();
         if (tag.equals(Hash.NULL_HASH.toString())) {
             throw new ValidationException("Invalid tag input");
         }
