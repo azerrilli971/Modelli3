@@ -13,7 +13,7 @@ import java.util.Set;
  */
 public class Hashes implements Persistable {
     private Set<Hash> set = new LinkedHashSet<>();
-    private static final byte delimiter = ",".getBytes()[0];
+    private static final byte DELIMITER = ",".getBytes()[0];
 
     //getter e setter per hash
     public Set<Hash> getSet() { return set;}
@@ -23,7 +23,7 @@ public class Hashes implements Persistable {
     public byte[] bytes() {
         return set.parallelStream()
                 .map(Hash::bytes)
-                .reduce((a,b) -> ArrayUtils.addAll(ArrayUtils.add(a, delimiter), b))
+                .reduce((a,b) -> ArrayUtils.addAll(ArrayUtils.add(a, DELIMITER), b))
                 .orElse(new byte[0]);
     }
 
