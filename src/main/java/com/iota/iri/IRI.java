@@ -126,7 +126,6 @@ public class IRI {
                 log.info("IOTA Node initialised correctly.");
             } catch (Exception e) {
                 log.error("Exception during IOTA node initialisation: ", e);
-                throw e;
             }
         }
 

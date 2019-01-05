@@ -47,9 +47,9 @@ public class Node {
     private final int reqHashSize;
 
 
-    private int BROADCAST_QUEUE_SIZE;
-    private int RECV_QUEUE_SIZE;
-    private int REPLY_QUEUE_SIZE;
+    private int broadcastQueueSize;
+    private int recvQueueSize;
+    private int replyQueueSize;
     private static final int PAUSE_BETWEEN_TRANSACTIONS = 1;
 
     private final AtomicBoolean shuttingDown = new AtomicBoolean(false);
@@ -80,7 +80,7 @@ public class Node {
     private static AtomicLong recentSeenBytesMissCount = new AtomicLong(0L);
     private static AtomicLong recentSeenBytesHitCount = new AtomicLong(0L);
 
-    private static long sendLimit = -1;
+    private long sendLimit = -1;
     private static AtomicLong sendPacketsCounter = new AtomicLong(0L);
     private static AtomicLong sendPacketsTimer = new AtomicLong(0L);
 
@@ -132,7 +132,7 @@ public class Node {
         //TODO ask Alon
         sendLimit = (long) ((configuration.getSendLimit() * 1000000) / (configuration.getTransactionPacketSize() * 8));
 
-        BROADCAST_QUEUE_SIZE = RECV_QUEUE_SIZE = REPLY_QUEUE_SIZE = configuration.getqSizeNode();
+        broadcastQueueSize = recvQueueSize = replyQueueSize = configuration.getqSizeNode();
         recentSeenBytes = new FIFOCache<>(configuration.getCacheSizeBytes(), configuration.getpDropCacheEntry());
 
         parseNeighborsConfig();
@@ -325,7 +325,6 @@ public class Node {
                     getTransactionRequester(receivedTransactionHash, neighbor, e);
                 } catch (final RuntimeException e) {
                     invalidTransactionVM(neighbor, e);
-                    break;
                 }
 
                 //Request bytes
@@ -376,7 +375,7 @@ public class Node {
             messageQ.publish("rntn %s %s", uriString, String.valueOf(maxPeersAllowed));
             if(log.isDebugEnabled()){
                 log.info("Refused non-tethered neighbor: " + uriString +
-                        " (max-peers = " + String.valueOf(maxPeersAllowed) + ")");
+                        " (max-peers = " + (maxPeersAllowed) + ")");
             }
 
         }
@@ -465,7 +464,7 @@ public class Node {
      */
     public void addReceivedDataToReceiveQueue(TransactionViewModel receivedTransactionViewModel, Neighbor neighbor) {
         receiveQueue.add(new ImmutablePair<>(receivedTransactionViewModel, neighbor));
-        if (receiveQueue.size() > RECV_QUEUE_SIZE) {
+        if (receiveQueue.size() > recvQueueSize) {
             receiveQueue.pollLast();
         }
 
@@ -476,7 +475,7 @@ public class Node {
      */
     public void addReceivedDataToReplyQueue(Hash requestedHash, Neighbor neighbor) {
         replyQueue.add(new ImmutablePair<>(requestedHash, neighbor));
-        if (replyQueue.size() > REPLY_QUEUE_SIZE) {
+        if (replyQueue.size() > replyQueueSize) {
             replyQueue.pollLast();
         }
     }
@@ -825,7 +824,7 @@ public class Node {
 
     public void broadcast(final TransactionViewModel transactionViewModel) {
         broadcastQueue.add(transactionViewModel);
-        if (broadcastQueue.size() > BROADCAST_QUEUE_SIZE) {
+        if (broadcastQueue.size() > broadcastQueueSize) {
             broadcastQueue.pollLast();
         }
     }

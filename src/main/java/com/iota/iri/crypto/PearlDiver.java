@@ -165,9 +165,12 @@ public class PearlDiver {
 
     private void inmask(byte[] transactionTrits, long[] midStateCopyLow, long[] midStateCopyHigh, long outMask) {
         for (int i = 0; i < CURL_HASH_LENGTH; i++) {
-            transactionTrits[TRANSACTION_LENGTH - CURL_HASH_LENGTH + i] =
-                (midStateCopyLow[i] & outMask) == 0 ? 1
-                    : (midStateCopyHigh[i] & outMask) == 0 ? (byte) -1 : (byte) 0;
+            if ((midStateCopyLow[i] & outMask) == 0) { transactionTrits[TRANSACTION_LENGTH - CURL_HASH_LENGTH + i] =
+                    1;
+            }
+            else { transactionTrits[TRANSACTION_LENGTH - CURL_HASH_LENGTH + i] =
+                    (midStateCopyHigh[i] & outMask) == 0 ? (byte) -1 : (byte) 0;
+            }
         }
     }
 

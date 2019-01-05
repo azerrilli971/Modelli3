@@ -24,8 +24,8 @@ public class TransactionRequester {
 
     public static final int MAX_TX_REQ_QUEUE_SIZE = 10000;
 
-    private static double P_REMOVE_REQUEST;
-    private static boolean initialized = false;
+    private double PRemoveRequest;
+    private boolean initialized = false;
     private final SecureRandom random = new SecureRandom();
 
     private final Object syncObj = new Object();
@@ -39,7 +39,7 @@ public class TransactionRequester {
     public void init(double pRemoveRequest) {
         if(!initialized) {
             initialized = true;
-            P_REMOVE_REQUEST = pRemoveRequest;
+            PRemoveRequest = pRemoveRequest;
         }
     }
 
@@ -138,7 +138,7 @@ public class TransactionRequester {
         }
 
         // randomly drop "non-milestone" transactions so we don't keep on asking for non-existent transactions forever
-        if(random.nextDouble() < P_REMOVE_REQUEST && !requestSet.equals(milestoneTransactionsToRequest)) {
+        if(random.nextDouble() < PRemoveRequest && !requestSet.equals(milestoneTransactionsToRequest)) {
             synchronized (syncObj) {
                 transactionsToRequest.remove(hash);
             }

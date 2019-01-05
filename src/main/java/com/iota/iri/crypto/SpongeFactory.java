@@ -5,7 +5,7 @@ package com.iota.iri.crypto;
  *
  * @see Mode
  */
-public abstract class SpongeFactory {
+public interface SpongeFactory {
     /**
      * Modes of sponge constructions.
      * Determines which hash function we will use

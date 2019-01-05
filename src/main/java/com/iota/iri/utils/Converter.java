@@ -332,7 +332,9 @@ public class Converter {
     public static byte[] trits(long[] low, long[] hi) {
         byte[] trits = new byte[low.length];
         for(int i = 0; i < trits.length; i++) {
-            trits[i] = low[i] == 0 ? 1 : hi[i] == 0 ? (byte) -1 : (byte) 0;
+            if (low[i] == 0) { trits[i] = 1;}
+            else { trits[i] = hi[i] == 0 ? (byte) -1 : (byte) 0;
+            }
         }
         return trits;
     }
@@ -340,7 +342,8 @@ public class Converter {
     public static byte[] trits(byte[] low, byte[] hi) {
         byte[] trits = new byte[low.length];
         for(int i = 0; i < trits.length; i++) {
-            trits[i] = low[i] == 0 ? 1 : hi[i] == 0 ? (byte) -1 : (byte) 0;
+            if (low[i] == 0) {trits[i] = 1;}
+            else { trits[i] = hi[i] == 0 ? (byte) -1 : (byte) 0; }
         }
         return trits;
     }

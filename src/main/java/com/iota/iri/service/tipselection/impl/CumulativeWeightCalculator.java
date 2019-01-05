@@ -58,22 +58,27 @@ public class CumulativeWeightCalculator implements RatingCalculator{
         stack.push(startTx);
         while (CollectionUtils.isNotEmpty(stack)) {
             Hash txHash = stack.peek();
-            if (!sortedTxs.contains(txHash)) {
-                Collection<Hash> appHashes = getTxDirectApproversHashes(txHash, txToDirectApprovers);
-                if (CollectionUtils.isNotEmpty(appHashes)) {
-                    Hash txApp = getAndRemoveApprover(appHashes);
-                    stack.push(txApp);
-                    continue;
-                }
-            }
-            else {
-                stack.pop();
-                continue;
-            }
+            if (someIf(sortedTxs, stack, txToDirectApprovers, txHash)) { continue; }
             sortedTxs.add(txHash);
         }
 
         return sortedTxs;
+    }
+
+    private boolean someIf(LinkedHashSet<Hash> sortedTxs, Deque<Hash> stack, Map<Hash, Collection<Hash>> txToDirectApprovers, Hash txHash) throws Exception {
+        if (!sortedTxs.contains(txHash)) {
+            Collection<Hash> appHashes = getTxDirectApproversHashes(txHash, txToDirectApprovers);
+            if (CollectionUtils.isNotEmpty(appHashes)) {
+                Hash txApp = getAndRemoveApprover(appHashes);
+                stack.push(txApp);
+                return true;
+            }
+        }
+        else {
+            stack.pop();
+            return true;
+        }
+        return false;
     }
 
     private Hash getAndRemoveApprover(Collection<Hash> appHashes) {

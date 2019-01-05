@@ -112,8 +112,8 @@ public class API extends MilestoneTracker {
     private final int maxBodyLength;
     private final boolean testNet;
 
-    private static final String overMaxErrorMessage = "Could not complete request";
-    private static final String invalidParams = "Invalid parameters";
+    private static final String OVER_MAX_ERROR_MESSAGE = "Could not complete request";
+    private static final String INVALID_PARAMS = "Invalid parameters";
     private static final String INVALID = "Invalid ";
     private static final String TRYTES = "trytes";
 
@@ -737,15 +737,10 @@ public class API extends MilestoneTracker {
             }
 
 
-            if (!txVM.isSolid()) {
-                state = false;
-                info = "tails are not solid (missing a referenced tx): " + transaction;
-                break;
-            } else if (BundleValidator.validate(instance.tangle, txVM.getHash()).isEmpty()) {
-                state = false;
-                info = "tails are not consistent (bundle is invalid): " + transaction;
-                break;
-            }
+            DoubleIf doubleIf = new DoubleIf(state, info, transaction, txVM).invoke();
+            if (doubleIf.is()) { break; }
+            state = doubleIf.isState();
+            info = doubleIf.getInfo();
         }
 
         // Transactions are valid, lets check ledger consistency
@@ -865,7 +860,7 @@ public class API extends MilestoneTracker {
             }
         }
         if (elements.size() > maxGetTrytes){
-            return ErrorResponse.create(overMaxErrorMessage);
+            return ErrorResponse.create(OVER_MAX_ERROR_MESSAGE);
         }
         return GetTrytesResponse.create(elements);
     }
@@ -890,7 +885,7 @@ public class API extends MilestoneTracker {
         counterGetTxToApprove++;
     }
 
-    private static long ellapsedTime_getTxToApprove = 0L;
+    private static long ellapsedTimeGetTxToApprove = 0L;
     
     /**
      * Can be 0 or more, and is set to 0 every 100 requests.
@@ -898,7 +893,7 @@ public class API extends MilestoneTracker {
      * @return The current amount of time spent on sending transactions to approve in milliseconds
      */
     private static long getEllapsedTimeGetTxToApprove() {
-        return ellapsedTime_getTxToApprove;
+        return ellapsedTimeGetTxToApprove;
     }
 
     /**
@@ -962,7 +957,7 @@ public class API extends MilestoneTracker {
      *     If the {@link #getCounterGetTxToApprove()} is a power of 100, a log is send and counters are reset.
      * </p>
      */
-    private void gatherStatisticsOnTipSelection() {
+    private static void gatherStatisticsOnTipSelection() {
         API.incCounterGetTxToApprove();
         if ((getCounterGetTxToApprove() % 100) == 0) {
             String sb = "Last 100 getTxToApprove consumed "
@@ -971,7 +966,7 @@ public class API extends MilestoneTracker {
             
             log.debug(sb);
             counterGetTxToApprove = 0;
-            ellapsedTime_getTxToApprove = 0L;
+            ellapsedTimeGetTxToApprove = 0L;
         }
     }
 
@@ -1315,7 +1310,7 @@ public class API extends MilestoneTracker {
         }
 
         if (!containsKey) {
-            throw new ValidationException(invalidParams);
+            throw new ValidationException(INVALID_PARAMS);
         }
 
         //Using multiple of these input fields returns the intersection of the values.
@@ -1332,7 +1327,7 @@ public class API extends MilestoneTracker {
             foundTransactions.retainAll(approveeTransactions);
         }
         if (foundTransactions.size() > maxFindTxs){
-            return ErrorResponse.create(overMaxErrorMessage);
+            return ErrorResponse.create(OVER_MAX_ERROR_MESSAGE);
         }
 
         final List<String> elements = foundTransactions.stream()
@@ -1539,7 +1534,7 @@ public class API extends MilestoneTracker {
                 .collect(Collectors.toList()), index);
     }
 
-    private static int counter_PoW = 0;
+    private static int counterPoW = 0;
     
     /**
      * Can be 0 or more, and is set to 0 every 100 requests.
@@ -1549,17 +1544,17 @@ public class API extends MilestoneTracker {
      *         Doesn't distinguish between remote and local proof of work.
      */
     public static int getCounterPoW() {
-        return counter_PoW;
+        return counterPoW;
     }
     
     /**
      * Increases the amount of times this node has done proof of work by one.
      */
     public static void incCounterPoW() {
-        API.counter_PoW++;
+        API.counterPoW++;
     }
 
-    private static long ellapsedTime_PoW = 0L;
+    private static long ellapsedTimePoW = 0L;
     
     /**
      * Can be 0 or more, and is set to 0 every 100 requests.
@@ -1568,7 +1563,7 @@ public class API extends MilestoneTracker {
      *         Doesn't distinguish between remote and local proof of work. 
      */
     public static long getEllapsedTimePoW() {
-        return ellapsedTime_PoW;
+        return ellapsedTimePoW;
     }
     
     /**
@@ -1577,7 +1572,7 @@ public class API extends MilestoneTracker {
      * @param ellapsedTime the time to add, in milliseconds.
      */
     public static void incEllapsedTimePoW(long ellapsedTime) {
-        ellapsedTime_PoW += ellapsedTime;
+        ellapsedTimePoW += ellapsedTime;
     }
 
     /**
@@ -1674,8 +1669,8 @@ public class API extends MilestoneTracker {
                                 + API.getEllapsedTimePoW() / 1000000000L 
                                 + " seconds processing time.";
                     log.info(sb);
-                    counter_PoW = 0;
-                    ellapsedTime_PoW = 0L;
+                    counterPoW = 0;
+                    ellapsedTimePoW = 0L;
                 }
             }
         }
@@ -1746,7 +1741,7 @@ public class API extends MilestoneTracker {
      */
     private void validateParamExists(Map<String, Object> request, String paramName) throws ValidationException {
         if (!request.containsKey(paramName)) {
-            throw new ValidationException(invalidParams);
+            throw new ValidationException(INVALID_PARAMS);
         }
     }
 
@@ -1767,7 +1762,7 @@ public class API extends MilestoneTracker {
         validateParamExists(request, paramName);
         final List<String> paramList = (List<String>) request.get(paramName);
         if (paramList.size() > maxRequestList) {
-            throw new ValidationException(overMaxErrorMessage);
+            throw new ValidationException(OVER_MAX_ERROR_MESSAGE);
         }
 
         if (size > 0) {
@@ -1928,5 +1923,48 @@ public class API extends MilestoneTracker {
         List<String> powResult = attachToTangleStatement(txToApprove.get(0), txToApprove.get(1), 9, transactions);
         broadcastTransactionsStatement(powResult);
         return AbstractResponse.createEmptyResponse();
+    }
+
+    private class DoubleIf {
+        private boolean myResult;
+        private boolean state;
+        private String info;
+        private Hash transaction;
+        private TransactionViewModel txVM;
+
+        public DoubleIf(boolean state, String info, Hash transaction, TransactionViewModel txVM) {
+            this.state = state;
+            this.info = info;
+            this.transaction = transaction;
+            this.txVM = txVM;
+        }
+
+        boolean is() {
+            return myResult;
+        }
+
+        public boolean isState() {
+            return state;
+        }
+
+        public String getInfo() {
+            return info;
+        }
+
+        public DoubleIf invoke() throws Exception {
+            if (!txVM.isSolid()) {
+                state = false;
+                info = "tails are not solid (missing a referenced tx): " + transaction;
+                myResult = true;
+                return this;
+            } else if (BundleValidator.validate(instance.tangle, txVM.getHash()).isEmpty()) {
+                state = false;
+                info = "tails are not consistent (bundle is invalid): " + transaction;
+                myResult = true;
+                return this;
+            }
+            myResult = false;
+            return this;
+        }
     }
 }

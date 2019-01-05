@@ -137,7 +137,7 @@ class ReplicatorSourceProcessor implements Runnable {
     }
 
     private void connects(InetSocketAddress inetSocketAddress, int maxPeersAllowed) throws IOException {
-        String hostAndPort = inetSocketAddress.getHostName() + ":" + String.valueOf(inetSocketAddress.getPort());
+        String hostAndPort = inetSocketAddress.getHostName() + ":" + (inetSocketAddress.getPort());
         nestedHost(inetSocketAddress, maxPeersAllowed, hostAndPort);
         connection.getInputStream().close();
         connection.shutdownInput();
@@ -213,7 +213,7 @@ class ReplicatorSourceProcessor implements Runnable {
                 + hostAndPort
                 + " (" + inetSocketAddress.getAddress().getHostAddress() + ") - closing connection";
             if (testnet && Neighbor.getNumPeers() >= maxPeersAllowed) {
-                sb = sb + (" (max-peers allowed is "+String.valueOf(maxPeersAllowed)+")");
+                sb = sb + (" (max-peers allowed is "+ (maxPeersAllowed)+")");
             }
             log.info(sb);
         }
