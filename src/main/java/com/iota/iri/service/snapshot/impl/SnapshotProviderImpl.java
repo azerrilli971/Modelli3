@@ -51,7 +51,7 @@ public class SnapshotProviderImpl implements SnapshotProvider {
      *       snapshot multiple times while creating their own version of the LocalSnapshotManager, we cache the instance
      *       here so they don't have to rebuild it from the scratch every time (massively speeds up the unit tests).
      */
-    private static SnapshotImpl builtinSnapshot = null;
+    private SnapshotImpl builtinSnapshot = null;
 
     /**
      * Holds Snapshot related configuration parameters.

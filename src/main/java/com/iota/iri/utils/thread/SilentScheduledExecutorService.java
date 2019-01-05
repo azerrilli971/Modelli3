@@ -93,7 +93,7 @@ public interface SilentScheduledExecutorService extends ScheduledExecutorService
      *         execution
      * @throws NullPointerException if the task is null
      */
-    Future<?> silentSubmit(Runnable task);
+    <T> Future<T> silentSubmit(Runnable task);
 
     /**
      * Does the same as {@link ScheduledExecutorService#submit(Runnable, Object)} but returns {@code null} instead of
