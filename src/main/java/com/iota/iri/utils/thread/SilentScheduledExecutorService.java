@@ -70,8 +70,9 @@ public interface SilentScheduledExecutorService extends ScheduledExecutorService
      *         an exception upon cancellation / {@code null} if the task cannot be scheduled for execution
      * @throws NullPointerException if command is null
      * @throws IllegalArgumentException if delay less than or equal to zero
+     * @return <V>
      */
-    ScheduledFuture<?> silentScheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit);
+    <V> ScheduledFuture<V> silentScheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit);
 
     /**
      * Does the same as {@link ScheduledExecutorService#submit(Callable)} but returns {@code null} instead of throwing a
