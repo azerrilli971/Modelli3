@@ -28,18 +28,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Class Node is the core class for handling IRI gossip protocol packets. 
- * Both TCP and UDP receivers will pass incoming packets to this class's object. 
- * It is also responsible for validating and storing the received transactions 
+ * Class Node is the core class for handling IRI gossip protocol packets.
+ * Both TCP and UDP receivers will pass incoming packets to this class's object.
+ * It is also responsible for validating and storing the received transactions
  * into the Tangle Database. <br>
- * 
- * The Gossip protocol is specific to IRI nodes and is used for spamming and requesting 
- * new transactions between IRI peers. Every message sent on Gossip protocol consists of two 
- * parts - the transaction in binary encoded format followed by a hash of another transaction to 
+ *
+ * The Gossip protocol is specific to IRI nodes and is used for spamming and requesting
+ * new transactions between IRI peers. Every message sent on Gossip protocol consists of two
+ * parts - the transaction in binary encoded format followed by a hash of another transaction to
  * be requested. The receiving entity will save the newly received transaction into
- * its own database and will respond with the received requested transaction - if 
- * available in its own storgage. 
- * 
+ * its own database and will respond with the received requested transaction - if
+ * available in its own storgage.
+ *
  */
 public class Node {
 
@@ -96,16 +96,16 @@ public class Node {
 
     /**
      * Constructs a Node class instance. The constructor is passed reference
-     * of several other instances. 
+     * of several other instances.
      *
      * @param tangle An instance of the Tangle storage interface
-     * @param transactionValidator makes sure transaction is not malformed. 
-     * @param transactionRequester Contains a set of transaction hashes to be requested from peers. 
+     * @param transactionValidator makes sure transaction is not malformed.
+     * @param transactionRequester Contains a set of transaction hashes to be requested from peers.
      * @param tipsViewModel Contains a hash of solid and non solid tips
      * @param milestoneTracker Tracks milestones issued from the coordinator
      * @param messageQ Responsible for publishing events on zeroMQ
-     * @param configuration Contains all the config. 
-     * 
+     * @param configuration Contains all the config.
+     *
      */
     public Node(final Tangle tangle, final TransactionValidator transactionValidator, final TransactionRequester transactionRequester, final TipsViewModel tipsViewModel, final MilestoneTracker milestoneTracker, final MessageQ messageQ, final NodeConfig configuration
     ) {
@@ -125,12 +125,12 @@ public class Node {
 
     /**
      * Intialize the operations by spawning all the worker threads.
-     * 
+     *
      */
     public void init() {
 
         //TODO ask Alon
-        sendLimit = (long) ((configuration.getSendLimit() * 1000000) / (configuration.getTransactionPacketSize() * 8));
+         sendLimit = (long) ((configuration.getSendLimit() * 1000000) / (configuration.getTransactionPacketSize() * 8));
 
         broadcastQueueSize = recvQueueSize = replyQueueSize = configuration.getqSizeNode();
         recentSeenBytes = new FIFOCache<>(configuration.getCacheSizeBytes(), configuration.getpDropCacheEntry());
@@ -148,9 +148,9 @@ public class Node {
 
     /**
      * Keeps the passed UDP DatagramSocket reference from {@link UDPReceiver}.
-     * This is currently only used in creating a new {@link UDPNeighbor}. 
-     * 
-     * @param {@link DatagramSocket} socket created by UDPReceiver 
+     * This is currently only used in creating a new {@link UDPNeighbor}.
+     *
+     * @param {@link DatagramSocket} socket created by UDPReceiver
      */
     public void setUDPSocket(final DatagramSocket socket) {
         this.udpSocket = socket;
@@ -158,8 +158,8 @@ public class Node {
 
     /**
      * Returns the stored UDP DatagramSocket reference from {@link UDPReceiver}.
-     * 
-     * @return {@link DatagramSocket} socket created by UDPReceiver 
+     *
+     * @return {@link DatagramSocket} socket created by UDPReceiver
      */
     public DatagramSocket getUdpSocket() {
         return udpSocket;
@@ -172,10 +172,10 @@ public class Node {
 
     /**
      * One of the problem of dynamic DNS is neighbor could reconnect and get assigned
-     * a new IP address. This thread periodically resovles the DNS to make sure 
+     * a new IP address. This thread periodically resovles the DNS to make sure
      * the IP is updated in the quickest possible manner. Doing it fast will increase
      * the detection of change - however will generate lot of unnecessary DNS outbound
-     * traffic - so a balance is sought between speed and resource utilization. 
+     * traffic - so a balance is sought between speed and resource utilization.
      *
      */
     private Runnable spawnNeighborDNSRefresherThread() {
@@ -253,10 +253,10 @@ public class Node {
 
     /**
      * Checks whether the passed DNS is an IP address in string form or a DNS
-     * hostname. 
+     * hostname.
      *
      * @return An IP address (decimal form) in string resolved from the given DNS
-     * 
+     *
      */
     private Optional<String> checkIp(final String dnsName) {
 
@@ -282,16 +282,16 @@ public class Node {
 
 
     /**
-     * First Entry point for receiving any incoming transactions from TCP/UDP Receivers. 
+     * First Entry point for receiving any incoming transactions from TCP/UDP Receivers.
      * At this point, the transport protocol (UDP/TCP) is irrelevant. We check if we have
-     * already received this packet by taking a hash of incoming payload and 
+     * already received this packet by taking a hash of incoming payload and
      * comparing it against a saved hash set. If the packet is new, we construct
      * a {@link TransactionViewModel} object from it and perform some basic validation
      * on the received transaction via  {@link TransactionValidator#runValidation}
-     * 
+     *
      * The packet is then added to  {@link *receiveQueue} for further processing.
      */
-     
+
     public void preProcessReceivedData(byte[] receivedData, SocketAddress senderAddress, String uriScheme) {
         Hash receivedTransactionHash = null;
 
@@ -302,50 +302,51 @@ public class Node {
         for (final Neighbor neighbor : getNeighbors()) {
             addressMatch = neighbor.matches(senderAddress);
 
-                neighbor.incAllTransactions();
-                if ( rnd.nextDouble() < pDropTransaction) {
-                    break;
-                }
-                try {
+            neighbor.incAllTransactions();
+            if ( rnd.nextDouble() < pDropTransaction) {
+                break;
+            }
+            try {
 
-                    //Transaction bytes
-                    ByteBuffer digest = getBytesDigest(receivedData);
+                //Transaction bytes
+                ByteBuffer digest = getBytesDigest(receivedData);
 
-                    //check if cached
-                    synchronized (recentSeenBytes) {
-                        cached = (receivedTransactionHash = recentSeenBytes.get(digest)) != null;
-                    }
-
-                    receivedTransactionHash = getIfTryCatch(receivedData, receivedTransactionHash, cached, neighbor, digest);
-
-                } catch (NoSuchAlgorithmException e) {
-                    String strErr = String.format("MessageDigest: %s", e);
-                    log.error(strErr);
-                } catch (final TransactionValidator.StaleTimestampException e) {
-                    getTransactionRequester(receivedTransactionHash, neighbor, e);
-                } catch (final RuntimeException e) {
-                    invalidTransactionVM(neighbor, e);
+                //check if cached
+                synchronized (recentSeenBytes) {
+                    cached = (receivedTransactionHash = recentSeenBytes.get(digest)) != null;
                 }
 
-                //Request bytes
+                receivedTransactionHash = getIfTryCatch(receivedData, receivedTransactionHash, cached, neighbor, digest);
 
-                //add request to reply queue (requestedHash, neighbor)
-                Hash requestedHash = HashFactory.TRANSACTION.create(receivedData, TransactionViewModel.SIZE, reqHashSize);
+            } catch (NoSuchAlgorithmException e) {
+                String strErr = String.format("MessageDigest: %s", e);
+                log.error(strErr);
+            } catch (final TransactionValidator.StaleTimestampException e) {
+                getTransactionRequester(receivedTransactionHash, neighbor, e);
+            } catch (final RuntimeException e) {
+                invalidTransactionVM(neighbor, e);
+
+            }
+
+            //Request bytes
+
+            //add request to reply queue (requestedHash, neighbor)
+            Hash requestedHash = HashFactory.TRANSACTION.create(receivedData, TransactionViewModel.SIZE, reqHashSize);
             requestedHash = getReceivedTransaction(receivedTransactionHash, requestedHash);
 
             addReceivedDataToReplyQueue(requestedHash, neighbor);
 
-                //recentSeenBytes statistics
+            //recentSeenBytes statistics
 
-                    long hitCount;
-                    long missCount;
-                    if (cached) {
-                        hitCount = recentSeenBytesHitCount.incrementAndGet();
-                        missCount = recentSeenBytesMissCount.get();
-                    } else {
-                        hitCount = recentSeenBytesHitCount.get();
-                        missCount = recentSeenBytesMissCount.incrementAndGet();
-                    }
+            long hitCount;
+            long missCount;
+            if (cached) {
+                hitCount = recentSeenBytesHitCount.incrementAndGet();
+                missCount = recentSeenBytesMissCount.get();
+            } else {
+                hitCount = recentSeenBytesHitCount.get();
+                missCount = recentSeenBytesMissCount.incrementAndGet();
+            }
             getGetInfoCount(hitCount, missCount);
 
 
@@ -375,7 +376,7 @@ public class Node {
             messageQ.publish("rntn %s %s", uriString, String.valueOf(maxPeersAllowed));
             if(log.isDebugEnabled()){
                 log.info("Refused non-tethered neighbor: " + uriString +
-                        " (max-peers = " + (maxPeersAllowed) + ")");
+                        " (max-peers = " + maxPeersAllowed + ")");
             }
 
         }
@@ -481,7 +482,7 @@ public class Node {
     }
 
     /**
-     * Picks up a transaction and neighbor pair from receive queue. Calls 
+     * Picks up a transaction and neighbor pair from receive queue. Calls
      * {@link *processReceivedData} on the pair.
      */
     public void processReceivedDataFromQueue() {
@@ -492,7 +493,7 @@ public class Node {
     }
 
     /**
-     * Picks up a transaction hash and neighbor pair from reply queue. Calls 
+     * Picks up a transaction hash and neighbor pair from reply queue. Calls
      * {@link *eplyToRequest} on the pair.
      */
     public void replyToRequestFromQueue() {
@@ -503,10 +504,10 @@ public class Node {
     }
 
     /**
-     * This is second step of incoming transaction processing. The newly received 
+     * This is second step of incoming transaction processing. The newly received
      * and validated transactions are stored in {@link *receiveQueue}. This function
-     * picks up these transaction and stores them into the {@link Tangle} Database. The 
-     * transaction is then added to the broadcast queue, to be fruther spammed to the neighbors. 
+     * picks up these transaction and stores them into the {@link Tangle} Database. The
+     * transaction is then added to the broadcast queue, to be fruther spammed to the neighbors.
      */
     public void processReceivedData(TransactionViewModel receivedTransactionViewModel, Neighbor neighbor) {
 
@@ -537,10 +538,10 @@ public class Node {
     }
 
     /**
-     * This is second step of incoming transaction processing. The newly received 
+     * This is second step of incoming transaction processing. The newly received
      * and validated transactions are stored in {@link *receiveQueue}. This function
-     * picks up these transaction and stores them into the {@link Tangle} Database. The 
-     * transaction is then added to the broadcast queue, to be fruther spammed to the neighbors. 
+     * picks up these transaction and stores them into the {@link Tangle} Database. The
+     * transaction is then added to the broadcast queue, to be fruther spammed to the neighbors.
      */
     public void replyToRequest(Hash requestedHash, Neighbor neighbor) {
 
@@ -621,15 +622,15 @@ public class Node {
     }
 
     /**
-     * Sends a Datagram to the neighbour. Also appends a random hash request 
+     * Sends a Datagram to the neighbour. Also appends a random hash request
      * to the outgoing packet. Note that this is only used for UDP handling. For TCP
      * the outgoing packets are sent by {@link *ReplicatorSinkProcessor}
-     * 
+     *
      * @param {@link DatagramPacket} sendingPacket the UDP payload buffer
-     * @param {@link TransactionViewModel} transactionViewModel which should be sent.  
-     * @praram {@link Neighbor} the neighbor where this should be sent. 
-     * 
-     */     
+     * @param {@link TransactionViewModel} transactionViewModel which should be sent.
+     * @praram {@link Neighbor} the neighbor where this should be sent.
+     *
+     */
     public void sendPacket(DatagramPacket sendingPacket, TransactionViewModel transactionViewModel, Neighbor neighbor) throws Exception {
 
         //limit amount of sends per second
@@ -640,7 +641,7 @@ public class Node {
             sendPacketsTimer.set(now);
         }
         if (sendLimit >= 0 && sendPacketsCounter.get() > sendLimit) {
-            
+
             return;
         }
 
@@ -658,11 +659,11 @@ public class Node {
 
 
     /**
-     * This thread picks up a new transaction from the broadcast queue and 
+     * This thread picks up a new transaction from the broadcast queue and
      * spams it to all of the neigbors. Sadly, this also includes the neigbor who
-     * originally sent us the transaction. This could be improved in future. 
-     * 
-     */    
+     * originally sent us the transaction. This could be improved in future.
+     *
+     */
     private Runnable spawnBroadcasterThread() {
         return () -> {
 
@@ -697,8 +698,8 @@ public class Node {
 
     /**
      * We send a tip request packet (transaction corresponding to the latest milestone)
-     * to all of our neighbors periodically. 
-     */    
+     * to all of our neighbors periodically.
+     */
     private Runnable spawnTipRequesterThread() {
         return () -> {
 
@@ -710,7 +711,7 @@ public class Node {
                     final TransactionViewModel transactionViewModel = TransactionViewModel.fromHash(tangle, milestoneTracker.getLatestMilestone());
                     System.arraycopy(transactionViewModel.getBytes(), 0, tipRequestingPacket.getData(), 0, TransactionViewModel.SIZE);
                     System.arraycopy(transactionViewModel.getHash().bytes(), 0, tipRequestingPacket.getData(), TransactionViewModel.SIZE,
-                           reqHashSize);
+                            reqHashSize);
 
 
                     neighbors.forEach(n -> n.send(tipRequestingPacket));
