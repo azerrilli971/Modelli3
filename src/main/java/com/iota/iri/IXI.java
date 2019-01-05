@@ -130,7 +130,7 @@ public class IXI {
     private void handlePathEvent(IxiEvent ixiEvent, Path changedPath) {
         switch(ixiEvent) {
             case CREATE_MODULE:
-                if (checkOs() == OsVariants.Unix) {
+                if (checkOs() == OsVariants.UNIX) {
                     watch(changedPath);
                     loadModule(changedPath);
                 }
@@ -161,7 +161,7 @@ public class IXI {
         if (os.startsWith("Windows")) {
             return OsVariants.Windows;
         } else {
-            return OsVariants.Unix;
+            return OsVariants.UNIX;
         }
     }
 
