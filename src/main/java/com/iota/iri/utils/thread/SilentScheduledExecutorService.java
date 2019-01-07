@@ -50,12 +50,12 @@ public interface SilentScheduledExecutorService extends ScheduledExecutorService
      * @param initialDelay the time to delay first execution
      * @param period the period between successive executions
      * @param unit the time unit of the initialDelay and period parameters
-     * @return a ScheduledFuture representing pending completion of the task, and whose {@code get()} method will throw
+     * @return  <T>a ScheduledFuture representing pending completion of the task, and whose {@code get()} method will throw
      *         an exception upon cancellation / {@code null} if the task cannot be scheduled for execution
      * @throws NullPointerException if command is null
      * @throws IllegalArgumentException if period less than or equal to zero
      */
-    ScheduledFuture<?> silentScheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit);
+     <T> ScheduledFuture<T> silentScheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit);
 
     /**
      * Does the same as

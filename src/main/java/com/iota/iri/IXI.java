@@ -159,7 +159,7 @@ public class IXI {
     private static OsVariants checkOs() {
         String os = System.getProperty("os.name");
         if (os.startsWith("Windows")) {
-            return OsVariants.Windows;
+            return OsVariants.WINDOWS;
         } else {
             return OsVariants.UNIX;
         }
